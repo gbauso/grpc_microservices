@@ -14,12 +14,6 @@ export class LoggerInterceptor implements Interceptor {
 
       this.logger.info(`Request for ${service}.${rpc} STARTED`, metadata);
 
-      ctx.service = {
-        type: 'unary',
-        name: service,
-        method: rpc,
-      };
-
       try {
         await next();
         this.logger.info(`Request for ${service}.${rpc} FINISHED`, metadata);

@@ -17,6 +17,8 @@ export class GrpcServer {
                     private autoDiscovery: AutoDiscovery,
                 @inject('Interceptor')
                     private loggerInterceptor: Interceptor,
+                @inject('MetricsInterceptor')
+                    private metricsInterceptor: Interceptor,
                 @inject('Logger')
                     private logger: Logger) {}
 
@@ -32,6 +34,7 @@ export class GrpcServer {
 
     const server = interceptors.serverProxy(grpcServer);
     server.use(this.loggerInterceptor.intercept);
+    server.use(this.metricsInterceptor.intercept);
 
     const service = this.nearbyCitiesService;
     server.addService(cityinformation.CityService.service,

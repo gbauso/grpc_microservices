@@ -8,8 +8,9 @@ import org.koin.core.inject
 import weather.di.openWeatherModule
 import weather.discovery.IRegisterService
 import weather.interceptors.LoggingInterceptor
+import weather.interceptors.MetricsInterceptor
 import weather.service.WeatherService
-import weather.util.ILogger
+import weather.util.logging.ILogger
 
 class WeatherServer constructor(
         private val port: Int
@@ -22,6 +23,7 @@ class WeatherServer constructor(
             .forPort(port)
             .addService(WeatherService())
             .intercept(LoggingInterceptor(logger))
+            .intercept(MetricsInterceptor())
             .build()
 
     fun start() {

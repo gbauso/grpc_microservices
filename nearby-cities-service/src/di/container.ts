@@ -10,6 +10,9 @@ import { ConsoleLogger } from '../util/logging/consoleLogger';
 import { NearbyCitiesService } from '../service/nearbycitiesService';
 import { Vault } from '../util/secret/vault';
 import { HashicorpVault } from '../util/secret/hashicorpVault';
+import { MetricsProvider } from '../util/metrics/metricsProvider';
+import { InfluxDBMetrics } from '../util/metrics/influxDb';
+import { MetricsInterceptor } from '../interceptors/metricsInterceptor';
 
 export class Container {
   constructor(container: DependencyContainer) {
@@ -31,6 +34,14 @@ export class Container {
 
     container.register<Vault>('Vault', {
       useClass: HashicorpVault,
+    });
+
+    container.register<MetricsProvider>('Metrics', {
+      useClass: InfluxDBMetrics,
+    });
+
+    container.register<Interceptor>('MetricsInterceptor', {
+      useClass: MetricsInterceptor,
     });
   }
 }

@@ -6,8 +6,10 @@ import weather.service.IWeatherProvider
 import org.fluentd.logger.FluentLogger
 import weather.discovery.IRegisterService
 import weather.discovery.RabbitMQRegister
-import weather.util.FluentdLogger
-import weather.util.ILogger
+import weather.util.logging.FluentdLogger
+import weather.util.logging.ILogger
+import weather.util.metrics.IMetricsProvider
+import weather.util.metrics.InfluxDbMetrics
 
 
 val openWeatherModule = module(override = true) {
@@ -18,4 +20,5 @@ val openWeatherModule = module(override = true) {
                          }
     single<ILogger> { FluentdLogger()}
     single<IRegisterService> {RabbitMQRegister()}
+    single<IMetricsProvider> {InfluxDbMetrics()}
 }
