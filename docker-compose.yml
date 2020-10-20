@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   api-gateway:
-    image: msexp/api-gateway
+    image: gbauso/api-gateway
     restart: always
     ports: 
       - 8081:80
@@ -18,7 +18,7 @@ services:
       - nearby-cities
       - discovery
   population:
-    image: msexp/population-service
+    image: gbauso/population-service
     restart: always
     ports: 
       - 5011:80
@@ -34,7 +34,7 @@ services:
     depends_on: 
       - rabbitmq
   discovery:
-    image: msexp/discovery-service
+    image: gbauso/discovery-service
     restart: always
     ports: 
       - 5010:80
@@ -52,7 +52,7 @@ services:
       - rabbitmq
       - etcd
   weather:
-    image: msexp/weather-service
+    image: gbauso/weather-service
     restart: always
     ports: 
       - 5012:80
@@ -70,7 +70,7 @@ services:
     depends_on: 
       - rabbitmq
   nearby-cities:
-    image: msexp/nearby-cities-service
+    image: gbauso/nearby-cities-service
     restart: always
     ports: 
       - 5013:80
@@ -83,9 +83,6 @@ services:
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - REGISTER_AS=nearby-cities
-      - LOGGER_PORT=24224
-      - VAULT_HOST=http://vault:8200
-      - BUS_URL=rabbitmq
     depends_on: 
       - rabbitmq
       - fluentd
@@ -124,34 +121,4 @@ services:
     ports:
       - 9200:9200
       - 5601:80
-  vault:
-    image: vault
-    environment:
-      VAULT_ADDR: http://localhost:8200
-      VAULT_API_ADDR: http://0.0.0.0:8200
-      VAULT_LOCAL_CONFIG: >-
-        {
-          "storage": {
-            "file": {
-              "path": "/var/vault/file"
-            }
-          },
-          "listener": {
-            "tcp": {
-              "address": "0.0.0.0:8200",
-              "tls_disable": true
-            }
-          },
-          "ui": true,
-          "max_lease_ttl": "8760h",
-          "default_lease_ttl": "8760h",
-          "disable_mlock": true
-        }
-    ports:
-      - 8200:8200
-    cap_add:
-      - IPC_LOCK
-    command: server & vault operator init
-    volumes: 
-      - ../infra/vault/data:/var/vault/file
 
