@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etcd-ui-deployment
+  labels:
+    app: etcd-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd-ui
+  template:
+    metadata:
+      labels:
+        app: etcd-ui
+    spec:
+      containers:
+      - name: e3w
+        image: jim3ma/etcdkeeper3
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "50m"
+            memory: "100Mi"
+          requests:
+            memory: "100Mi"
+        env:
+          - name: ETCD_ADDR
+            value: "etcd.infra"
+        securityContext:
+          privileged: true

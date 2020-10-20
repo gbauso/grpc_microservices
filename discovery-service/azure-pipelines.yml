@@ -1,0 +1,24 @@
+trigger:
+  branches:
+    include:
+    - develop
+    - master
+  paths: 
+    include:
+    - discovery-service/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  submodules: true
+- task: Docker@2
+  inputs:
+    containerRegistry: $(RegistryConnection)
+    repository: $(Repository)
+    command: 'buildAndPush'
+    Dockerfile: '**/discovery-service/Dockerfile'
+    tags: |
+      0.0.$(Build.BuildId)
+      latest

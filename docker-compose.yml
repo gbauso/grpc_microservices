@@ -1,0 +1,157 @@
+version: '3.4'
+
+services:
+  api-gateway:
+    image: msexp/api-gateway
+    restart: always
+    ports: 
+      - 8081:80
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+      - DiscoveryService__Url=discovery:80
+      - Logging__Host=fluentd
+      - Logging__Port=24224
+      - Logging__Tag=api-gateway
+    depends_on: 
+      - population
+      - weather
+      - nearby-cities
+      - discovery
+  population:
+    image: msexp/population-service
+    restart: always
+    ports: 
+      - 5011:80
+    environment: 
+      - PORT=80
+      - HOST=0.0.0.0
+      - SB_USER=admin
+      - SB_URL=rabbitmq
+      - SB_PWD=Secr3t
+      - SB_PORT=5672
+      - LOGGER_HOST=fluentd
+      - REGISTER_AS=population
+    depends_on: 
+      - rabbitmq
+  discovery:
+    image: msexp/discovery-service
+    restart: always
+    ports: 
+      - 5010:80
+    environment: 
+      - ServiceBus__Username=admin
+      - ServiceBus__Host=rabbitmq
+      - ServiceBus__Password=Secr3t
+      - ConnectionStrings__Etcd=http://etcd
+      - Grpc__Host=discovery
+      - Grpc__Port=80
+      - Logging__Host=fluentd
+      - Logging__Port=24224
+      - Logging__Tag=discovery
+    depends_on: 
+      - rabbitmq
+      - etcd
+  weather:
+    image: msexp/weather-service
+    restart: always
+    ports: 
+      - 5012:80
+    environment: 
+      - PORT=80
+      - HOST=0.0.0.0
+      - SB_USER=admin
+      - SB_URL=rabbitmq
+      - SB_PWD=Secr3t
+      - SB_PORT=5672
+      - OPENWEATHER_APP_ID=5e1faa4ff336e703c364487b3ec7f325
+      - REGISTER_AS=weather
+      - LOGGER_HOST=fluentd
+      - LOGGER_PORT=24224
+    depends_on: 
+      - rabbitmq
+  nearby-cities:
+    image: msexp/nearby-cities-service
+    restart: always
+    ports: 
+      - 5013:80
+    environment: 
+      - PORT=80
+      - HOST=0.0.0.0
+      - LOGGER_HOST=fluentd
+      - SB_USER=admin
+      - SB_URL=rabbitmq
+      - SB_PWD=Secr3t
+      - SB_PORT=5672
+      - REGISTER_AS=nearby-cities
+      - LOGGER_PORT=24224
+      - VAULT_HOST=http://vault:8200
+      - BUS_URL=rabbitmq
+    depends_on: 
+      - rabbitmq
+      - fluentd
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    restart: always
+    ports:
+      - 8080:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=Secr3t
+  etcd:
+    image: bitnami/etcd
+    restart: always
+    ports:
+      - 2379:2379
+      - 2380:2380
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+  fluentd:
+    image: fluentd
+    build: ./infra/fluentd
+    volumes:
+      - ./infra/fluentd/conf:/fluentd/etc
+    links:
+      - "elk"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    depends_on:
+      - elk
+  elk:
+    image: blacktop/elastic-stack:7.8
+    ports:
+      - 9200:9200
+      - 5601:80
+  vault:
+    image: vault
+    environment:
+      VAULT_ADDR: http://localhost:8200
+      VAULT_API_ADDR: http://0.0.0.0:8200
+      VAULT_LOCAL_CONFIG: >-
+        {
+          "storage": {
+            "file": {
+              "path": "/var/vault/file"
+            }
+          },
+          "listener": {
+            "tcp": {
+              "address": "0.0.0.0:8200",
+              "tls_disable": true
+            }
+          },
+          "ui": true,
+          "max_lease_ttl": "8760h",
+          "default_lease_ttl": "8760h",
+          "disable_mlock": true
+        }
+    ports:
+      - 8200:8200
+    cap_add:
+      - IPC_LOCK
+    command: server & vault operator init
+    volumes: 
+      - ../infra/vault/data:/var/vault/file
+

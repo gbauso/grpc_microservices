@@ -1,0 +1,15 @@
+[submodule "discovery-service/contract"]
+	path = discovery-service/contract
+	url = https://github.com/gbauso/contract
+[submodule "api-gateway/contract"]
+	path = api-gateway/contract
+	url = https://github.com/gbauso/contract
+[submodule "nearby-cities-service/contract"]
+	path = nearby-cities-service/contract
+	url = https://github.com/gbauso/contract
+[submodule "population-service/contract"]
+	path = population-service/contract
+	url = https://github.com/gbauso/contract
+[submodule "weather-service/contract"]
+	path = weather-service/contract
+	url = https://github.com/gbauso/contract

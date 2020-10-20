@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: api.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: api-gateway
+          servicePort: http

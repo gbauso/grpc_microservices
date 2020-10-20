@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: infra
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: rabbitmq.infra.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: rabbitmq
+          servicePort: http
+  - host: kibana.infra.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: elk
+          servicePort: kibana
+  - host: filebeat.infra.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: elk
+          servicePort: filebeat
+  - host: etcd.infra.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: etcd-ui
+          servicePort: internal

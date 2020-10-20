@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.11.4" />
+        <PackageReference Include="Grpc" Version="2.28.1" />
+        <PackageReference Include="Grpc.Net.ClientFactory" Version="2.28.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.28.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Protobuf Include="../../contract/cityinformation.proto" Link="Contract\cityinformation.proto" GrpcServices="Client" />
+        <Protobuf Include="../../contract/discovery.proto" Link="Contract\discovery.proto" GrpcServices="Client" />
+    </ItemGroup>
+</Project>
