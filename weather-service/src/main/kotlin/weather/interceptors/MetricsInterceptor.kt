@@ -1,16 +1,15 @@
 package weather.interceptors
 
 import io.grpc.*
-import weather.util.logging.ILogger
+import weather.util.metrics.IMetricsProvider
+import java.util.*
 
-class LoggingInterceptor(val logger: ILogger) : ServerInterceptor {
+class MetricsInterceptor(var metrics: IMetricsProvider) : ServerInterceptor {
 
     override fun <ReqT : Any?, RespT : Any?> interceptCall(call: ServerCall<ReqT, RespT>?, headers: Metadata?, next: ServerCallHandler<ReqT, RespT>?): ServerCall.Listener<ReqT>? {
-        val metadata = headers?.asMap()
-        logger.info(String.format("Request for %s STARTED", metadata?.get("rpc")),
-                metadata as MutableMap<String, Any>)
+        val current = Date()
 
-        return next?.startCall(LoggingForwardingServerCall(call, logger, headers), headers)
+        return next?.startCall(MetricsForwardingServerCall(call, metrics, current), headers)
     }
 }
 

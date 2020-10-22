@@ -11,19 +11,27 @@ import weather.interceptors.LoggingInterceptor
 import weather.interceptors.MetricsInterceptor
 import weather.service.WeatherService
 import weather.util.logging.ILogger
+import weather.util.metrics.IMetricsProvider
+import weather.util.metrics.ServerMetrics
+import weather.util.metrics.ServerMetricsCollector
+import java.util.*
+import kotlin.concurrent.schedule
+
 
 class WeatherServer constructor(
         private val port: Int
 ) : KoinComponent  {
 
     val logger: ILogger by inject()
+    val metricsProvider: IMetricsProvider by inject()
     val register: IRegisterService by inject()
+    val metricsCollector: ServerMetricsCollector by inject()
 
     val server: Server = ServerBuilder
             .forPort(port)
             .addService(WeatherService())
             .intercept(LoggingInterceptor(logger))
-            .intercept(MetricsInterceptor())
+            .intercept(MetricsInterceptor(metricsProvider))
             .build()
 
     fun start() {
@@ -37,6 +45,13 @@ class WeatherServer constructor(
                     logger.info("*** server shut down")
                 }
         )
+        Timer().schedule(2000) {
+            metricsProvider.collectServerMetrics(ServerMetrics(
+                    cpuUsage = metricsCollector.getCpuUsage(),
+                    memoryUsage = metricsCollector.getUsedMemory(),
+                    memoryFree = metricsCollector.getFreeMemory()
+            ))
+        }
     }
 
     private fun stop() {

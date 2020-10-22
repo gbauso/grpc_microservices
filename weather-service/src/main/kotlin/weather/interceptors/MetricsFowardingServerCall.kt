@@ -4,11 +4,9 @@ import io.grpc.ForwardingServerCall
 import io.grpc.Metadata
 import io.grpc.ServerCall
 import io.grpc.Status
-import weather.util.logging.ILogger
 import weather.util.metrics.CallMetrics
 import weather.util.metrics.IMetricsProvider
 import java.util.*
-import kotlin.collections.HashMap
 
 class MetricsForwardingServerCall<ReqT, RespT>(delegate: ServerCall<ReqT, RespT>?, private var metrics: IMetricsProvider, private var start: Date) : ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(delegate) {
     override fun close(status: Status?, trailers: Metadata?) {
