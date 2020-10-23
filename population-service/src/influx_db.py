@@ -11,7 +11,7 @@ class CallMetrics(object):
         self.elapsed_time = datetime.datetime.now() - request_start
 
 class ServerMetrics(object):
-    def __init__(self, memory_free, memory_usage, cpu_usage)
+    def __init__(self, memory_free, memory_usage, cpu_usage):
         self.memory_free = memory_free
         self.memory_usage = memory_usage
         self.cpu_usage = cpu_usage
