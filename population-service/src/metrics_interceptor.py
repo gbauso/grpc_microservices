@@ -52,10 +52,12 @@ class MetricsInterceptor(grpc.ServerInterceptor):
     def __call_wrapper(self, call_type, behavior, details, request_streaming, response_streaming):
         def new_behavior(request_or_iterator, servicer_context):
             try:
-                result_status = 'success'
+                result_status = grpc.StatusCode.OK
                 return behavior(request_or_iterator, servicer_context)
-            except:
-                result_status = 'error'
+            except grpc.RpcError as e:
+                result_status = e.__dict__['code']
+            except Exception:
+                result_status = grpc.StatusCode.UNKNOWN
             finally:
                 metrics = CallMetrics(details.method, call_type, result_status, self.request_start)
                 self.metrics_provider.collect_call_metrics(metrics)
