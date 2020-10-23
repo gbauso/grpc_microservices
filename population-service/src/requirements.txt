@@ -3,3 +3,4 @@ protobuf>=3.5.0.post1
 pika>=1.1.0
 qwikidata>=0.4.0
 fluent-logger>=0.9.6
+influxdb>=5.3.0

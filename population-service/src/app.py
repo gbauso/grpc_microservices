@@ -15,9 +15,12 @@ import inspect
 import os
 import autodiscovery
 
-import interceptor
-
+import logging_interceptor
 from logger import Logger
+
+import metrics_interceptor
+from influx_db import InfluxDb
+
 
 class CityService(cityinformation_pb2_grpc.CityService):
 
@@ -28,9 +31,12 @@ class CityService(cityinformation_pb2_grpc.CityService):
 
 def serve():
     logger = Logger.getInstance()
-    log_interceptor = interceptor.LoggingInterceptor(logger)
+    metrics = InfluxDb.getInstance()
+    log_interceptor = logging_interceptor.LoggingInterceptor(logger)
+    metric_interceptor = metrics_interceptor.MetricsInterceptor(metrics)
+
     discovery = autodiscovery.AutoDiscovery()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10), interceptors=(log_interceptor,))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10), interceptors=(log_interceptor,metric_interceptor))
     
     registerAutoDiscovery(server, CityService(), cityinformation_pb2_grpc, discovery)
     port = os.getenv('PORT', config.port)
