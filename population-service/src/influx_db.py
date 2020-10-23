@@ -10,6 +10,12 @@ class CallMetrics(object):
         self.status_code = status_code
         self.elapsed_time = datetime.datetime.now() - request_start
 
+class ServerMetrics(object):
+    def __init__(self, memory_free, memory_usage, cpu_usage)
+        self.memory_free = memory_free
+        self.memory_usage = memory_usage
+        self.cpu_usage = cpu_usage
+
 class InfluxDb(object):
 
     __instance = None
@@ -45,7 +51,7 @@ class InfluxDb(object):
         ]
         self.client.write_points(json_body)
 
-    def collect_server_metrics(self, metrics):
+    def collect_server_metrics(self, metrics: ServerMetrics):
         json_body = [
             {
                 "measurement": "perf",
