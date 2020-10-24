@@ -7,6 +7,7 @@ using DiscoveryService.Factory;
 using Healthcheck;
 using Grpc.Net.Client;
 using System.Threading.Tasks;
+using Grpc.Core;
 
 namespace DiscoveryService.HealthCheck
 {
@@ -80,9 +81,9 @@ namespace DiscoveryService.HealthCheck
             Task.WhenAll(etcdOperations).Wait();
         }
 
-        private bool IsServiceUp(GrpcChannel channel)
+        private bool IsServiceUp(Channel channel)
         {
-            var client = new Healthcheck.HealthCheckService.HealthCheckServiceClient(channel);
+            var client = new HealthCheckService.HealthCheckServiceClient(channel);
 
             try
             {

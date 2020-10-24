@@ -1,16 +1,13 @@
-﻿using System;
+﻿using Grpc.Core;
 using System.Collections.Generic;
-using System.Text;
-using Grpc.Core;
-using Grpc.Net.Client;
 
 namespace DiscoveryService.Factory
 {
     public class ChannelFactory
     {
-        private readonly IDictionary<string, GrpcChannel> _instances;
+        private readonly IDictionary<string, Channel> _instances = new Dictionary<string, Channel>();
 
-        public GrpcChannel GetChannel(string key)
+        public Channel GetChannel(string key)
         {
             if (_instances.ContainsKey(key))
             {
@@ -18,7 +15,7 @@ namespace DiscoveryService.Factory
             }
             else
             {
-                var channel = GrpcChannel.ForAddress($"{key}:80");
+                var channel = new Channel(key, ChannelCredentials.Insecure);
                 _instances[key] = channel;
                 return channel;
             }

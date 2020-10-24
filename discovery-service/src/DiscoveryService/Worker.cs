@@ -20,11 +20,15 @@ namespace DiscoveryService
         private Timer _timer;
         private readonly HealthChecker _healthChecker;
 
-        public Worker(IBusControl bus, GrpcServerFactory grpcServerFactory, ILogger<Worker> logger)
+        public Worker(IBusControl bus,
+                      GrpcServerFactory grpcServerFactory,
+                      ILogger<Worker> logger,
+                      HealthChecker healthChecker)
         {
             _busControl = bus;
             _logger = logger;
             _server = grpcServerFactory.GetServer();
+            _healthChecker = healthChecker;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

@@ -70,10 +70,21 @@ namespace DiscoveryService
                                     )
                                );
 
+                
+
                 await Task.WhenAll(tasks);
                 
                 _logger.LogInformation("Message Handling FINISHED", message);
             }
+
+            var servicesKeyValue = _EtcdClient.GetValue("Services").SplitIfNotEmpty().ToList();
+
+            if (!servicesKeyValue.Contains(message.Service))
+            {
+                servicesKeyValue.Add(message.Service);
+                await _EtcdClient.PutValueAsync(GetKeyValuePair("Services", servicesKeyValue));
+            }
+
         }
 
         private KeyValuePair<string, string> GetKeyValuePair(string key, ICollection<string> value)

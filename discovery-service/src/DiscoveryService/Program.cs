@@ -9,6 +9,8 @@ using MassTransit;
 using dotnet_etcd;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using DiscoveryService.Factory;
+using DiscoveryService.HealthCheck;
 
 namespace DiscoveryService
 {
@@ -28,6 +30,8 @@ namespace DiscoveryService
                     services.AddSingleton<DiscoveryGrpc>();
                     services.Configure<GrpcConfiguration>(hostContext.Configuration.GetSection("Grpc"));
                     services.AddSingleton<GrpcServerFactory>();
+                    services.AddSingleton<ChannelFactory>();
+                    services.AddSingleton<HealthChecker>();
                     services.AddHostedService<Worker>();
                     
                     services.AddLogging(logging =>
