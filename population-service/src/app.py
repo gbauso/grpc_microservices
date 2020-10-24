@@ -59,7 +59,7 @@ def serve():
 
     discovery = autodiscovery.AutoDiscovery()
     server = grpc.server(futures.ThreadPoolExecutor(
-        max_workers=10), interceptors=(log_interceptor, metric_interceptor))
+        max_workers=10), interceptors=(log_interceptor, metric_interceptor,))
 
     registerAutoDiscovery(server, CityService(),
                           cityinformation_pb2_grpc, discovery)
@@ -90,5 +90,5 @@ def collect_server_metrics():
 if __name__ == '__main__':
     logging.basicConfig()
     event = threading.Event()
-    ThreadJob(collect_server_metrics, event, 30)
+    ThreadJob(collect_server_metrics, event, 60).start()
     serve()

@@ -1,14 +1,14 @@
 import config
 import os
 from influxdb import InfluxDBClient
-import datetime
+from datetime import datetime
 
 class CallMetrics(object):
     def __init__(self, method, call_type, status_code, request_start):
         self.method = method
         self.call_type = call_type
         self.status_code = status_code
-        self.elapsed_time = datetime.datetime.now() - request_start
+        self.elapsed_time = datetime.now() - request_start
 
 class ServerMetrics(object):
     def __init__(self, memory_free, memory_usage, cpu_usage):
@@ -32,7 +32,9 @@ class InfluxDb(object):
         username = os.getenv('METRICS_USER', config.metrics['user'])
         password = os.getenv('METRICS_PASSWORD', config.metrics['password'])
         self.client = InfluxDBClient(
-            host=host, username=username, password=password, database='population')
+            host=host, username=username, password=password)
+        self.client.create_database('population_metrics')
+        self.client.switch_database('population_metrics')
 
     def collect_call_metrics(self, metrics: CallMetrics):
         json_body = [
@@ -42,10 +44,10 @@ class InfluxDb(object):
                     "method": metrics.method,
                     "callType": metrics.call_type
                 },
-                "time": datetime.datetime.now(),
+                "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                 "fields": {
-                    "status": metrics.status_code,
-                    "duration": metrics.elapsed_time
+                    "status": metrics.status_code.name,
+                    "duration": metrics.elapsed_time.microseconds / 1000
                 }
             }
         ]
@@ -58,7 +60,7 @@ class InfluxDb(object):
                 "tags": {
                     "hostname": "any"
                 },
-                "time": datetime.datetime.now(),
+                "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                 "fields": {
                     "memory_usage": metrics.memory_usage,
                     "memory_free": metrics.memory_free,
