@@ -8,13 +8,13 @@ using Healthcheck;
 using Grpc.Net.Client;
 using System.Threading.Tasks;
 
-namespace DiscoveryService.HealthChecker
+namespace DiscoveryService.HealthCheck
 {
     public class HealthChecker
     {
         private readonly EtcdClientWrap _etcdClient;
         private readonly ChannelFactory _channelFactory;
-        private const string SERVICE_KEYS = "Services";
+        private const string SERVICES_KEY = "Services";
 
         public HealthChecker(EtcdClientWrap etcdClient, ChannelFactory channelFactory)
         {
@@ -22,11 +22,11 @@ namespace DiscoveryService.HealthChecker
             _channelFactory = channelFactory;
         }
 
-        public async Task Handle()
+        public void Handle(object state)
         {
             // Get all services registered on ETCD
             var servicesRegistered = _etcdClient
-                                        .GetValue(SERVICE_KEYS)
+                                        .GetValue(SERVICES_KEY)
                                         .SplitIfNotEmpty()
                                         .ToList();
 
@@ -37,11 +37,12 @@ namespace DiscoveryService.HealthChecker
             }));
 
             // Get services to remove
-            var servicesToRemove = (await Task.WhenAll(serviceCheckTasks)).Where(i => !string.IsNullOrEmpty(i));
+            var servicesToRemove = Task.WhenAll(serviceCheckTasks).Result.Where(i => !string.IsNullOrEmpty(i));
 
             // Get new existent services (excluding ones aren't up)
             var existentServices = servicesRegistered.Except(servicesToRemove);
-            var etcdOperations = new List<Task>(Task.Run(() => _etcdClient.Put(SERVICE_KEYS, existentServices)));
+            List<Task> etcdOperations = new List<Task>();
+            etcdOperations.Add(Task.Run(() => _etcdClient.PutValueAsync(GetKeyValuePair(SERVICES_KEY, existentServices))));
 
             /* 
                Remove from ETCD all references from the "down" services
@@ -57,13 +58,13 @@ namespace DiscoveryService.HealthChecker
             foreach (var serviceToRemove in servicesToRemove)
             {
                 var removeServiceFromHandlers = _etcdClient
-                                                    .Get(serviceToRemove)
+                                                    .GetValue(serviceToRemove)
                                                     .SplitIfNotEmpty()
                                                     .Select(handler => Task.Run(() =>
                                                     {
-                                                        var services = _etcdClient.Get(handler).SplitIfNotEmpty();
+                                                        var services = _etcdClient.GetValue(handler).SplitIfNotEmpty();
                                                         services.Remove(serviceToRemove);
-                                                        _etcdClient.Put(handler, services);
+                                                        _etcdClient.PutValueAsync(GetKeyValuePair(handler, services));
                                                     }));
 
                 var removeServiceReference = Task.Run(() =>
@@ -71,16 +72,17 @@ namespace DiscoveryService.HealthChecker
                     _etcdClient.Delete(serviceToRemove);
                 });
 
+                etcdOperations.Add(removeServiceReference);
                 etcdOperations.AddRange(removeServiceFromHandlers);
 
             }
 
-            await Task.WhenAll(servicesList);
+            Task.WhenAll(etcdOperations).Wait();
         }
 
         private bool IsServiceUp(GrpcChannel channel)
         {
-            var client = new HealthCheckService.HealthCheckServiceClient(channel);
+            var client = new Healthcheck.HealthCheckService.HealthCheckServiceClient(channel);
 
             try
             {
@@ -91,6 +93,11 @@ namespace DiscoveryService.HealthChecker
             {
                 return false;
             }
+        }
+
+        private KeyValuePair<string, string> GetKeyValuePair(string key, IEnumerable<string> value)
+        {
+            return new KeyValuePair<string, string>(key, string.Join(";", value));
         }
     }
 }
