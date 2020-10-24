@@ -28,6 +28,7 @@ namespace DiscoveryService
             var message = context.Message;
             _logger.LogInformation("Message Handling STARTED {message}", message);
             
+            // Try to find if there's some 
             var handlerKeyValue = message.Handlers
                                 .Select(i => new { Key = i, Value = _EtcdClient.GetValue(i).SplitIfNotEmpty() })
                                 .ToList();
