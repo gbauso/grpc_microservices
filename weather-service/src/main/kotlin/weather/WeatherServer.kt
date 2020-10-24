@@ -45,7 +45,7 @@ class WeatherServer constructor(
                     logger.info("*** server shut down")
                 }
         )
-        Timer().schedule(2000) {
+        Timer().schedule(60000) {
             metricsProvider.collectServerMetrics(ServerMetrics(
                     cpuUsage = metricsCollector.getCpuUsage(),
                     memoryUsage = metricsCollector.getUsedMemory(),

@@ -62,7 +62,7 @@ dependencies {
   compile "org.koin:koin-core:$koin_version"
 
   compile "org.fluentd:fluent-logger:0.3.4"
-  compile 'org.influxdb:influxdb-java:2.20'
+  implementation 'org.influxdb:influxdb-java:2.10'
 }
 
 sourceSets {

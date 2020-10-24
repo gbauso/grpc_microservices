@@ -8,6 +8,11 @@ import org.koin.core.inject
 public class InfluxDbMetrics: IMetricsProvider, KoinComponent  {
     val client: InfluxDB by inject()
 
+    constructor() {
+        client.createDatabase("weather_metrics")
+        client.setDatabase("weather_metrics")
+    }
+
     override fun collectCallMetrics(metrics: CallMetrics) {
         with(client) {
             write(Point.measurement("call_data")
@@ -21,7 +26,7 @@ public class InfluxDbMetrics: IMetricsProvider, KoinComponent  {
 
     override fun collectServerMetrics(metrics: ServerMetrics) {
         with(client) {
-            write(Point.measurement("call_data")
+            write(Point.measurement("perf")
                     .addField("cpu_usage", metrics.cpuUsage)
                     .addField("memory_usage", metrics.memoryFree)
                     .addField("memory_free", metrics.memoryFree)
