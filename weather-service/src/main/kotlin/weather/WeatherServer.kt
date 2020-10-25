@@ -20,7 +20,7 @@ import kotlin.concurrent.schedule
 
 class WeatherServer constructor(
         private val port: Int
-) : KoinComponent  {
+) : KoinComponent {
 
     val logger: ILogger by inject()
     val metricsProvider: IMetricsProvider by inject()

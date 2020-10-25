@@ -1,36 +1,37 @@
 package weather.util.metrics
 
-import org.influxdb.InfluxDB
-import org.influxdb.dto.Point
+import com.influxdb.client.write.Point;
+import com.influxdb.client.InfluxDBClient
 import org.koin.core.KoinComponent
+import com.influxdb.client.domain.WritePrecision;
 import org.koin.core.inject
+import java.time.Instant
 
-public class InfluxDbMetrics: IMetricsProvider, KoinComponent  {
-    val client: InfluxDB by inject()
+public class InfluxDbMetrics : IMetricsProvider, KoinComponent {
+    val client: InfluxDBClient by inject()
+    val bucket = "metrics"
 
-    constructor() {
-        client.createDatabase("weather_metrics")
-        client.setDatabase("weather_metrics")
-    }
 
     override fun collectCallMetrics(metrics: CallMetrics) {
-        with(client) {
-            write(Point.measurement("call_data")
-                .tag("callType", metrics.callType)
-                .tag("method", metrics.method)
-                .addField("status", metrics.statusCode)
-                .addField("duration", metrics.responseTime)
-                .build())
+        with(client.writeApi) {
+            writePoint(Point.measurement("call_data")
+                    .addTag("callType", metrics.callType)
+                    .addTag("method", metrics.method)
+                    .addTag("service", "weather")
+                    .addField("status", metrics.statusCode)
+                    .addField("duration", metrics.responseTime)
+                    .time(Instant.now(), WritePrecision.NS))
         }
     }
 
     override fun collectServerMetrics(metrics: ServerMetrics) {
-        with(client) {
-            write(Point.measurement("perf")
+        with(client.writeApi) {
+            writePoint(Point.measurement("perf")
+                    .addTag("service", "weather")
                     .addField("cpu_usage", metrics.cpuUsage)
                     .addField("memory_usage", metrics.memoryFree)
                     .addField("memory_free", metrics.memoryFree)
-                    .build())
+                    .time(Instant.now(), WritePrecision.NS))
         }
     }
 }
