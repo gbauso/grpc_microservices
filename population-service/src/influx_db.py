@@ -1,7 +1,9 @@
 import config
 import os
 from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient as InfluxDBClientv2 
 from datetime import datetime
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 class CallMetrics(object):
     def __init__(self, method, call_type, status_code, request_start):
@@ -29,12 +31,22 @@ class InfluxDb(object):
 
     def __init__(self):
         host = os.getenv('METRICS_HOST', config.metrics['host'])
-        username = os.getenv('METRICS_USER', config.metrics['user'])
+        self.username = os.getenv('METRICS_USER', config.metrics['user'])
+        token= os.getenv("METRICS_TOKEN", None)
         password = os.getenv('METRICS_PASSWORD', config.metrics['password'])
-        self.client = InfluxDBClient(
-            host=host, username=username, password=password)
-        self.client.create_database('population_metrics')
-        self.client.switch_database('population_metrics')
+        if(token is None):
+            self.client = InfluxDBClient(
+                host=host, username=self.username, password=password, database="metrics")
+            self.write = self._writeV1
+        else:
+            self.client = InfluxDBClientv2(host, token)
+            self.write = self._writeV2
+    
+    def _writeV1(self, data):
+        self.client.write_points(data)
+
+    def _writeV2(self, data):
+        self.client.write_api(write_options=SYNCHRONOUS).write("metrics", self.username, data)
 
     def collect_call_metrics(self, metrics: CallMetrics):
         json_body = [
@@ -42,7 +54,9 @@ class InfluxDb(object):
                 "measurement": "call_data",
                 "tags": {
                     "method": metrics.method,
-                    "callType": metrics.call_type
+                    "call_type": metrics.call_type,
+                    "service": "population",
+                    "instance": os.getenv("HOSTNAME", "local")
                 },
                 "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                 "fields": {
@@ -51,14 +65,15 @@ class InfluxDb(object):
                 }
             }
         ]
-        self.client.write_points(json_body)
+        self.write(json_body)
 
     def collect_server_metrics(self, metrics: ServerMetrics):
         json_body = [
             {
                 "measurement": "perf",
                 "tags": {
-                    "hostname": "any"
+                    "service": "population",
+                    "instance": os.getenv("HOSTNAME", "local")
                 },
                 "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                 "fields": {
@@ -68,4 +83,4 @@ class InfluxDb(object):
                 }
             }
         ]
-        self.client.write_points(json_body)
+        self.write(json_body)

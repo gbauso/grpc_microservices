@@ -12,6 +12,6 @@ logger = dict(
 )
 metrics = dict(
     host= 'localhost',
-    user = '24224',
-    password = '24224'
+    user = 'admin',
+    password = 'supersecretpassword'
 )
