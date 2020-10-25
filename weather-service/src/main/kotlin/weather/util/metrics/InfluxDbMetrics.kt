@@ -18,6 +18,7 @@ public class InfluxDbMetrics : IMetricsProvider, KoinComponent {
                     .addTag("call_type", metrics.callType)
                     .addTag("method", metrics.method)
                     .addTag("service", "weather")
+                    .addTag("instance", System.getenv("HOSTNAME") ?: "local")
                     .addField("status", metrics.statusCode)
                     .addField("duration", metrics.responseTime)
                     .time(Instant.now(), WritePrecision.NS))
@@ -28,6 +29,7 @@ public class InfluxDbMetrics : IMetricsProvider, KoinComponent {
         with(client.writeApi) {
             writePoint(Point.measurement("perf")
                     .addTag("service", "weather")
+                    .addTag("instance", System.getenv("HOSTNAME") ?: "local")
                     .addField("memory_usage", metrics.memoryUsage)
                     .addField("memory_free", metrics.memoryFree)
                     .time(Instant.now(), WritePrecision.NS))
