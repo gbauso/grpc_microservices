@@ -1,39 +1,39 @@
 version: '3.4'
 
 services:
-  population:
-    build: ../population-service
-    image: population-service
-    restart: always
-    ports: 
-      - 5011:5011
-    environment: 
-      - PORT=5011
-      - HOST=0.0.0.0
-      - SB_USER=admin
-      - SB_URL=rabbitmq
-      - SB_PWD=Secr3t
-      - SB_PORT=5672
-      - REGISTER_AS=localhost
-      - LOGGER_HOST=fluentd
-    depends_on: 
-      - rabbitmq
-  discovery:
-    build: ../discovery-service
-    image: discovery-service
-    restart: always
-    ports: 
-      - 5010:80
-    environment: 
-      - ServiceBus__Username=admin
-      - ServiceBus__Host=rabbitmq
-      - ServiceBus__Password=Secr3t
-      - ConnectionStrings__Etcd=http://etcd
-      - Grpc__Host=discovery
-      - Grpc__Port=80
-    depends_on: 
-      - rabbitmq
-      - etcd
+  # population:
+  #   build: ../population-service
+  #   image: population-service
+  #   restart: always
+  #   ports: 
+  #     - 5011:5011
+  #   environment: 
+  #     - PORT=5011
+  #     - HOST=0.0.0.0
+  #     - SB_USER=admin
+  #     - SB_URL=rabbitmq
+  #     - SB_PWD=Secr3t
+  #     - SB_PORT=5672
+  #     - REGISTER_AS=localhost
+  #     - LOGGER_HOST=fluentd
+  #   depends_on: 
+  #     - rabbitmq
+  # discovery:
+  #   build: ../discovery-service
+  #   image: discovery-service
+  #   restart: always
+  #   ports: 
+  #     - 5010:80
+  #   environment: 
+  #     - ServiceBus__Username=admin
+  #     - ServiceBus__Host=rabbitmq
+  #     - ServiceBus__Password=Secr3t
+  #     - ConnectionStrings__Etcd=http://etcd
+  #     - Grpc__Host=discovery
+  #     - Grpc__Port=80
+  #   depends_on: 
+  #     - rabbitmq
+  #     - etcd
   weather:
     build: ../weather-service
     image: weather-service
@@ -41,6 +41,9 @@ services:
     ports: 
       - 5012:5012
     environment: 
+      - METRICS_HOST_URL=influxdb
+      - METRICS_USERNAME=admin
+      - METRICS_PASSWORD=supersecretpassword
       - PORT=5012
       - HOST=0.0.0.0
       - SB_USER=admin
@@ -49,27 +52,29 @@ services:
       - SB_PORT=5672
       - OPENWEATHER_APP_ID=5e1faa4ff336e703c364487b3ec7f325
       - REGISTER_AS=localhost
-      - LOGGER_HOST=fluentds
-    depends_on: 
-      - rabbitmq
-  nearby-cities:
-    build: ../nearby-cities-service
-    image: nearby-cities-service
-    restart: always
-    ports: 
-      - 5013:5013
-    environment: 
-      - PORT=5013
-      - HOST=0.0.0.0
       - LOGGER_HOST=fluentd
-      - SB_USER=admin
-      - SB_URL=rabbitmq
-      - SB_PWD=Secr3t
-      - SB_PORT=5672
-      - REGISTER_AS=localhost
+      - LOGGER_PORT=24224
     depends_on: 
       - rabbitmq
-      - fluentd
+      - influxdb
+  # nearby-cities:
+  #   build: ../nearby-cities-service
+  #   image: nearby-cities-service
+  #   restart: always
+  #   ports: 
+  #     - 5013:5013
+  #   environment: 
+  #     - PORT=5013
+  #     - HOST=0.0.0.0
+  #     - LOGGER_HOST=fluentd
+  #     - SB_USER=admin
+  #     - SB_URL=rabbitmq
+  #     - SB_PWD=Secr3t
+  #     - SB_PORT=5672
+  #     - REGISTER_AS=localhost
+  #   depends_on: 
+  #     - rabbitmq
+  #     - fluentd
   rabbitmq:
     image: rabbitmq:3.8-management-alpine
     restart: always
@@ -104,4 +109,21 @@ services:
     ports:
       - 9200:9200
       - 5601:80
-
+  influxdb:
+    image: influxdb:alpine
+    ports:
+      - 8086:8086
+    environment:
+      - INFLUX_DB=metrics
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=supersecretpassword
+      - INFLUXDB_USER=telegraf
+      - INFLUXDB_USER_PASSWORD=secretpassword
+  influxdbui:
+    image: sillydong/influxdb-ui
+    ports:
+      - 9091:80
+  grafana:
+    image: woahbase/alpine-grafana
+    ports:
+     - 3000:3000
