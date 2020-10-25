@@ -15,7 +15,7 @@ public class InfluxDbMetrics : IMetricsProvider, KoinComponent {
     override fun collectCallMetrics(metrics: CallMetrics) {
         with(client.writeApi) {
             writePoint(Point.measurement("call_data")
-                    .addTag("callType", metrics.callType)
+                    .addTag("call_type", metrics.callType)
                     .addTag("method", metrics.method)
                     .addTag("service", "weather")
                     .addField("status", metrics.statusCode)
@@ -28,8 +28,7 @@ public class InfluxDbMetrics : IMetricsProvider, KoinComponent {
         with(client.writeApi) {
             writePoint(Point.measurement("perf")
                     .addTag("service", "weather")
-                    .addField("cpu_usage", metrics.cpuUsage)
-                    .addField("memory_usage", metrics.memoryFree)
+                    .addField("memory_usage", metrics.memoryUsage)
                     .addField("memory_free", metrics.memoryFree)
                     .time(Instant.now(), WritePrecision.NS))
         }

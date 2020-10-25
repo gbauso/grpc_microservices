@@ -45,13 +45,7 @@ class WeatherServer constructor(
                     logger.info("*** server shut down")
                 }
         )
-        Timer().schedule(60000) {
-            metricsProvider.collectServerMetrics(ServerMetrics(
-                    cpuUsage = metricsCollector.getCpuUsage(),
-                    memoryUsage = metricsCollector.getUsedMemory(),
-                    memoryFree = metricsCollector.getFreeMemory()
-            ))
-        }
+        Timer().scheduleAtFixedRate(CollectServicerMetrics(metricsProvider, metricsCollector), 0L, 5000L)
     }
 
     private fun stop() {
@@ -63,6 +57,8 @@ class WeatherServer constructor(
     }
 }
 
+
+
 fun main() {
     startKoin {
         modules(openWeatherModule)
@@ -72,4 +68,13 @@ fun main() {
     val server = WeatherServer(port)
     server.start()
     server.blockUntilShutdown()
+}
+
+class CollectServicerMetrics(private var metricsProvider: IMetricsProvider,
+                             private var metricsCollector: ServerMetricsCollector) : TimerTask() {
+    override fun run() {
+        metricsProvider.collectServerMetrics(ServerMetrics(
+                memoryUsage = metricsCollector.getUsedMemory(),
+                memoryFree = metricsCollector.getFreeMemory()))
+    }
 }

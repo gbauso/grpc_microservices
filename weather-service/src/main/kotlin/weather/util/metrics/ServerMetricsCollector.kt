@@ -7,32 +7,13 @@ import java.util.*
 
 
 class ServerMetricsCollector {
+    private val memoryBean = ManagementFactory.getMemoryMXBean()
     private val osBean = ManagementFactory.getOperatingSystemMXBean()
+    val megaByte = 1024.0 * 1024.0
 
-    fun getCpuUsage() = invokeDouble(getMethod("getProcessCpuLoad"))
-    fun getFreeMemory() = invokeDouble(getMethod("getFreePhysicalMemorySize"))
-    fun getUsedMemory() = invokeDouble(getMethod("getTotalPhysicalMemorySize")) - getFreeMemory()
 
-    private fun getMethod(name: String): Optional<Method> {
-        return try {
-            val method: Method = osBean.javaClass.getDeclaredMethod(name).also {
-                it.isAccessible = true
-            }
-            Optional.of(method)
-        } catch (e: NoSuchMethodException) {
-            Optional.empty()
-        }
-    }
+    fun getCpuUsage() = osBean.systemLoadAverage
+    fun getFreeMemory() = ((memoryBean.nonHeapMemoryUsage.committed / megaByte) - getUsedMemory())
+    fun getUsedMemory() = memoryBean.nonHeapMemoryUsage.used / megaByte
 
-    private fun invokeDouble(method: Optional<Method>): Double {
-        return if (method.isPresent) {
-            try {
-                method.get().invoke(osBean) as Double
-            } catch (ite: IllegalAccessException) {
-                0.0
-            } catch (ite: InvocationTargetException) {
-                0.0
-            }
-        } else 0.0
-    }
 }
