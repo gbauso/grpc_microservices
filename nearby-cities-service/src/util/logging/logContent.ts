@@ -1,5 +1,5 @@
-export interface LogContent {
-    m: string,
-    level: string,
-    data?: any[],
+export type LogContent = {
+    m: string;
+    level: string;
+    data?: any[];
 }

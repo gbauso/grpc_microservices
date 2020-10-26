@@ -11,8 +11,9 @@ import { NearbyCitiesService } from '../service/nearbycitiesService';
 import { Vault } from '../util/secret/vault';
 import { HashicorpVault } from '../util/secret/hashicorpVault';
 import { MetricsProvider } from '../util/metrics/metricsProvider';
-import { InfluxDBMetrics } from '../util/metrics/influxDb';
+import InfluxDBMetrics from '../util/metrics/influxDb';
 import { MetricsInterceptor } from '../interceptors/metricsInterceptor';
+import InfluxDBV2Metrics from '../util/metrics/influxDbV2';
 
 export class Container {
   constructor(container: DependencyContainer) {
@@ -37,7 +38,7 @@ export class Container {
     });
 
     container.register<MetricsProvider>('Metrics', {
-      useClass: InfluxDBMetrics,
+      useClass: process.env.METRICS_TOKEN ? InfluxDBV2Metrics : InfluxDBMetrics,
     });
 
     container.register<Interceptor>('MetricsInterceptor', {

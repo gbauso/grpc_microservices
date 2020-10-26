@@ -17,5 +17,11 @@
       "token": "s.dnMzpkdGMVweGhDCe1vnRiWl",
       "host": "http://localhost:8200",
       "key": "b6qub2Ak0Hc2oLJQwnkXQo2fHU1SeKQ/Zp5Gz1HXNiU="
+    },
+    "metrics": {
+      "host": "localhost",
+      "username": "admin",
+      "password": "password123",
+      "database": "metrics"
     }
   }

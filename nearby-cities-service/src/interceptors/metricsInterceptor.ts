@@ -14,8 +14,7 @@ export class MetricsInterceptor implements Interceptor {
         const start = Date.now();
         const metadata = ctx.call.metadata._internal_repr;
 
-        const service = metadata.service?.get(0) || 'abc';
-        const rpc = metadata?.rpc?.get(0) || 'abc';
+        const rpc = metadata?.rpc?.get(0) || 'undefined';
 
         await next();
 
