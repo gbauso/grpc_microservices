@@ -13,17 +13,6 @@ export class HashicorpVault implements Vault {
       token: process.env.VAULT_TOKEN || config.vault.token,
       endpoint: process.env.VAULT_HOST || config.vault.host,
     });
-
-    this.unseal().then();
-  }
-
-  private async unseal() {
-    await this.vaultClient.unseal(
-      {
-        secret_shares: 1,
-        key: (process.env.VAULT_KEY || config.vault.key),
-      },
-    );
   }
 
   async getSecretValue<T>(key: string): Promise<T> {
