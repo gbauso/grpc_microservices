@@ -10,6 +10,8 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=Secr3t
+    networks:
+      - grpc
   etcd:
     image: bitnami/etcd
     restart: always
@@ -19,6 +21,8 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
       - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    networks:
+      - grpc
   fluentd:
     image: fluentd
     build: ./infra/fluentd
@@ -31,21 +35,36 @@ services:
       - "24224:24224/udp"
     depends_on:
       - elk
+    networks:
+      - grpc
   elk:
     image: blacktop/elastic-stack:7.8
     ports:
       - 9200:9200
       - 5601:80
+    networks:
+      - grpc
   influxdb:
     image: influxdb:1.7-alpine
     ports:
       - 8086:8086
     environment:
+      - INFLUX-DB=metrics
       - INFLUXDB_ADMIN_PASSWORD=password123
+    networks:
+      - grpc
+  influxdbui:
+    image: sillydong/influxdb-ui
+    ports:
+      - 9091:80
+    networks:
+      - grpc
   grafana:
     image: grafana/grafana:7.1.3
     ports:
       - 3000:3000
+    networks:
+      - grpc
   vault:
     image: vault
     environment:
@@ -73,6 +92,14 @@ services:
       - 8200:8200
     cap_add:
       - IPC_LOCK
-    command: server & vault operator init
+    command: 
+      - server
+      - sleep 90s
+      - printenv
     volumes: 
       - ./infra/vault/data:/var/vault/file
+    networks:
+      - grpc
+networks:
+  grpc:
+    driver: bridge

@@ -17,4 +17,4 @@ setInterval(async () => {
         memoryFree: (await os.mem.free()).freeMemMb,
         memoryUsage: (await os.mem.used()).usedMemMb
     })
-}, 3000)
+}, 30000)

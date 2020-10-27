@@ -18,11 +18,11 @@ export class AMPQDiscovery implements AutoDiscovery {
   private async connectToAmpq() {
     const credentials = await this.vault.getSecretValue(config.bus.secret);
 
-    const host = process.env.BUS_URL || config.bus.host;
+    const host = `${credentials.data.host}:${credentials.data.port}`;
     const connectionString = `amqp://${credentials.data.username}:${credentials.data.password}@${host}`;
     this.connection = await retry<rabbitmq.Connection>(
       async () => await rabbitmq.connect(connectionString),
-      { retries: 10 },
+      { retries: 3 },
     );
 
     return await this.connection.createConfirmChannel();

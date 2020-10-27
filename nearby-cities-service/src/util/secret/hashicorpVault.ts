@@ -26,10 +26,10 @@ export class HashicorpVault implements Vault {
     );
   }
 
-  async getSecretValue(key: string) {
-    return await retry<any>(async () => {
+  async getSecretValue<T>(key: string): Promise<T> {
+    return await retry<T>(async () => {
       const keyValue = await this.vaultClient.read(key);
       return keyValue.data;
-    }, { retries: 20 });
+    }, { retries: 3 });
   }
 }

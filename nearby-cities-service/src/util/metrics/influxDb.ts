@@ -15,7 +15,7 @@ export default class InfluxDBMetrics implements MetricsProvider {
             host: process.env.METRICS_HOSTNAME || config.metrics.host,
             username: process.env.METRICS_USERNAME || config.metrics.username,
             password: process.env.METRICS_USERNAME || config.metrics.username,
-            database: 'nearby_cities_metrics',
+            database: config.metrics.database,
         });
 
         this.metricsWritter = (data: IPoint) => client.writePoints([data]);
