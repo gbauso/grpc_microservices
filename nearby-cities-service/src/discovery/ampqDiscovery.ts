@@ -18,7 +18,7 @@ export class AMPQDiscovery implements AutoDiscovery {
   private async connectToAmpq() {
     const credentials = await this.vault.getSecretValue(config.bus.secret);
 
-    const host = `${credentials.data.host}:${credentials.data.port}`;
+    const host = process.env.DEBUG ? config.host : `${credentials.data.host}:${credentials.data.port}`;
     const connectionString = `amqp://${credentials.data.username}:${credentials.data.password}@${host}`;
     this.connection = await retry<rabbitmq.Connection>(
       async () => await rabbitmq.connect(connectionString),

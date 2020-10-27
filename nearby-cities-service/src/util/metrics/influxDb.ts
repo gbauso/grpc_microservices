@@ -14,7 +14,7 @@ export default class InfluxDBMetrics implements MetricsProvider {
         const client = new InfluxDB({
             host: process.env.METRICS_HOSTNAME || config.metrics.host,
             username: process.env.METRICS_USERNAME || config.metrics.username,
-            password: process.env.METRICS_USERNAME || config.metrics.username,
+            password: process.env.METRICS_PASSWORD || config.metrics.password,
             database: config.metrics.database,
         });
 
