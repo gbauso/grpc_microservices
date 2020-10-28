@@ -1,7 +1,7 @@
 import { AutoDiscovery } from './autodiscovery';
 import { Message } from './message';
 import { inject, singleton } from 'tsyringe';
-import { Vault } from '../util/secret/vault';
+import { Secret } from '../util/secret/secret';
 import config from '../../config.json';
 import * as rabbitmq from 'amqplib';
 import 'amqplib/callback_api';
@@ -9,17 +9,18 @@ import retry from 'async-retry';
 
 @singleton()
 export class AMPQDiscovery implements AutoDiscovery {
-  constructor(@inject('Vault') private vault: Vault) {}
+  constructor(@inject('Secret') private secret: Secret) {}
 
   private queue: string = 'discovery';
+  private secretName = "ServiceBus";
 
   private connection!: rabbitmq.Connection;
 
   private async connectToAmpq() {
-    const credentials = await this.vault.getSecretValue(config.bus.secret);
+    const credentials = await this.secret.getSecretValue(this.secretName);
 
-    const host = process.env.DEBUG ? config.host : `${credentials.data.host}:${credentials.data.port}`;
-    const connectionString = `amqp://${credentials.data.username}:${credentials.data.password}@${host}`;
+    const host = `${credentials.host}:${credentials.port}`;
+    const connectionString = `amqp://${credentials.username}:${credentials.password}@${host}`;
     this.connection = await retry<rabbitmq.Connection>(
       async () => await rabbitmq.connect(connectionString),
       { retries: 3 },

@@ -1,21 +1,18 @@
 import { MetricsProvider } from "./metricsProvider";
 import { CallMetrics } from "./callMetrics";
 import { InfluxDB, IPoint } from 'influx';
-import config from '../../../config.json';
 import { ServerMetrics } from "./serverMetrics";
-import { singleton } from "tsyringe";
 
-@singleton()
 export default class InfluxDBMetrics implements MetricsProvider {
 
     private metricsWritter: (data: IPoint) => Promise<void>
 
-    constructor() {
+    constructor(private crendentials: any) {
         const client = new InfluxDB({
-            host: process.env.METRICS_HOSTNAME || config.metrics.host,
-            username: process.env.METRICS_USERNAME || config.metrics.username,
-            password: process.env.METRICS_PASSWORD || config.metrics.password,
-            database: config.metrics.database,
+            host: crendentials.host,
+            username: crendentials.username,
+            password: crendentials.password,
+            database: crendentials.database,
         });
 
         this.metricsWritter = (data: IPoint) => client.writePoints([data]);

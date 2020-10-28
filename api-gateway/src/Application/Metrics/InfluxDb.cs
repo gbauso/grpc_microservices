@@ -1,17 +1,34 @@
 ﻿using InfluxDB.Client;
 using InfluxDB.Client.Writes;
+using Microsoft.Extensions.Options;
+using RestSharp.Extensions;
 using System;
+using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Application.Metrics
 {
     public class InfluxDb : IMetricsProvider
     {
-        private readonly InfluxDBClient _client;
+        private readonly Func<PointData, Task> _MetricsWritter;
 
-        public InfluxDb(InfluxDBClient client)
+        public InfluxDb(IOptions<MetricsConfiguration> metricsConfig)
         {
-            _client = client;
+            var configuration = metricsConfig.Value;
+            InfluxDBClient client;
+            if (configuration.Token.HasValue())
+            {
+                client = InfluxDBClientFactory.Create(configuration.Host,
+                                                      configuration.Token.ToCharArray());
+            }
+            else
+            {
+                client = InfluxDBClientFactory.Create(configuration.Host,
+                                                      configuration.Username,
+                                                      configuration.Password.ToCharArray());
+            }
+
+            _MetricsWritter = (data) => client.GetWriteApiAsync().WritePointAsync(data);
         }
 
         public Task CollectCallMetrics(CallData data)
@@ -24,7 +41,20 @@ namespace Application.Metrics
                       .Field("status", data.Status)
                       .Field("duration", data.Duration);
 
-            return _client.GetWriteApiAsync().WritePointAsync(point);
+            return _MetricsWritter(point);
+        }
+
+        public Task CollectServerMetrics(ServerData data)
+        {
+            var point = PointData.Measurement("perf")
+                      .Tag("service", data.Service)
+                      .Tag("instance", data.Instance)
+                      .Field("cpu_usage", data.CpuUsage)
+                      .Field("memory_usage", data.MemoryUsage)
+                      .Field("memory_free", data.MemoryFree);
+
+
+            return _MetricsWritter(point);
         }
     }
 }

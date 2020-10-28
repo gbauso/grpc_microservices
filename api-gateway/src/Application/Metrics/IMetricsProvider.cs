@@ -8,5 +8,6 @@ namespace Application.Metrics
     public interface IMetricsProvider
     {
         Task CollectCallMetrics(CallData data);
+        Task CollectServerMetrics(ServerData data);
     }
 }

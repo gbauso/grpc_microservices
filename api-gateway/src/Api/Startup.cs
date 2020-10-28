@@ -4,6 +4,7 @@ using Application;
 using Application.DiscoveryClient;
 using Application.Factory;
 using Application.GrpcClients;
+using Application.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -32,10 +33,13 @@ namespace Api
             });
 
             services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
+            services.Configure<MetricsConfiguration>(Configuration.GetSection("Metrics"));
 
             services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
             services.AddSingleton<ChannelFactory>();
             services.AddSingleton<ClientFactory>();
+
+            services.AddSingleton<IMetricsProvider, InfluxDb>();
 
             services.AddScoped<Operation>();
 

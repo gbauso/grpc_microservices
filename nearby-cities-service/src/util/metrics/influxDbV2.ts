@@ -11,13 +11,13 @@ export default class InfluxDBV2Metrics implements MetricsProvider {
 
   private metricsWriter: (data: Point) => void
 
-  constructor() {
-    const token = process.env.METRICS_TOKEN;
-    const username = process.env.METRICS_USERNAME || config.metrics.username;
-    const host = process.env.METRICS_HOSTNAME || config.metrics.host;
+  constructor(private crendentials: any) {
+    const token = crendentials.token;
+    const username = crendentials.username;
+    const host = crendentials.host;
 
     const client = new InfluxDB({ url: host, token: token });
-    const writeApi = client.getWriteApi(username, config.metrics.database);
+    const writeApi = client.getWriteApi(username, crendentials.database);
     this.metricsWriter = (data: Point) => writeApi.writePoint(data);
   }
 

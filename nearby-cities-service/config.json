@@ -2,10 +2,12 @@
     "host": "localhost",
     "port": 50053,
     "register_as": "localhost",
-    "bus": {
+    "servicebus": {
+      "vendor": "rabbitmq",
       "host": "localhost",
       "port": 5672,
-      "secret": "kv/data/rabbitmq"
+      "username": "admin",
+      "password": "Secr3t"
     },
     "logger": {
         "host": "localhost",

@@ -18,13 +18,16 @@ namespace Api
                 .ConfigureAppConfiguration((context, configBuilder) =>
                 {
                     configBuilder.AddEnvironmentVariables();
-                    configBuilder.AddJsonFile("appsettings.json", optional: true);
-
                     var configuration = configBuilder.Build();
-                    var options = new VaultOptions();
-                    configuration.Bind("VaultOptions", options);
 
-                    configuration = configBuilder.AddHashiCorpVault(configuration).Build();
+                    if (context.HostingEnvironment.IsDevelopment() || context.HostingEnvironment.IsProduction())
+                    {
+                        var options = new VaultOptions();
+                        configuration.Bind("VaultOptions", options);
+
+                        configuration = configBuilder.AddHashiCorpVault(configuration).Build();
+
+                    }
                     context.Configuration = configuration;
                 })
                 .ConfigureWebHostDefaults(webBuilder =>

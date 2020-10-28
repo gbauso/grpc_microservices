@@ -7,7 +7,7 @@ import { $enum } from "ts-enum-util";
 @singleton()
 export class MetricsInterceptor implements Interceptor {
 
-    constructor(@inject('Metrics') private metrics: MetricsProvider) { }
+    constructor(@inject('Metrics') private metrics: Promise<MetricsProvider>) { }
 
     intercept = async (ctx: any, next: any) => {
         
@@ -19,7 +19,7 @@ export class MetricsInterceptor implements Interceptor {
         await next();
 
         const responseTime = (Date.now() - start);
-        this.metrics.collectCallMetrics({
+        (await this.metrics).collectCallMetrics({
             responseTime: responseTime,
             statusCode: $enum(status).getKeys()[ctx.status.code].toString(),
             callType: 'unary',

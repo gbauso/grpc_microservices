@@ -8,12 +8,14 @@ import { LoggerInterceptor } from '../interceptors/loggerInterceptor';
 import { LegacyNearbyCitiesService } from '../service/legacyNearbycitiesService';
 import { ConsoleLogger } from '../util/logging/consoleLogger';
 import { NearbyCitiesService } from '../service/nearbycitiesService';
-import { Vault } from '../util/secret/vault';
+import { Secret } from '../util/secret/secret';
 import { HashicorpVault } from '../util/secret/hashicorpVault';
 import { MetricsProvider } from '../util/metrics/metricsProvider';
 import InfluxDBMetrics from '../util/metrics/influxDb';
 import { MetricsInterceptor } from '../interceptors/metricsInterceptor';
 import InfluxDBV2Metrics from '../util/metrics/influxDbV2';
+import { Configuration } from '../util/secret/configuration';
+import { InfluxDbFactory } from '../util/metrics/influxDbFactory';
 
 export class Container {
   constructor(container: DependencyContainer) {
@@ -33,12 +35,12 @@ export class Container {
       useClass: LegacyNearbyCitiesService,
     });
 
-    container.register<Vault>('Vault', {
-      useClass: HashicorpVault,
+    container.register<Secret>('Secret', {
+      useClass: process.env.DEBUG ? Configuration : HashicorpVault,
     });
 
-    container.register<MetricsProvider>('Metrics', {
-      useClass: process.env.METRICS_TOKEN ? InfluxDBV2Metrics : InfluxDBMetrics,
+    container.register<Promise<MetricsProvider>>('Metrics', {
+      useFactory: (container) => InfluxDbFactory.getInstance(container),
     });
 
     container.register<Interceptor>('MetricsInterceptor', {
