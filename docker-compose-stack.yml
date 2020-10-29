@@ -14,7 +14,6 @@ services:
       - grpc
   etcd:
     image: bitnami/etcd
-    restart: always
     ports:
       - 2379:2379
       - 2380:2380

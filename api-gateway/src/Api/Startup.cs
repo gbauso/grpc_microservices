@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System;
@@ -36,9 +37,12 @@ namespace Api
             });
 
             services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
-            services.AddSingleton((a) => {
-                var config = Configuration.GetValue<MetricsConfiguration>("Metrics") 
-                                ?? Newtonsoft.Json.JsonConvert.DeserializeObject<MetricsConfiguration>(
+            services.Configure<MetricsConfiguration>(Configuration.GetSection("Metrics"));
+            services.AddSingleton((provider) => {
+                var candidate = provider.GetService<IOptions<MetricsConfiguration>>()?.Value;
+                if (candidate.IsValid()) return candidate;
+
+                var config = Newtonsoft.Json.JsonConvert.DeserializeObject<MetricsConfiguration>(
                                     Configuration.GetValue<string>("Metrics")
                                     );
                 return config;
