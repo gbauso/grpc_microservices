@@ -12,9 +12,8 @@ namespace Application.Metrics
     {
         private readonly Func<PointData, Task> _MetricsWritter;
 
-        public InfluxDb(IOptions<MetricsConfiguration> metricsConfig)
+        public InfluxDb(MetricsConfiguration configuration)
         {
-            var configuration = metricsConfig.Value;
             InfluxDBClient client;
             if (configuration.Token.HasValue())
             {

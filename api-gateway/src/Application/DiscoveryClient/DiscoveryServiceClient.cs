@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discovery;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 using Microsoft.Extensions.Options;
 
 namespace Application.DiscoveryClient
@@ -17,7 +18,7 @@ namespace Application.DiscoveryClient
 
         public async Task<string[]> GetHandlers(string service)
         {
-            var client = new Discovery.DiscoveryService.DiscoveryServiceClient(_discoveryChannel);
+            var client = new Discovery.DiscoveryService.DiscoveryServiceClient(_discoveryChannel.Intercept());
             
             var request = new DiscoverySearchRequest { ServiceDefinition = service };
 

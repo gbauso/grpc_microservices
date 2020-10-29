@@ -25,6 +25,9 @@ namespace Api
                         var options = new VaultOptions();
                         configuration.Bind("VaultOptions", options);
 
+                        var seeder = new VaultSeeder();
+                        configuration.Bind("VaultSeeder", seeder);
+
                         configuration = configBuilder.AddHashiCorpVault(configuration).Build();
 
                     }

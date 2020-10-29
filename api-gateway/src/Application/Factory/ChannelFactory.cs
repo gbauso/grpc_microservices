@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.DiscoveryClient;
 using Application.Exceptions;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 
 namespace Application.Factory
 {
@@ -43,7 +44,7 @@ namespace Application.Factory
             foreach (var handler in handlers)
             {
                 if (!_instances.ContainsKey(handler))
-                    _instances[handler] = new Channel($"{handler}", ChannelCredentials.Insecure);
+                    _instances[handler] = new Channel(handler, ChannelCredentials.Insecure);
             }
         }
 

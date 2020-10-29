@@ -12,7 +12,7 @@ namespace Application.Metrics
         {
             _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             _freeRamCounter = new PerformanceCounter("Memory", "Available MBytes");
-            _usedRamCounter = new PerformanceCounter("Memory", "FreePhysicalMemory");
+            _usedRamCounter = new PerformanceCounter("Memory", "% Committed Bytes In Use");
         }
 
         public ServerData GetMetrics()
