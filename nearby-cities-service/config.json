@@ -3,7 +3,6 @@
     "port": 50053,
     "register_as": "localhost",
     "servicebus": {
-      "vendor": "rabbitmq",
       "host": "localhost",
       "port": 5672,
       "username": "admin",
@@ -21,9 +20,9 @@
       "key": "b6qub2Ak0Hc2oLJQwnkXQo2fHU1SeKQ/Zp5Gz1HXNiU="
     },
     "metrics": {
-      "host": "localhost",
-      "username": "admin",
-      "password": "password123",
+      "host": "http://localhost:8086",
+      "username": "grpc",
+      "token": "TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==",
       "database": "metrics"
     }
   }

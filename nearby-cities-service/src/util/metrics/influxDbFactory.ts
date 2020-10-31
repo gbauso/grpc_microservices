@@ -1,4 +1,3 @@
-import { singleton, inject, FactoryProvider } from 'tsyringe';
 import { Secret } from '../secret/secret';
 import InfluxDBV2Metrics from './influxDbV2';
 import InfluxDBMetrics from './influxDb';
