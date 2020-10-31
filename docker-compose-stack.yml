@@ -44,12 +44,9 @@ services:
     networks:
       - grpc
   influxdb:
-    image: influxdb:1.7-alpine
+    image: quay.io/influxdb/influxdb:2.0.0-rc
     ports:
       - 8086:8086
-    environment:
-      - INFLUX-DB=metrics
-      - INFLUXDB_ADMIN_PASSWORD=password123
     networks:
       - grpc
   influxdbui:

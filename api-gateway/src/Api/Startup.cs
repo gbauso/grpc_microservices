@@ -55,7 +55,7 @@ namespace Api
             services.AddSingleton<IMetricsProvider, InfluxDb>();
             services.AddSingleton<ServerMetricsCollector>();
 
-            services.AddSingleton<MetricsInterceptor>();
+            //services.AddSingleton<MetricsInterceptor>();
 
             services.AddScoped<Operation>();
 
@@ -104,16 +104,16 @@ namespace Api
                 endpoints.MapControllers();
             });
 
-            new Timer((state) =>
-            {
-                app.ApplicationServices
-                 .GetRequiredService<IMetricsProvider>()
-                 .CollectServerMetrics(app.ApplicationServices
-                                        .GetRequiredService<ServerMetricsCollector>()
-                                        .GetMetrics()
-                                    );
-            }
-            , null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            //new Timer((state) =>
+            //{
+            //    app.ApplicationServices
+            //     .GetRequiredService<IMetricsProvider>()
+            //     .CollectServerMetrics(app.ApplicationServices
+            //                            .GetRequiredService<ServerMetricsCollector>()
+            //                            .GetMetrics()
+            //                        );
+            //}
+            //, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
         }
 
     }

@@ -1,9 +1,10 @@
 import config
 import os
 from influxdb import InfluxDBClient
-from influxdb_client import InfluxDBClient as InfluxDBClientv2 
+from influxdb_client import InfluxDBClient as InfluxDBClientv2
 from datetime import datetime
 from influxdb_client.client.write_api import SYNCHRONOUS
+
 
 class CallMetrics(object):
     def __init__(self, method, call_type, status_code, request_start):
@@ -12,11 +13,13 @@ class CallMetrics(object):
         self.status_code = status_code
         self.elapsed_time = datetime.now() - request_start
 
+
 class ServerMetrics(object):
     def __init__(self, memory_free, memory_usage, cpu_usage):
         self.memory_free = memory_free
         self.memory_usage = memory_usage
         self.cpu_usage = cpu_usage
+
 
 class InfluxDb(object):
 
@@ -32,21 +35,13 @@ class InfluxDb(object):
     def __init__(self):
         host = os.getenv('METRICS_HOST', config.metrics['host'])
         self.username = os.getenv('METRICS_USER', config.metrics['user'])
-        token= os.getenv("METRICS_TOKEN", None)
-        password = os.getenv('METRICS_PASSWORD', config.metrics['password'])
-        if(token is None):
-            self.client = InfluxDBClient(
-                host=host, username=self.username, password=password, database="metrics")
-            self.write = self._writeV1
-        else:
-            self.client = InfluxDBClientv2(host, token)
-            self.write = self._writeV2
-    
-    def _writeV1(self, data):
-        self.client.write_points(data)
+        token = os.getenv("METRICS_TOKEN", None)
+        self.client = InfluxDBClientv2(host, token)
+        self.write = self._writeV2
 
     def _writeV2(self, data):
-        self.client.write_api(write_options=SYNCHRONOUS).write("metrics", self.username, data)
+        self.client.write_api(write_options=SYNCHRONOUS).write(
+            "metrics", self.username, data)
 
     def collect_call_metrics(self, metrics: CallMetrics):
         json_body = [
