@@ -35,7 +35,7 @@ class InfluxDb(object):
     def __init__(self):
         host = os.getenv('METRICS_HOST', config.metrics['host'])
         self.username = os.getenv('METRICS_USER', config.metrics['user'])
-        token = os.getenv("METRICS_TOKEN", None)
+        token = os.getenv("METRICS_TOKEN", config.metrics['token'])
         self.client = InfluxDBClientv2(host, token)
         self.write = self._writeV2
 

@@ -11,7 +11,7 @@ logger = dict(
     port = '24224'
 )
 metrics = dict(
-    host= 'localhost',
-    user = 'admin',
-    password = 'supersecretpassword'
+    host= 'http://localhost:8086',
+    user = 'grpc',
+    token = 'TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA=='
 )

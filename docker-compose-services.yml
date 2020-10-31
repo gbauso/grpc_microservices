@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   api-gateway:
-    build: ./api-gateway
+    image: msexp/api-gateway
     restart: always
     ports: 
       - 8081:80
@@ -20,68 +20,77 @@ services:
     networks:
       - grpc
   population:
-    build: ./population-service
+    image: msexp/population-service
     restart: always
     ports: 
-      - 5011:5011
+      - 5011:80
     environment: 
-      - PORT=5011
+      - PORT=80
       - HOST=0.0.0.0
       - SB_USER=admin
       - SB_URL=rabbitmq
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - LOGGER_HOST=fluentd
-      - REGISTER_AS=localhost
+      - REGISTER_AS=population
+      - METRICS_HOST=http://influxdb:8086
+      - METRICS_USER=grpc
+      - METRICS_TOKEN=TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==
     networks:
       - grpc
   discovery:
-    build: ./discovery-service
+    image: msexp/discovery-service
     restart: always
     ports: 
-      - 5010:5010
+      - 5010:80
     environment: 
       - ServiceBus__Username=admin
       - ServiceBus__Host=rabbitmq
       - ServiceBus__Password=Secr3t
       - ConnectionStrings__Etcd=http://etcd
       - Grpc__Host=discovery
-      - Grpc__Port=5010
+      - Grpc__Port=80
       - Logging__Host=fluentd
       - Logging__Port=24224
       - Logging__Tag=discovery
     networks:
       - grpc
   weather:
-    build: ./weather-service
+    image: msexp/weather-service
     restart: always
     ports: 
-      - 5012:5012
+      - 5012:80
     environment: 
-      - PORT=5012
+      - PORT=80
       - HOST=0.0.0.0
       - SB_USER=admin
       - SB_URL=rabbitmq
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - OPENWEATHER_APP_ID=5e1faa4ff336e703c364487b3ec7f325
-      - REGISTER_AS=localhost
+      - REGISTER_AS=weather
       - LOGGER_HOST=fluentd
       - LOGGER_PORT=24224
+      - METRICS_HOST=http://influxdb:8086
+      - METRICS_USER=grpc
+      - METRICS_TOKEN=TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==
     networks:
       - grpc
   nearby-cities:
-    build: ./nearby-cities-service
+    image: msexp/nearby-cities-service
     ports: 
-      - 5013:5013
+      - 5013:80
     environment: 
-      - PORT=5013
+      - PORT=80
       - HOST=0.0.0.0
       - LOGGER_HOST=fluentd
-      - REGISTER_AS=0.0.0.0
+      - REGISTER_AS=nearby-cities
       - LOGGER_PORT=24224
       - VAULT_HOST=http://vault:8200
       - VAULT_TOKEN=s.dnMzpkdGMVweGhDCe1vnRiWl
+      - METRICS_HOST=http://influxdb:8086
+      - METRICS_USER=grpc
+      - METRICS_TOKEN=TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==
     networks:
       - grpc
 networks:
