@@ -2,6 +2,7 @@
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using System;
+using System.Threading.Tasks;
 
 namespace Application.GrpcClients.Interceptors
 {
@@ -23,17 +24,17 @@ namespace Application.GrpcClients.Interceptors
             return new AsyncUnaryCall<TResponse>(
                 call.ResponseAsync.ContinueWith(task =>
                 {
-                    Handled(MethodType.Unary, context, call.GetStatus().StatusCode, requestStart);
+                    Handled(MethodType.Unary, context, call.GetStatus().StatusCode, requestStart).Wait();
                     return task.Result;
                 }),
                 call.ResponseHeadersAsync, call.GetStatus, call.GetTrailers, call.Dispose);
         }
 
         
-        private void Handled<TRequest, TResponse>(MethodType type, ClientInterceptorContext<TRequest, TResponse> context, StatusCode status, DateTime requestStart)
+        private Task Handled<TRequest, TResponse>(MethodType type, ClientInterceptorContext<TRequest, TResponse> context, StatusCode status, DateTime requestStart)
             where TRequest : class
             where TResponse : class
-            => _metricsProvider.CollectCallMetrics(new CallData {
+            =>  _metricsProvider.CollectCallMetrics(new CallData {
                 CallType = type.ToString(),
                 Duration = DateTime.UtcNow.Subtract(requestStart).TotalMilliseconds,
                 Method = context.Method.Name,

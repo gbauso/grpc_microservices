@@ -5,17 +5,13 @@ using Application.DiscoveryClient;
 using Application.Factory;
 using Application.GrpcClients;
 using Application.GrpcClients.Interceptors;
-using Application.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using System;
-using System.Threading;
 
 namespace Api
 {
@@ -37,25 +33,12 @@ namespace Api
             });
 
             services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
-            services.Configure<MetricsConfiguration>(Configuration.GetSection("Metrics"));
-            services.AddSingleton((provider) => {
-                var candidate = provider.GetService<IOptions<MetricsConfiguration>>()?.Value;
-                if (candidate.IsValid()) return candidate;
-
-                var config = Newtonsoft.Json.JsonConvert.DeserializeObject<MetricsConfiguration>(
-                                    Configuration.GetValue<string>("Metrics")
-                                    );
-                return config;
-            });
-
+            
             services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
             services.AddSingleton<ChannelFactory>();
             services.AddSingleton<ClientFactory>();
-
-            services.AddSingleton<IMetricsProvider, InfluxDb>();
-            services.AddSingleton<ServerMetricsCollector>();
-
-            //services.AddSingleton<MetricsInterceptor>();
+            
+            services.AddSingleton<MetricsInterceptor>();
 
             services.AddScoped<Operation>();
 
@@ -104,16 +87,7 @@ namespace Api
                 endpoints.MapControllers();
             });
 
-            //new Timer((state) =>
-            //{
-            //    app.ApplicationServices
-            //     .GetRequiredService<IMetricsProvider>()
-            //     .CollectServerMetrics(app.ApplicationServices
-            //                            .GetRequiredService<ServerMetricsCollector>()
-            //                            .GetMetrics()
-            //                        );
-            //}
-            //, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            
         }
 
     }

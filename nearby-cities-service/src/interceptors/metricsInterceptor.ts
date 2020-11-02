@@ -9,12 +9,12 @@ export class MetricsInterceptor implements Interceptor {
 
     constructor(@inject('Metrics') private metrics: Promise<MetricsProvider>) { }
 
-    intercept = async (ctx: any, next: any) => {
+    intercept = async (ctx: any, next: any, error: any) => {
         
         const start = Date.now();
         const metadata = ctx.call.metadata._internal_repr;
 
-        const rpc = metadata?.rpc?.get(0) || 'undefined';
+        const rpc = metadata?.rpc ? metadata.rpc[0] : 'undefined';
 
         await next();
 

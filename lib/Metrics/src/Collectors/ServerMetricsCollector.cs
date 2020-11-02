@@ -1,21 +1,25 @@
-﻿using System.Diagnostics;
+﻿using Metrics.Model;
+using Metrics.Providers;
+using System.Diagnostics;
 
 namespace Application.Metrics
 {
-    public class ServerMetricsCollector
+    internal class ServerMetricsCollector
     {
         private readonly PerformanceCounter _cpuCounter;
         private readonly PerformanceCounter _freeRamCounter;
         private readonly PerformanceCounter _usedRamCounter;
+        private readonly IMetricsProvider _metricsProvider;
 
-        public ServerMetricsCollector()
+        public ServerMetricsCollector(IMetricsProvider metricsProvider)
         {
             _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             _freeRamCounter = new PerformanceCounter("Memory", "Available MBytes");
             _usedRamCounter = new PerformanceCounter("Memory", "% Committed Bytes In Use");
+            _metricsProvider = metricsProvider;
         }
 
-        public ServerData GetMetrics()
+        private ServerData GetMetrics()
         {
             return new ServerData
             {
@@ -24,5 +28,11 @@ namespace Application.Metrics
                 MemoryUsage = _usedRamCounter.NextValue()
             };
         }
+
+        public void CollectServerMetrics(object? state)
+        {
+            _metricsProvider.CollectServerMetrics(GetMetrics());
+        }
+
     }
 }

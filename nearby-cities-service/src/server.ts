@@ -6,8 +6,7 @@ import { Logger } from './util/logging/logger';
 import { AutoDiscovery } from './discovery/autodiscovery';
 import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
-
-const interceptors = require('@echo-health/grpc-interceptors');
+import { serverProxy } from '@pionerlabs/grpc-interceptors';
 
 @injectable()
 export class GrpcServer {
@@ -28,19 +27,19 @@ export class GrpcServer {
 
     const cityinformation = ServiceDefinition.getCityInformation();
 
-    const grpcServer = new Server();
+    const grpcServer:any = new Server();
     grpcServer.bind(`${host}:${port}`, ServerCredentials.createInsecure());
 
 
-    const server = interceptors.serverProxy(grpcServer);
+    const server = serverProxy(grpcServer);
     server.use(this.loggerInterceptor.intercept);
     server.use(this.metricsInterceptor.intercept);
 
     const service = this.nearbyCitiesService;
     server.addService(cityinformation.CityService.service,
-      { getCityInformation: service.getCityInformation });
+      { GetCityInformation: service.getCityInformation });
 
-    this.autoDiscovery.registerAutoDiscovery(server.handlers, port).then();
+    this.autoDiscovery.registerAutoDiscovery(grpcServer.handlers, port).then();
 
     server.start();
 

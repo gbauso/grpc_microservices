@@ -6,11 +6,11 @@ import { Interceptor } from './interceptor';
 export class LoggerInterceptor implements Interceptor {
   constructor(@inject('Logger') private logger: Logger) { }
 
-    intercept = async (ctx: any, next: any) => {
+    intercept = async (ctx: any, next: any, error: any) => {
       const metadata = ctx.call.metadata._internal_repr;
 
-      const service = metadata.service?.get(0) || '';
-      const rpc = metadata?.rpc?.get(0) || '';
+      const service = metadata?.service ? metadata.service[0] : 'undefined';
+      const rpc = metadata?.rpc ? metadata.rpc[0] : 'undefined';
 
       this.logger.info(`Request for ${service}.${rpc} STARTED`, metadata);
 

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Metrics.Model;
 using System.Threading.Tasks;
 
-namespace Application.Metrics
+namespace Metrics.Providers
 {
     public interface IMetricsProvider
     {

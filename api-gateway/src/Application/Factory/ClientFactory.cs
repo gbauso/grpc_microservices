@@ -14,11 +14,14 @@ namespace Application.Factory
         private readonly IDictionary<Type, (string service, Type client)> _clients;
         private readonly IDictionary<(Type, Channel), ClientBase> _instances;
 
-        public ClientFactory()
+        private readonly MetricsInterceptor _MetricsInterceptor;
+
+        public ClientFactory(MetricsInterceptor metricsInterceptor)
         {
             _clients = new Dictionary<Type, (string service, Type client)>();
             _instances = new Dictionary<(Type, Channel), ClientBase>();
             Initialize();
+            _MetricsInterceptor = metricsInterceptor;
         }
 
         public (string service, Type client) GetClientInfo(Type response)
@@ -39,7 +42,7 @@ namespace Application.Factory
             }
             else
             {
-                var client = (ClientBase) Activator.CreateInstance(clientType, new object[] {channel });
+                var client = (ClientBase) Activator.CreateInstance(clientType, new object[] {channel.Intercept(_MetricsInterceptor) });
                 _instances[pair] = client;
                 return client;
             }

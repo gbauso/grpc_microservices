@@ -1,0 +1,6 @@
+C:\Users\eveli\Documents\poc\grpc_microservices\lib\bin\Debug\netcoreapp3.1\Metrics.deps.json
+C:\Users\eveli\Documents\poc\grpc_microservices\lib\bin\Debug\netcoreapp3.1\Metrics.dll
+C:\Users\eveli\Documents\poc\grpc_microservices\lib\obj\Debug\netcoreapp3.1\Metrics.csprojAssemblyReference.cache
+C:\Users\eveli\Documents\poc\grpc_microservices\lib\obj\Debug\netcoreapp3.1\Metrics.AssemblyInfoInputs.cache
+C:\Users\eveli\Documents\poc\grpc_microservices\lib\obj\Debug\netcoreapp3.1\Metrics.AssemblyInfo.cs
+C:\Users\eveli\Documents\poc\grpc_microservices\lib\obj\Debug\netcoreapp3.1\Metrics.csproj.CoreCompileInputs.cache

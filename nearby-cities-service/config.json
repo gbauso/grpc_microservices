@@ -22,7 +22,7 @@
     "metrics": {
       "host": "http://localhost:8086",
       "username": "grpc",
-      "token": "TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==",
+      "token": "dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==",
       "database": "metrics"
     }
   }

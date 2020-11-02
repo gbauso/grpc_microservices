@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Application.Metrics
+namespace Metrics.Model
 {
     public abstract class MetricsBase
     {
-        public string Service = "api-gateway";
+        public string Service { get; set; }
         public string Instance = Environment.GetEnvironmentVariable("HOSTNAME") ?? "local";
     }
 }

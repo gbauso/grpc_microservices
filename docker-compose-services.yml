@@ -1,99 +1,101 @@
-version: '3.4'
+version: '3.5'
 
 services:
-  api-gateway:
-    image: msexp/api-gateway
-    restart: always
-    ports: 
-      - 8081:80
-    environment: 
-      - ASPNETCORE_URLS=http://+:80
-      - DiscoveryService__Url=discovery:80
-      - Logging__Host=fluentd
-      - Logging__Port=24224
-      - Logging__Tag=api-gateway
-    depends_on: 
-      - population
-      - weather
-      - nearby-cities
-      - discovery
-    networks:
-      - grpc
+  # api-gateway:
+  #   image: msexp/api-gateway
+  #   restart: always
+  #   ports: 
+  #     - 8081:80
+  #   environment: 
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - DiscoveryService__Url=discovery:80
+  #     - Logging__Host=fluentd
+  #     - Logging__Port=24224
+  #     - Logging__Tag=api-gateway
+  #   depends_on: 
+  #     - population
+  #     - weather
+  #     - nearby-cities
+  #     - discovery
+  #   networks:
+  #     - grpc_
   population:
     image: msexp/population-service
     restart: always
     ports: 
-      - 5011:80
+      - 5011:5011
     environment: 
-      - PORT=80
+      - PORT=5011
       - HOST=0.0.0.0
       - SB_USER=admin
       - SB_URL=rabbitmq
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - LOGGER_HOST=fluentd
-      - REGISTER_AS=population
+      - REGISTER_AS=localhost
       - METRICS_HOST=http://influxdb:8086
       - METRICS_USER=grpc
-      - METRICS_TOKEN=TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==
+      - METRICS_TOKEN=dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==
     networks:
-      - grpc
+      - grpc_
   discovery:
     image: msexp/discovery-service
     restart: always
     ports: 
-      - 5010:80
+      - 5010:5010
     environment: 
       - ServiceBus__Username=admin
       - ServiceBus__Host=rabbitmq
       - ServiceBus__Password=Secr3t
       - ConnectionStrings__Etcd=http://etcd
       - Grpc__Host=discovery
-      - Grpc__Port=80
+      - Grpc__Port=5010
       - Logging__Host=fluentd
       - Logging__Port=24224
       - Logging__Tag=discovery
     networks:
-      - grpc
+      - grpc_
   weather:
     image: msexp/weather-service
     restart: always
     ports: 
-      - 5012:80
+      - 5012:5012
     environment: 
-      - PORT=80
+      - PORT=5012
+      - METRICS_HOST_URL=http://influxdb:8086
+      - METRICS_TOKEN=dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==
+      - METRICS_USERNAME=grpc
       - HOST=0.0.0.0
       - SB_USER=admin
-      - SB_URL=rabbitmq
+      - SB_HOST=rabbitmq
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - OPENWEATHER_APP_ID=5e1faa4ff336e703c364487b3ec7f325
-      - REGISTER_AS=weather
+      - REGISTER_AS=localhost
       - LOGGER_HOST=fluentd
       - LOGGER_PORT=24224
-      - METRICS_HOST=http://influxdb:8086
-      - METRICS_USER=grpc
-      - METRICS_TOKEN=TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==
     networks:
-      - grpc
-  nearby-cities:
-    image: msexp/nearby-cities-service
-    ports: 
-      - 5013:80
-    environment: 
-      - PORT=80
-      - HOST=0.0.0.0
-      - LOGGER_HOST=fluentd
-      - REGISTER_AS=nearby-cities
-      - LOGGER_PORT=24224
-      - VAULT_HOST=http://vault:8200
-      - VAULT_TOKEN=s.dnMzpkdGMVweGhDCe1vnRiWl
-      - METRICS_HOST=http://influxdb:8086
-      - METRICS_USER=grpc
-      - METRICS_TOKEN=TQE_eD9Hh2RQT41ESAAQKkwOtopjcGdn3mpPcT89DXP2ujSOwD8xlFmRMbva8Im8ZapGjaRtejfI6x-aTfqYgA==
-    networks:
-      - grpc
+      - grpc_
+  # nearby-cities:
+  #   image: msexp/nearby-cities-service
+  #   ports: 
+  #     - 5013:80
+  #   environment: 
+  #     - PORT=80
+  #     - HOST=0.0.0.0
+  #     - LOGGER_HOST=fluentd
+  #     - LOGGER_PORT=24224
+  #     - LOGGER_SYNC=true
+  #     - REGISTER_AS=nearby-cities
+  #     - VAULT_HOST=http://vault:8200
+  #     - VAULT_TOKEN=s.dnMzpkdGMVweGhDCe1vnRiWl
+  #     - METRICS_HOST=http://influxdb:8086
+  #     - METRICS_USER=grpc
+  #     - METRICS_TOKEN=dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==
+  #   networks:
+  #     - grpc_
 networks:
-  grpc:
-    driver: bridge
+  grpc_:
+    external: true
+    name: grpc_
 

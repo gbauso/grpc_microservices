@@ -9,12 +9,12 @@ new Container(container);
 
 container.resolve(GrpcServer).start();
 
-const metrics = container.resolve<Promise<MetricsProvider>>('Metrics');
+// const metrics = container.resolve<Promise<MetricsProvider>>('Metrics');
 
-setInterval(async () => {
-    (await metrics).collectServerMetrics({
-        cpuUsage: await os.cpu.usage(),
-        memoryFree: (await os.mem.free()).freeMemMb,
-        memoryUsage: (await os.mem.used()).usedMemMb
-    })
-}, 30000)
+// setInterval(async () => {
+//     (await metrics).collectServerMetrics({
+//         cpuUsage: await os.cpu.usage(),
+//         memoryFree: (await os.mem.free()).freeMemMb,
+//         memoryUsage: (await os.mem.used()).usedMemMb
+//     })
+// }, 30000)
