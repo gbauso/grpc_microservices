@@ -5,19 +5,27 @@ trigger:
     - master
   paths: 
     include:
-    - api-gateway/*
+    - lib/Metrics/*
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - checkout: self
-    submodules: true
-  - task: Docker@2
-    inputs:
-      containerRegistry: $(RegistryConnection)
-      repository: $(Repository)
-      Dockerfile: 'api-gateway/Dockerfile'
-      tags: |
-        0.0.$(Build.BuildId)
-        latest
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: 'lib/Metrics/src/Metrics.csproj'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: 'lib/Metrics/src/Metrics.csproj'
+    versioningScheme: 'byPrereleaseNumber'
+    majorVersion: '1'
+    minorVersion: '0'
+    patchVersion: '0'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'nuget'
