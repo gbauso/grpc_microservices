@@ -14,10 +14,14 @@ steps:
 - task: NuGetAuthenticate@0
   inputs:
     nuGetServiceConnections: 'nuget'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: 'lib/Metrics/src/Metrics.csproj'
 - task: NuGetCommand@2
   inputs:
     command: 'pack'
-    packagesToPack: 'lib/Metrics/src/*.csproj'
+    packagesToPack: 'lib/Metrics/src/Metrics.csproj'
     versioningScheme: 'byPrereleaseNumber'
     majorVersion: '1'
     minorVersion: '0'
