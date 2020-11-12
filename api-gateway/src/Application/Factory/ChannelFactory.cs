@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Application.DiscoveryClient;
 using Application.Exceptions;
 using Grpc.Core;
-using Grpc.Core.Interceptors;
 
 namespace Application.Factory
 {

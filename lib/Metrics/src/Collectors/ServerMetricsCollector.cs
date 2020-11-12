@@ -1,6 +1,7 @@
 ﻿using Metrics.Model;
 using Metrics.Providers;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Application.Metrics
 {
@@ -29,9 +30,9 @@ namespace Application.Metrics
             };
         }
 
-        public void CollectServerMetrics(object? state)
+        public async Task CollectServerMetrics(object? state)
         {
-            _metricsProvider.CollectServerMetrics(GetMetrics());
+            await _metricsProvider.CollectServerMetrics(GetMetrics());
         }
 
     }

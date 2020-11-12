@@ -5,6 +5,7 @@ using Application.DiscoveryClient;
 using Application.Factory;
 using Application.GrpcClients;
 using Application.GrpcClients.Interceptors;
+using Metrics.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +34,9 @@ namespace Api
             });
 
             services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
+
+            services.ConfigureMetrics(Configuration);
+            services.AddInfluxDb("api-gateway");
             
             services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
             services.AddSingleton<ChannelFactory>();
@@ -87,7 +91,7 @@ namespace Api
                 endpoints.MapControllers();
             });
 
-            
+            app.StartServerCollect(10);
         }
 
     }

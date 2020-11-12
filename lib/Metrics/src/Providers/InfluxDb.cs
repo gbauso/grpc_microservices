@@ -7,7 +7,7 @@ using Metrics.Model;
 
 namespace Metrics.Providers
 {
-    public class InfluxDb : IMetricsProvider
+    internal class InfluxDb : IMetricsProvider
     {
         private readonly Func<PointData, Task> _MetricsWritter;
         private readonly string Service;

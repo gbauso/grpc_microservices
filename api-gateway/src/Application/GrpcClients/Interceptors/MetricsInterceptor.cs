@@ -1,7 +1,10 @@
-﻿using Application.Metrics;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
+using Metrics.Model;
+using Metrics.Providers;
 using System;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.GrpcClients.Interceptors
@@ -35,10 +38,22 @@ namespace Application.GrpcClients.Interceptors
             where TRequest : class
             where TResponse : class
             =>  _metricsProvider.CollectCallMetrics(new CallData {
-                CallType = type.ToString(),
+                CallType = type.ToString().ToLower(),
                 Duration = DateTime.UtcNow.Subtract(requestStart).TotalMilliseconds,
-                Method = context.Method.Name,
-                Status = status.ToString()
+                Method = GetMethod(context),
+                Status = status.ToString().ToLower()
             });
+
+        private string GetMethod<TRequest, TResponse>(ClientInterceptorContext<TRequest, TResponse> context)
+            where TRequest : class
+            where TResponse : class
+        {
+            var target = context.Options.Headers.FirstOrDefault(i => i.Key == "target").Value;
+            var method = new StringBuilder();
+            if (!string.IsNullOrEmpty(target)) method.Append($"{target}-");
+            method.Append(context.Method.Name);
+
+            return method.ToString();
+        }
     }
 } 

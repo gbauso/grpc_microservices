@@ -1,6 +1,6 @@
 ﻿namespace Metrics
 {
-    public class MetricsConfiguration
+    internal class MetricsConfiguration
     {
         public string Host { get; set; }
         public string Username { get; set; }

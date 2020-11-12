@@ -11,11 +11,11 @@ namespace Metrics.Extensions
 {
     public static class DependencyInjectionExtensions
     {
-        public static void AddConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static void ConfigureMetrics(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<MetricsConfiguration>(configuration.GetSection("Metrics"));
             services.AddSingleton((provider) => {
-                var candidate = provider.GetService<IOptions<MetricsConfiguration>>()?.Value;
+                var candidate = provider.GetRequiredService<IOptions<MetricsConfiguration>>()?.Value;
                 if (candidate.IsValid()) return candidate;
 
                 var config = Newtonsoft.Json.JsonConvert.DeserializeObject<MetricsConfiguration>(
@@ -33,10 +33,9 @@ namespace Metrics.Extensions
 
         public static void StartServerCollect(this IApplicationBuilder app, double seconds)
         {
-            new Timer((state) =>
+            new Timer(async (state) =>
             {
-                ((ServerMetricsCollector)app.ApplicationServices.GetService(typeof(ServerMetricsCollector)))
-                .CollectServerMetrics(state);
+                await app.ApplicationServices.GetRequiredService<ServerMetricsCollector>().CollectServerMetrics(state);
             }
             , null, TimeSpan.Zero, TimeSpan.FromSeconds(seconds));
         }
