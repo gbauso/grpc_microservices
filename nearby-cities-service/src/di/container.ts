@@ -11,11 +11,9 @@ import { NearbyCitiesService } from '../service/nearbycitiesService';
 import { Secret } from '../util/secret/secret';
 import { HashicorpVault } from '../util/secret/hashicorpVault';
 import { MetricsProvider } from '../util/metrics/metricsProvider';
-import InfluxDBMetrics from '../util/metrics/influxDb';
 import { MetricsInterceptor } from '../interceptors/metricsInterceptor';
-import InfluxDBV2Metrics from '../util/metrics/influxDbV2';
 import { Configuration } from '../util/secret/configuration';
-import { InfluxDbFactory } from '../util/metrics/influxDbFactory';
+import Prometheus from '../util/metrics/prometheus';
 
 export class Container {
   constructor(container: DependencyContainer) {
@@ -39,8 +37,8 @@ export class Container {
       useClass: process.env.DEBUG ? Configuration : HashicorpVault,
     });
 
-    container.register<Promise<MetricsProvider>>('Metrics', {
-      useFactory: (container) => InfluxDbFactory.getInstance(container),
+    container.register<MetricsProvider>('Metrics', {
+      useClass: Prometheus,
     });
 
     container.register<Interceptor>('MetricsInterceptor', {
