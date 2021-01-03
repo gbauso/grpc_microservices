@@ -12,8 +12,6 @@ import weather.interceptors.MetricsInterceptor
 import weather.service.WeatherService
 import weather.util.logging.ILogger
 import weather.util.metrics.IMetricsProvider
-import weather.util.metrics.ServerMetrics
-import weather.util.metrics.ServerMetricsCollector
 import java.util.*
 import kotlin.concurrent.schedule
 
