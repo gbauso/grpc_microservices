@@ -1,6 +1,5 @@
 from concurrent import futures
 import config
-import psutil
 
 import logging
 import config
@@ -21,7 +20,7 @@ import logging_interceptor
 from logger import Logger
 
 import metrics_interceptor
-from influx_db import InfluxDb, ServerMetrics
+from prometheus import Prometheus
 
 
 class ThreadJob(threading.Thread):
@@ -53,7 +52,7 @@ class CityService(cityinformation_pb2_grpc.CityService):
 
 def serve():
     logger = Logger.getInstance()
-    metrics = InfluxDb.getInstance()
+    metrics = Prometheus.getInstance()
     log_interceptor = logging_interceptor.LoggingInterceptor(logger)
     metric_interceptor = metrics_interceptor.MetricsInterceptor(metrics)
 
@@ -80,15 +79,7 @@ def registerAutoDiscovery(server, service, grpc, autodiscovery):
     autodiscovery.add_service(grpc)
 
 
-def collect_server_metrics():
-    metrics = InfluxDb.getInstance()
-    metrics.collect_server_metrics(ServerMetrics(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total,
-                                                 psutil.virtual_memory().percent,
-                                                 psutil.cpu_percent()))
-
 
 if __name__ == '__main__':
     logging.basicConfig()
-    event = threading.Event()
-    ThreadJob(collect_server_metrics, event, 60).start()
     serve()

@@ -27,7 +27,7 @@ export default class Prometheus implements MetricsProvider {
         server.get('/metrics', (req, res) => {
             res.send(registry.getMetricsAsJSON())
         })
-        server.listen(3000);
+        server.listen(3009);
     }
 
     private configureMetrics(registry: Registry) {

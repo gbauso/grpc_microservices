@@ -2,7 +2,7 @@ import grpc
 import json
 from collections import ChainMap
 import datetime
-from influx_db import InfluxDb, CallMetrics
+from prometheus import Prometheus, CallMetrics
 
 def _wrap_rpc_behavior(handler, details, fn):
     grpc_handler = handler(details)
@@ -37,7 +37,7 @@ def _wrap_rpc_behavior(handler, details, fn):
 
 
 class MetricsInterceptor(grpc.ServerInterceptor):
-    def __init__(self, metrics_provider: InfluxDb):
+    def __init__(self, metrics_provider: Prometheus):
         self.metrics_provider = metrics_provider
 
     def intercept_service(self, continuation, handler_call_details):

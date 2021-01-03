@@ -43,18 +43,6 @@ services:
       - 5601:80
     networks:
       - grpc_
-  influxdb:
-    image: quay.io/influxdb/influxdb:2.0.0-rc
-    ports:
-      - 8086:8086
-    networks:
-      - grpc_
-  influxdbui:
-    image: sillydong/influxdb-ui
-    ports:
-      - 9091:80
-    networks:
-      - grpc_
   grafana:
     image: grafana/grafana:7.1.3
     ports:
