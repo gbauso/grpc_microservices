@@ -1,9 +1,7 @@
 import config
 import os
-from influxdb_client import InfluxDBClient as InfluxDBClientv2
 from datetime import datetime
-from influxdb_client.client.write_api import SYNCHRONOUS
-from prometheus_client import start_http_server
+from prometheus_client import start_http_server, Counter, Histogram
 
 
 class CallMetrics(object):
@@ -26,7 +24,18 @@ class Prometheus(object):
         return Prometheus.__instance
 
     def __init__(self):
+        self.grpcServerStartedTotal = Counter('grpc_server_started_total',
+                                              'Total number of RPCs started on the server.',
+                                              ['grpc_type', 'grpc_method'])
+        self.grpcServerHandledTotal = Counter('grpc_server_handled_total',
+                                              'Total number of RPCs completed on the server, regardless of success or failure.',
+                                              ['grpc_type', 'grpc_method', 'grpc_code'])
+        self.grpcServerHandlingSeconds = Histogram('grpc_server_handling_seconds',
+                                              'Histogram of response latency (seconds) of gRPC that had been application-level handled by the server.Duration of HTTP response size in bytes',
+                                              ['grpc_type', 'grpc_method', 'grpc_code'])
         start_http_server(3001)
 
     def collect_call_metrics(self, metrics: CallMetrics):
-        pass
+        self.grpcServerStartedTotal.labels(metrics.call_type, metrics.method).inc()
+        self.grpcServerHandledTotal.labels(metrics.call_type, metrics.method, metrics.status_code).inc()
+        self.grpcServerHandlingSeconds.labels(metrics.call_type, metrics.method, metrics.status_code).observe(metrics.elapsed_time.total_seconds())
