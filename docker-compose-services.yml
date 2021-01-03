@@ -20,10 +20,11 @@ services:
   #   networks:
   #     - grpc_
   population:
-    image: msexp/population-service
+    image: msexp/population-service:0.0.177
     restart: always
     ports: 
       - 5011:5011
+      - 3001:3001
     environment: 
       - PORT=5011
       - HOST=0.0.0.0
@@ -33,38 +34,33 @@ services:
       - SB_PORT=5672
       - LOGGER_HOST=fluentd
       - REGISTER_AS=localhost
-      - METRICS_HOST=http://influxdb:8086
-      - METRICS_USER=grpc
-      - METRICS_TOKEN=dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==
     networks:
       - grpc_
-  discovery:
-    image: msexp/discovery-service
-    restart: always
-    ports: 
-      - 5010:5010
-    environment: 
-      - ServiceBus__Username=admin
-      - ServiceBus__Host=rabbitmq
-      - ServiceBus__Password=Secr3t
-      - ConnectionStrings__Etcd=http://etcd
-      - Grpc__Host=discovery
-      - Grpc__Port=5010
-      - Logging__Host=fluentd
-      - Logging__Port=24224
-      - Logging__Tag=discovery
-    networks:
-      - grpc_
+  # discovery:
+  #   image: msexp/discovery-service
+  #   restart: always
+  #   ports: 
+  #     - 5010:5010
+  #   environment: 
+  #     - ServiceBus__Username=admin
+  #     - ServiceBus__Host=rabbitmq
+  #     - ServiceBus__Password=Secr3t
+  #     - ConnectionStrings__Etcd=http://etcd
+  #     - Grpc__Host=discovery
+  #     - Grpc__Port=5010
+  #     - Logging__Host=fluentd
+  #     - Logging__Port=24224
+  #     - Logging__Tag=discovery
+  #   networks:
+  #     - grpc_
   weather:
-    image: msexp/weather-service
+    image: msexp/weather-service:0.0.175
     restart: always
     ports: 
       - 5012:5012
+      - 3003:3003
     environment: 
       - PORT=5012
-      - METRICS_HOST_URL=http://influxdb:8086
-      - METRICS_TOKEN=dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==
-      - METRICS_USERNAME=grpc
       - HOST=0.0.0.0
       - SB_USER=admin
       - SB_HOST=rabbitmq
@@ -76,24 +72,22 @@ services:
       - LOGGER_PORT=24224
     networks:
       - grpc_
-  # nearby-cities:
-  #   image: msexp/nearby-cities-service
-  #   ports: 
-  #     - 5013:80
-  #   environment: 
-  #     - PORT=80
-  #     - HOST=0.0.0.0
-  #     - LOGGER_HOST=fluentd
-  #     - LOGGER_PORT=24224
-  #     - LOGGER_SYNC=true
-  #     - REGISTER_AS=nearby-cities
-  #     - VAULT_HOST=http://vault:8200
-  #     - VAULT_TOKEN=s.dnMzpkdGMVweGhDCe1vnRiWl
-  #     - METRICS_HOST=http://influxdb:8086
-  #     - METRICS_USER=grpc
-  #     - METRICS_TOKEN=dPd4dsdtLRd41TVwJdn8LMThI42DPv1lxg1C2oGnlvcRIwWDATIRk5CRCFin-XIknDPvq3fR0phhpHuy_-MDow==
-  #   networks:
-  #     - grpc_
+  nearby-cities:
+    image: msexp/nearby-cities-service:0.0.176
+    ports: 
+      - 5013:80
+      - 3009:3009
+    environment: 
+      - PORT=80
+      - HOST=0.0.0.0
+      - LOGGER_HOST=fluentd
+      - LOGGER_PORT=24224
+      - LOGGER_SYNC=true
+      - REGISTER_AS=nearby-cities
+      - VAULT_HOST=http://vault:8200
+      - VAULT_TOKEN=s.dnMzpkdGMVweGhDCe1vnRiWl
+    networks:
+      - grpc_
 networks:
   grpc_:
     external: true
