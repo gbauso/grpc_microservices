@@ -16,7 +16,7 @@ class MetricsForwardingServerCall<ReqT, RespT>(delegate: ServerCall<ReqT, RespT>
         metrics.collectCallMetrics(CallMetrics(
                 callType = "unary",
                 method = (metadata?.get("rpc") ?: "None") as String,
-                responseTime = timeElapsed,
+                responseTime = timeElapsed.toDouble(),
                 statusCode = status?.code.toString())
         )
 
