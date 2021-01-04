@@ -1,7 +1,6 @@
-﻿using Grpc.Core;
+﻿using Application.Metrics;
+using Grpc.Core;
 using Grpc.Core.Interceptors;
-using Metrics.Model;
-using Metrics.Providers;
 using System;
 using System.Linq;
 using System.Text;

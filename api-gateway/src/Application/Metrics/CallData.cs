@@ -1,6 +1,6 @@
-﻿namespace Metrics.Model
+﻿namespace Application.Metrics
 {
-    public class CallData : MetricsBase
+    public class CallData 
     {
         public double Duration { get; set; }
         public string Status { get; set; }

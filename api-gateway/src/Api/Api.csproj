@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
     <PackageReference Include="NetCore.HashiCorp.Vault" Version="1.0.3" />
+    <PackageReference Include="prometheus-net.AspNetCore.Grpc" Version="4.1.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
     <PackageReference Include="Serilog.Sinks.Fluentd" Version="0.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />

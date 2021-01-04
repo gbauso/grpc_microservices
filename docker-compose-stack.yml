@@ -36,6 +36,16 @@ services:
       - elk
     networks:
       - grpc_
+  prometheus:
+    image: prom/prometheus:v2.23.0
+    volumes:
+      - ./infra/prometheus:/etc/prometheus
+      - ./infra/prometheus/data:/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/config.yaml
+    ports:
+    - 9090:9090
+    networks:
+      - grpc_
   elk:
     image: blacktop/elastic-stack:7.8
     ports:

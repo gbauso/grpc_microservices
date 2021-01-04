@@ -1,82 +1,79 @@
 version: '3.5'
 
 services:
-  # api-gateway:
-  #   image: msexp/api-gateway
-  #   restart: always
-  #   ports: 
-  #     - 8081:80
-  #   environment: 
-  #     - ASPNETCORE_URLS=http://+:80
-  #     - DiscoveryService__Url=discovery:80
-  #     - Logging__Host=fluentd
-  #     - Logging__Port=24224
-  #     - Logging__Tag=api-gateway
-  #   depends_on: 
-  #     - population
-  #     - weather
-  #     - nearby-cities
-  #     - discovery
-  #   networks:
-  #     - grpc_
+  api-gateway:
+    image: msexp/api-gateway
+    restart: always
+    ports: 
+      - 8081:80
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+      - DiscoveryService__Url=discovery:80
+      - Logging__Host=fluentd
+      - Logging__Port=24224
+      - Logging__Tag=api-gateway
+    depends_on: 
+      - population
+      - weather
+      - nearby-cities
+      - discovery
+    networks:
+      - grpc_
   population:
     image: msexp/population-service:0.0.177
     restart: always
     ports: 
-      - 5011:5011
-      - 3001:3001
+      - 5011:80
     environment: 
-      - PORT=5011
+      - PORT=80
       - HOST=0.0.0.0
       - SB_USER=admin
       - SB_URL=rabbitmq
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - LOGGER_HOST=fluentd
-      - REGISTER_AS=localhost
+      - REGISTER_AS=population
     networks:
       - grpc_
-  # discovery:
-  #   image: msexp/discovery-service
-  #   restart: always
-  #   ports: 
-  #     - 5010:5010
-  #   environment: 
-  #     - ServiceBus__Username=admin
-  #     - ServiceBus__Host=rabbitmq
-  #     - ServiceBus__Password=Secr3t
-  #     - ConnectionStrings__Etcd=http://etcd
-  #     - Grpc__Host=discovery
-  #     - Grpc__Port=5010
-  #     - Logging__Host=fluentd
-  #     - Logging__Port=24224
-  #     - Logging__Tag=discovery
-  #   networks:
-  #     - grpc_
+  discovery:
+    image: msexp/discovery-service
+    restart: always
+    ports: 
+      - 5010:80
+    environment: 
+      - ServiceBus__Username=admin
+      - ServiceBus__Host=rabbitmq
+      - ServiceBus__Password=Secr3t
+      - ConnectionStrings__Etcd=http://etcd
+      - Grpc__Host=discovery
+      - Grpc__Port=80
+      - Logging__Host=fluentd
+      - Logging__Port=24224
+      - Logging__Tag=discovery
+    networks:
+      - grpc_
   weather:
     image: msexp/weather-service:0.0.175
     restart: always
     ports: 
-      - 5012:5012
-      - 3003:3003
+      - 5012:80
     environment: 
-      - PORT=5012
+      - PORT=80
       - HOST=0.0.0.0
       - SB_USER=admin
       - SB_HOST=rabbitmq
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - OPENWEATHER_APP_ID=5e1faa4ff336e703c364487b3ec7f325
-      - REGISTER_AS=localhost
+      - REGISTER_AS=weather
       - LOGGER_HOST=fluentd
       - LOGGER_PORT=24224
     networks:
       - grpc_
   nearby-cities:
-    image: msexp/nearby-cities-service:0.0.176
+    image: msexp/nearby-cities-service:0.0.179
     ports: 
       - 5013:80
-      - 3009:3009
     environment: 
       - PORT=80
       - HOST=0.0.0.0

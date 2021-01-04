@@ -5,13 +5,14 @@ using Application.DiscoveryClient;
 using Application.Factory;
 using Application.GrpcClients;
 using Application.GrpcClients.Interceptors;
-using Metrics.Extensions;
+using Application.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
 
 namespace Api
@@ -34,11 +35,10 @@ namespace Api
             });
 
             services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
-
-            services.ConfigureMetrics(Configuration);
-            services.AddInfluxDb("api-gateway");
             
             services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
+            services.AddSingleton<IMetricsProvider, PrometheusMetrics>();
+
             services.AddSingleton<ChannelFactory>();
             services.AddSingleton<ClientFactory>();
             
@@ -76,6 +76,10 @@ namespace Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseHttpMetrics();
+            app.UseGrpcMetrics();
+
+            new KestrelMetricServer(port: 3004).Start();
 
             app.UseSwagger();
 
@@ -91,7 +95,6 @@ namespace Api
                 endpoints.MapControllers();
             });
 
-            app.StartServerCollect(10);
         }
 
     }
