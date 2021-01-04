@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DiscoveryService.Grpc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MassTransit;
-using dotnet_etcd;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 

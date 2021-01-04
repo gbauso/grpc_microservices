@@ -5,6 +5,7 @@ using Grpc.Core;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 
 namespace DiscoveryService
 {
@@ -24,6 +25,7 @@ namespace DiscoveryService
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            new MetricServer(port: 3004).Start();
             await _busControl.StartAsync(cancellationToken);
             _server.Start();
             _logger.LogInformation("Discovery Service STARTED");
