@@ -26,12 +26,12 @@ namespace Application.Factory
 
         public (string service, Type client) GetClientInfo(Type response)
         {
-            if(!_clients.ContainsKey(response))
+            if (!_clients.ContainsKey(response))
                 throw new ClientNotFoundException();
 
             return _clients[response];
         }
-        
+
         public ClientBase GetInstance(Type clientType, Channel channel)
         {
             var pair = (clientType, channel);
@@ -42,7 +42,10 @@ namespace Application.Factory
             }
             else
             {
-                var client = (ClientBase) Activator.CreateInstance(clientType, new object[] {channel.Intercept(_MetricsInterceptor) });
+                var client = (ClientBase)Activator.CreateInstance(clientType,
+                                                                   new object[] {
+                                                                       channel.Intercept(_MetricsInterceptor)
+                                                                   });
                 _instances[pair] = client;
                 return client;
             }
@@ -64,7 +67,7 @@ namespace Application.Factory
                                          && i.GetParameters().Length == 2)
                     ?.ReturnType.GenericTypeArguments[0];
 
-                _clients.Add(returnType!, (service, client));
+                _clients.Add(returnType, (service, client));
             }
         }
     }

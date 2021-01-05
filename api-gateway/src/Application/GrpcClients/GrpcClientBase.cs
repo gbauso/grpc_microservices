@@ -63,7 +63,7 @@ namespace Application.GrpcClients
                 {"target", target}
             };
 
-            return new CallOptions(headers, DateTime.Now.AddSeconds(TIMEOUT));
+            return new CallOptions(headers, DateTime.UtcNow.AddSeconds(TIMEOUT));
         }
 
 

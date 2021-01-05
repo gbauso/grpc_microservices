@@ -44,7 +44,7 @@ namespace Api
             
             services.AddSingleton<MetricsInterceptor>();
 
-            services.AddScoped<Operation>();
+            services.AddSingleton<Operation>();
 
             services.AddScoped<IGrpcClient, UnaryGrpcClientSingle>();
 
