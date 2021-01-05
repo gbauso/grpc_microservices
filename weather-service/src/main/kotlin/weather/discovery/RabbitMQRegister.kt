@@ -12,14 +12,12 @@ class RabbitMQRegister : IRegisterService {
 
     override fun register(handlers: List<String>) {
         val factory = ConnectionFactory()
-        val port = System.getenv("SB_PORT").toInt()
-        val username = System.getenv("SB_USER")
-        val password = System.getenv("SB_PWD")
-        val host = System.getenv("SB_HOST")
+        factory.port = System.getenv("SB_PORT").toInt()
+        factory.username = System.getenv("SB_USER")
+        factory.password = System.getenv("SB_PWD")
+        factory.host = System.getenv("SB_HOST")
 
-        val connectionString = String().format("amqp://%s:%s@%s:%s", username, password, host, port);
-
-        factory.newConnection(connectionString).use { connection ->
+        factory.newConnection().use { connection ->
             connection.createChannel().use { channel ->
                 channel.queueDeclare(QUEUE_NAME, true, false, false, null)
                 val message = Gson().toJson(RegisterMessage(handlers))
