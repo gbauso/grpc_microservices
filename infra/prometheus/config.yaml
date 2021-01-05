@@ -7,3 +7,5 @@ scrape_configs:
     - population:3001
     - weather:3003
     - nearby-cities:3009
+    - api-gateway:3004
+    - discovery:3004

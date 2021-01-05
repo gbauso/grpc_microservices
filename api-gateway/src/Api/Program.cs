@@ -20,17 +20,13 @@ namespace Api
                     configBuilder.AddEnvironmentVariables();
                     var configuration = configBuilder.Build();
 
-                    if (context.HostingEnvironment.IsDevelopment() || context.HostingEnvironment.IsProduction())
-                    {
-                        var options = new VaultOptions();
-                        configuration.Bind("VaultOptions", options);
+                    var options = new VaultOptions();
+                    configuration.Bind("VaultOptions", options);
 
-                        var seeder = new VaultSeeder();
-                        configuration.Bind("VaultSeeder", seeder);
+                    var seeder = new VaultSeeder();
+                    configuration.Bind("VaultSeeder", seeder);
 
-                        configuration = configBuilder.AddHashiCorpVault(configuration).Build();
-
-                    }
+                    configuration = configBuilder.AddHashiCorpVault(configuration).Build();
                     context.Configuration = configuration;
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
