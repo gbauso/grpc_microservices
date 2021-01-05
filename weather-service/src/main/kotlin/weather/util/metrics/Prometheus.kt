@@ -10,7 +10,8 @@ class Prometheus() : IMetricsProvider, KoinComponent {
 
     init {
         DefaultExports.initialize()
-        HTTPServer(3003)
+        val port = if (System.getenv("METRICS_PORT").isNullOrEmpty()) 3003 else System.getenv("METRICS_PORT").toInt()
+        HTTPServer(port)
     }
 
     override fun collectCallMetrics(metrics: CallMetrics) {

@@ -2,6 +2,7 @@ import { CallMetrics } from "./callMetrics";
 import { MetricsProvider } from "./metricsProvider";
 import { Counter, Histogram, collectDefaultMetrics, Registry } from 'prom-client';
 import express from 'express';
+import config from "./../../../config.json";
 
 type Metrics = {
     grpcServerStartedTotal: Counter<'grpc_type' | 'grpc_method'>;
@@ -32,7 +33,7 @@ export default class Prometheus implements MetricsProvider {
                 res.status(500).end(ex);
             }
         })
-        server.listen(3009);
+        server.listen(process.env.METRICS_PORT || config.metrics.port);
     }
 
     private configureMetrics(registry: Registry) {

@@ -79,7 +79,7 @@ namespace Api
             app.UseHttpMetrics();
             app.UseGrpcMetrics();
 
-            new KestrelMetricServer(port: 3004).Start();
+            new KestrelMetricServer(port: Configuration.GetValue<int>("Metrics:Port")).Start();
 
             app.UseSwagger();
 

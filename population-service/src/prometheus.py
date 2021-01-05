@@ -33,7 +33,8 @@ class Prometheus(object):
         self.grpcServerHandlingSeconds = Histogram('grpc_server_handling_seconds',
                                               'Histogram of response latency (seconds) of gRPC that had been application-level handled by the server.Duration of HTTP response size in bytes',
                                               ['grpc_type', 'grpc_method', 'grpc_code'])
-        start_http_server(3001)
+
+        start_http_server(os.getenv('METRICS_PORT',config.metrics['port']))
 
     def collect_call_metrics(self, metrics: CallMetrics):
         self.grpcServerStartedTotal.labels(metrics.call_type, metrics.method).inc()
