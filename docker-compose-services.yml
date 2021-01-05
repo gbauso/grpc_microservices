@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   api-gateway:
-    image: msexp/api-gateway
+    image: msexp/api-gateway:0.0.184
     restart: always
     ports: 
       - 8081:80
@@ -12,6 +12,11 @@ services:
       - Logging__Host=fluentd
       - Logging__Port=24224
       - Logging__Tag=api-gateway
+      - VaultOptions__Server=http://vault:8200
+      - VaultOptions__SecretId=b6qub2Ak0Hc2oLJQwnkXQo2fHU1SeKQ/Zp5Gz1HXNiU=
+      - VaultOptions__TokenId=s.dnMzpkdGMVweGhDCe1vnRiWl
+      - VaultOptions__Prefix=kv/data
+      - Metrics__Port=3000
     depends_on: 
       - population
       - weather
@@ -20,7 +25,7 @@ services:
     networks:
       - grpc_
   population:
-    image: msexp/population-service:0.0.177
+    image: msexp/population-service:0.0.190
     restart: always
     ports: 
       - 5011:80
@@ -33,10 +38,11 @@ services:
       - SB_PORT=5672
       - LOGGER_HOST=fluentd
       - REGISTER_AS=population
+      - METRICS_PORT=3000
     networks:
       - grpc_
   discovery:
-    image: msexp/discovery-service
+    image: msexp/discovery-service:0.0.189
     restart: always
     ports: 
       - 5010:80
@@ -50,10 +56,11 @@ services:
       - Logging__Host=fluentd
       - Logging__Port=24224
       - Logging__Tag=discovery
+      - Metrics__Port=3000
     networks:
       - grpc_
   weather:
-    image: msexp/weather-service:0.0.175
+    image: msexp/weather-service:0.0.188
     restart: always
     ports: 
       - 5012:80
@@ -68,10 +75,11 @@ services:
       - REGISTER_AS=weather
       - LOGGER_HOST=fluentd
       - LOGGER_PORT=24224
+      - METRICS_PORT=3000
     networks:
       - grpc_
   nearby-cities:
-    image: msexp/nearby-cities-service:0.0.179
+    image: msexp/nearby-cities-service:0.0.186
     ports: 
       - 5013:80
     environment: 
@@ -83,6 +91,7 @@ services:
       - REGISTER_AS=nearby-cities
       - VAULT_HOST=http://vault:8200
       - VAULT_TOKEN=s.dnMzpkdGMVweGhDCe1vnRiWl
+      - METRICS_PORT=3000
     networks:
       - grpc_
 networks:
