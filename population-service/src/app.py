@@ -3,6 +3,7 @@ import config
 
 import logging
 import config
+import threading
 
 import grpc
 
@@ -15,9 +16,32 @@ import inspect
 import os
 import autodiscovery
 
-import interceptor
-
+import logging_interceptor
 from logger import Logger
+
+import metrics_interceptor
+from prometheus import Prometheus
+
+
+class ThreadJob(threading.Thread):
+    def __init__(self, callback, event, interval):
+        '''runs the callback function after interval seconds
+
+        :param callback:  callback function to invoke
+        :param event: external event for controlling the update operation
+        :param interval: time in seconds after which are required to fire the callback
+        :type callback: function
+        :type interval: int
+        '''
+        self.callback = callback
+        self.event = event
+        self.interval = interval
+        super(ThreadJob, self).__init__()
+
+    def run(self):
+        while not self.event.wait(self.interval):
+            self.callback()
+
 
 class CityService(cityinformation_pb2_grpc.CityService):
 
@@ -28,25 +52,33 @@ class CityService(cityinformation_pb2_grpc.CityService):
 
 def serve():
     logger = Logger.getInstance()
-    log_interceptor = interceptor.LoggingInterceptor(logger)
+    metrics = Prometheus.getInstance()
+    log_interceptor = logging_interceptor.LoggingInterceptor(logger)
+    metric_interceptor = metrics_interceptor.MetricsInterceptor(metrics)
+
     discovery = autodiscovery.AutoDiscovery()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10), interceptors=(log_interceptor,))
-    
-    registerAutoDiscovery(server, CityService(), cityinformation_pb2_grpc, discovery)
+    server = grpc.server(futures.ThreadPoolExecutor(
+        max_workers=10), interceptors=(log_interceptor, metric_interceptor,))
+
+    registerAutoDiscovery(server, CityService(),
+                          cityinformation_pb2_grpc, discovery)
     port = os.getenv('PORT', config.port)
 
     server.add_insecure_port('[::]:{}'.format(port))
-    logger.info('Server running on [::]:{}'.format(port), {'port': port })
+    logger.info('Server running on [::]:{}'.format(port), {'port': port})
 
     server.start()
     discovery.register(port)
     server.wait_for_termination()
 
+
 def registerAutoDiscovery(server, service, grpc, autodiscovery):
     methodName = [i for i in grpc.__dict__.keys() if i[:3] == 'add'][0]
     method = getattr(grpc, methodName)
     method(service, server)
-    autodiscovery.add_service(grpc)   
+    autodiscovery.add_service(grpc)
+
+
 
 if __name__ == '__main__':
     logging.basicConfig()

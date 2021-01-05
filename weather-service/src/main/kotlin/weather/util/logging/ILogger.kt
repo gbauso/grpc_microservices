@@ -1,4 +1,4 @@
-package weather.util
+package weather.util.logging
 
 interface ILogger {
     fun debug(message: String, data: MutableMap<String, Any> = HashMap())

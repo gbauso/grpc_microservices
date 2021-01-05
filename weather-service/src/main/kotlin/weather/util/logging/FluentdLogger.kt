@@ -1,4 +1,4 @@
-package weather.util
+package weather.util.logging
 
 import org.fluentd.logger.FluentLogger
 import org.koin.core.KoinComponent

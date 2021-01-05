@@ -10,3 +10,6 @@ logger = dict(
     host= 'localhost',
     port = '24224'
 )
+metrics = dict(
+    port= 3001
+)

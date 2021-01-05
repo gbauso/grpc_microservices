@@ -1,7 +1,7 @@
 package weather.interceptors
 
 import io.grpc.*
-import weather.util.ILogger
+import weather.util.logging.ILogger
 
 class LoggingInterceptor(val logger: ILogger) : ServerInterceptor {
 
@@ -10,7 +10,7 @@ class LoggingInterceptor(val logger: ILogger) : ServerInterceptor {
         logger.info(String.format("Request for %s STARTED", metadata?.get("rpc")),
                 metadata as MutableMap<String, Any>)
 
-        return next?.startCall(ForwardingServerCall(call, logger, headers), headers)
+        return next?.startCall(LoggingForwardingServerCall(call, logger, headers), headers)
     }
 }
 

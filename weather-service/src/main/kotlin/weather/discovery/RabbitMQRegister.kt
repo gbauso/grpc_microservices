@@ -2,9 +2,9 @@ package weather.discovery
 
 import com.google.gson.Gson
 import com.rabbitmq.client.ConnectionFactory
+import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets
 
-//import com.rabbitmq.client
 
 class RabbitMQRegister : IRegisterService {
 
@@ -12,12 +12,14 @@ class RabbitMQRegister : IRegisterService {
 
     override fun register(handlers: List<String>) {
         val factory = ConnectionFactory()
-        factory.port = System.getenv("SB_PORT").toInt()
-        factory.username = System.getenv("SB_USER")
-        factory.password = System.getenv("SB_PWD")
-        factory.host = System.getenv("SB_HOST")
+        val port = System.getenv("SB_PORT").toInt()
+        val username = System.getenv("SB_USER")
+        val password = System.getenv("SB_PWD")
+        val host = System.getenv("SB_HOST")
 
-        factory.newConnection().use { connection ->
+        val connectionString = String().format("ampq://%s:%s@%s:%s", username, password, host, port);
+
+        factory.newConnection(connectionString).use { connection ->
             connection.createChannel().use { channel ->
                 channel.queueDeclare(QUEUE_NAME, true, false, false, null)
                 val message = Gson().toJson(RegisterMessage(handlers))

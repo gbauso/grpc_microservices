@@ -1,1 +1,3 @@
 .vscode
+infra/prometheus/data/*
+nearby-cities-service/package-lock.json

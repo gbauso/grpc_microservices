@@ -2,10 +2,11 @@
     "host": "localhost",
     "port": 50053,
     "register_as": "localhost",
-    "bus": {
+    "servicebus": {
       "host": "localhost",
       "port": 5672,
-      "secret": "kv/data/rabbitmq"
+      "username": "admin",
+      "password": "Secr3t"
     },
     "logger": {
         "host": "localhost",
@@ -17,5 +18,8 @@
       "token": "s.dnMzpkdGMVweGhDCe1vnRiWl",
       "host": "http://localhost:8200",
       "key": "b6qub2Ak0Hc2oLJQwnkXQo2fHU1SeKQ/Zp5Gz1HXNiU="
+    },
+    "metrics": {
+      "port": 3009
     }
   }
