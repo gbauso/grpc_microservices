@@ -17,7 +17,7 @@ class RabbitMQRegister : IRegisterService {
         val password = System.getenv("SB_PWD")
         val host = System.getenv("SB_HOST")
 
-        val connectionString = String().format("ampq://%s:%s@%s:%s", username, password, host, port);
+        val connectionString = String().format("amqp://%s:%s@%s:%s", username, password, host, port);
 
         factory.newConnection(connectionString).use { connection ->
             connection.createChannel().use { channel ->
