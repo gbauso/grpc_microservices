@@ -6,6 +6,7 @@ using Grpc.Core;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Prometheus;
 
 namespace DiscoveryService
@@ -21,12 +22,12 @@ namespace DiscoveryService
         public Worker(IBusControl bus,
                       GrpcServerFactory grpcServerFactory,
                       ILogger<Worker> logger,
-                      MetricsConfiguration metricsConfiguration)
+                      IOptions<MetricsConfiguration> metricsConfiguration)
         {
             _busControl = bus;
             _logger = logger;
             _server = grpcServerFactory.GetServer();
-            _metricServer = new MetricServer(metricsConfiguration.Port);
+            _metricServer = new MetricServer(metricsConfiguration.Value.Port);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

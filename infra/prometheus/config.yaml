@@ -4,8 +4,8 @@ scrape_configs:
   metrics_path: /metrics
   static_configs:
   - targets:
-    - population:3001
-    - weather:3003
-    - nearby-cities:3009
-    - api-gateway:3004
-    - discovery:3004
+    - population:3000
+    - weather:3000
+    - nearby-cities:3000
+    - api-gateway:3000
+    - discovery:3000
