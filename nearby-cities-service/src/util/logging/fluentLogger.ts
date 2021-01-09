@@ -1,7 +1,6 @@
 import fluentLogger, { FluentSender } from 'fluent-logger';
 import { singleton } from 'tsyringe';
 import { Logger } from './logger';
-import config from '../../../config.json';
 import { LogContent } from './logContent';
 
 @singleton()
@@ -10,12 +9,12 @@ export class FluentLogger implements Logger {
 
     constructor() {
       this.logger = fluentLogger.createFluentSender<any>('nearby-cities', {
-        host: process.env.LOGGER_HOST || config.logger.host,
-        port: (process.env.LOGGER_PORT || config.logger.port) as number,
+        host: process.env.LOGGER_HOST,
+        port: (process.env.LOGGER_PORT || 0) as number,
         timeout: (process.env.LOGGER_TIMEOUT
-          || config.logger.timeout) as number,
+          || 0) as number,
         requireAckResponse: (process.env.LOGGER_SYNC
-          || config.logger.sync) as boolean,
+          || false) as boolean,
         reconnectInterval: 1000,
       });
     }

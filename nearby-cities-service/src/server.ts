@@ -1,6 +1,5 @@
 import { Server, ServerCredentials } from 'grpc';
 import { injectable, inject } from 'tsyringe';
-import config from '../config.json';
 import { ServiceDefinition } from './service/serviceDefinition';
 import { Logger } from './util/logging/logger';
 import { AutoDiscovery } from './discovery/autodiscovery';
@@ -22,8 +21,8 @@ export class GrpcServer {
                     private logger: Logger) {}
 
   start() : void {
-    const host = process.env.HOST || config.host;
-    const port = (process.env.PORT || config.port) as number;
+    const host = process.env.HOST;
+    const port = (process.env.PORT || 0) as number;
 
     const cityinformation = ServiceDefinition.getCityInformation();
 

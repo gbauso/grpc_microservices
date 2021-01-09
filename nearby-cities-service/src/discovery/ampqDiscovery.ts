@@ -1,23 +1,25 @@
 import { AutoDiscovery } from './autodiscovery';
 import { Message } from './message';
-import { inject, singleton } from 'tsyringe';
-import { Secret } from '../util/secret/secret';
-import config from '../../config.json';
+import { singleton } from 'tsyringe';
 import * as rabbitmq from 'amqplib';
 import 'amqplib/callback_api';
 import retry from 'async-retry';
 
 @singleton()
 export class AMPQDiscovery implements AutoDiscovery {
-  constructor(@inject('Secret') private secret: Secret) {}
+  constructor() {}
 
   private queue: string = 'discovery';
-  private secretName = "ServiceBus";
 
   private connection!: rabbitmq.Connection;
 
   private async connectToAmpq() {
-    const credentials = await this.secret.getSecretValue(this.secretName);
+    const credentials = {
+      host: process.env.SB_USER,
+      port: process.env.SB_PORT,
+      username: process.env.SB_USER,
+      password: process.env.SB_PWD,
+    }
 
     const host = `${credentials.host}:${credentials.port}`;
     const connectionString = `amqp://${credentials.username}:${credentials.password}@${host}`;
@@ -35,7 +37,7 @@ export class AMPQDiscovery implements AutoDiscovery {
 
     const message : Message = {
       handlers: this.getImplementedServices(handlers),
-      service: `${process.env.REGISTER_AS || config.register_as}:${port}`,
+      service: `${process.env.REGISTER_AS}:${port}`,
     };
 
     const json = JSON.stringify(message);
