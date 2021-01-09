@@ -42,7 +42,7 @@ namespace Application.DiscoveryClient
                 {"operation_id", _operation.OperationId.ToString()},
             };
 
-            return new CallOptions(headers, DateTime.Now.AddSeconds(_timeout));
+            return new CallOptions(headers, DateTime.UtcNow.AddSeconds(_timeout));
         }
     }
 }
