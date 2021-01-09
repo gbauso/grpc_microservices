@@ -5,10 +5,12 @@ import io.prometheus.client.Histogram
 import org.koin.core.KoinComponent
 import io.prometheus.client.exporter.HTTPServer
 import io.prometheus.client.hotspot.DefaultExports
+import org.koin.core.inject
+import weather.util.secrets.ISecretProvider
 
 class Prometheus() : IMetricsProvider, KoinComponent {
 
-    val secrets: ISecretsProvider by inject()
+    val secrets: ISecretProvider by inject()
 
     init {
         DefaultExports.initialize()
