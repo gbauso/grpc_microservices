@@ -28,7 +28,7 @@ namespace Application.DiscoveryClient
 
         public async Task<string[]> GetHandlers(string service)
         {
-            var client = new DiscoveryService.DiscoveryServiceClient(_discoveryChannel.Intercept(_metricsInterceptor));
+            var client = new DiscoveryService.DiscoveryServiceClient(_discoveryChannel);
             
             var request = new DiscoverySearchRequest { ServiceDefinition = service };
 
