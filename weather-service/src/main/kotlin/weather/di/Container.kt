@@ -10,17 +10,23 @@ import weather.util.logging.FluentdLogger
 import weather.util.logging.ILogger
 import weather.util.metrics.IMetricsProvider
 import weather.util.metrics.Prometheus
+import weather.util.secrets.DotEnvProvider
+import weather.util.secrets.SystemEnvProvider
+import java.io.File
 
 
 val openWeatherModule = module(override = true) {
+    val envProvider = if(File(".env").exists()) DotEnvProvider() else SystemEnvProvider()
+
     single<IWeatherProvider> { OpenWeatherProvider() }
     single<FluentLogger> {
         FluentLogger.getLogger("weather",
-                System.getenv("LOGGER_HOST"),
-                System.getenv("LOGGER_PORT").toInt())
+                envProvider.getValue("LOGGER_HOST"),
+                envProvider.getValue("LOGGER_PORT").toInt())
     }
 
     single<ILogger> { FluentdLogger() }
     single<IRegisterService> { RabbitMQRegister() }
     single<IMetricsProvider> { Prometheus() }
+    single { envProvider }
 }

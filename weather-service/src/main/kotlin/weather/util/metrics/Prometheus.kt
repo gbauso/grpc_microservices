@@ -8,9 +8,11 @@ import io.prometheus.client.hotspot.DefaultExports
 
 class Prometheus() : IMetricsProvider, KoinComponent {
 
+    val secrets: ISecretsProvider by inject()
+
     init {
         DefaultExports.initialize()
-        val port = if (System.getenv("METRICS_PORT").isNullOrEmpty()) 3003 else System.getenv("METRICS_PORT").toInt()
+        val port = secrets.getValue("METRICS_PORT").toInt()
         HTTPServer(port)
     }
 
