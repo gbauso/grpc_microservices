@@ -15,7 +15,7 @@ export class AMPQDiscovery implements AutoDiscovery {
 
   private async connectToAmpq() {
     const credentials = {
-      host: process.env.SB_USER,
+      host: process.env.SB_HOST,
       port: process.env.SB_PORT,
       username: process.env.SB_USER,
       password: process.env.SB_PWD,
