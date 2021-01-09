@@ -28,7 +28,7 @@ namespace Application.DiscoveryClient
 
         public async Task<string[]> GetHandlers(string service)
         {
-            var client = new DiscoveryService.DiscoveryServiceClient(_discoveryChannel.Intercept(_metricsInterceptor));
+            var client = new DiscoveryService.DiscoveryServiceClient(_discoveryChannel);
             
             var request = new DiscoverySearchRequest { ServiceDefinition = service };
 
@@ -42,7 +42,7 @@ namespace Application.DiscoveryClient
                 {"operation_id", _operation.OperationId.ToString()},
             };
 
-            return new CallOptions(headers, DateTime.Now.AddSeconds(_timeout));
+            return new CallOptions(headers, DateTime.UtcNow.AddSeconds(_timeout));
         }
     }
 }

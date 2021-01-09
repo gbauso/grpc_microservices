@@ -1,4 +1,3 @@
-import config
 import os
 from datetime import datetime
 from prometheus_client import start_http_server, Counter, Histogram
@@ -34,7 +33,7 @@ class Prometheus(object):
                                               'Histogram of response latency (seconds) of gRPC that had been application-level handled by the server.Duration of HTTP response size in bytes',
                                               ['grpc_type', 'grpc_method', 'grpc_code'])
 
-        start_http_server(int(os.getenv('METRICS_PORT',config.metrics['port'])))
+        start_http_server(int(os.getenv('METRICS_PORT')))
 
     def collect_call_metrics(self, metrics: CallMetrics):
         self.grpcServerStartedTotal.labels(metrics.call_type, metrics.method).inc()

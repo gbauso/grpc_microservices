@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 .vscode/
+.env
 
 # Distribution / packaging
 .Python

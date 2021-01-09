@@ -4,12 +4,13 @@ services:
   rabbitmq:
     image: rabbitmq:3.8-management-alpine
     restart: always
+    env_file: .env
     ports:
       - 8080:15672
       - 5672:5672
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=Secr3t
+      - RABBITMQ_DEFAULT_USER=${SERVICE_BUS_USER}
+      - RABBITMQ_DEFAULT_PASS=${SERVICE_BUS_PASSWORD}
     networks:
       - grpc_
   etcd:
@@ -57,41 +58,6 @@ services:
     image: grafana/grafana:7.1.3
     ports:
       - 3000:3000
-    networks:
-      - grpc_
-  vault:
-    image: vault
-    environment:
-      VAULT_ADDR: http://localhost:8200
-      VAULT_API_ADDR: http://0.0.0.0:8200
-      VAULT_LOCAL_CONFIG: >-
-        {
-          "storage": {
-            "file": {
-              "path": "/var/vault/file"
-            }
-          },
-          "listener": {
-            "tcp": {
-              "address": "0.0.0.0:8200",
-              "tls_disable": true
-            }
-          },
-          "ui": true,
-          "max_lease_ttl": "8760h",
-          "default_lease_ttl": "8760h",
-          "disable_mlock": true
-        }
-    ports:
-      - 8200:8200
-    cap_add:
-      - IPC_LOCK
-    command: 
-      - server
-      - sleep 90s
-      - printenv
-    volumes: 
-      - ./infra/vault/data:/var/vault/file
     networks:
       - grpc_
 networks:

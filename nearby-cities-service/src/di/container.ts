@@ -8,11 +8,8 @@ import { LoggerInterceptor } from '../interceptors/loggerInterceptor';
 import { LegacyNearbyCitiesService } from '../service/legacyNearbycitiesService';
 import { ConsoleLogger } from '../util/logging/consoleLogger';
 import { NearbyCitiesService } from '../service/nearbycitiesService';
-import { Secret } from '../util/secret/secret';
-import { HashicorpVault } from '../util/secret/hashicorpVault';
 import { MetricsProvider } from '../util/metrics/metricsProvider';
 import { MetricsInterceptor } from '../interceptors/metricsInterceptor';
-import { Configuration } from '../util/secret/configuration';
 import Prometheus from '../util/metrics/prometheus';
 
 export class Container {
@@ -31,10 +28,6 @@ export class Container {
 
     container.register<NearbyCitiesService>('NearbyCitiesService', {
       useClass: LegacyNearbyCitiesService,
-    });
-
-    container.register<Secret>('Secret', {
-      useClass: process.env.DEBUG ? Configuration : HashicorpVault,
     });
 
     container.register<MetricsProvider>('Metrics', {

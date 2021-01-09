@@ -1,5 +1,4 @@
 from fluent import sender
-import config
 import os
 
 class Logger(object):
@@ -14,8 +13,8 @@ class Logger(object):
         return Logger.__instance
 
     def __init__(self):
-        host = os.getenv('LOGGER_HOST',config.logger['host'])
-        port = os.getenv('LOGGER_PORT',config.logger['port'])
+        host = os.getenv('LOGGER_HOST')
+        port = os.getenv('LOGGER_PORT')
         self.logger = sender.FluentSender('population', host=host, port=int(port))
 
     def __log(self, level, message, data):

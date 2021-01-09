@@ -5,12 +5,16 @@ import io.prometheus.client.Histogram
 import org.koin.core.KoinComponent
 import io.prometheus.client.exporter.HTTPServer
 import io.prometheus.client.hotspot.DefaultExports
+import org.koin.core.inject
+import weather.util.secrets.ISecretProvider
 
 class Prometheus() : IMetricsProvider, KoinComponent {
 
+    val secrets: ISecretProvider by inject()
+
     init {
         DefaultExports.initialize()
-        val port = if (System.getenv("METRICS_PORT").isNullOrEmpty()) 3003 else System.getenv("METRICS_PORT").toInt()
+        val port = secrets.getValue("METRICS_PORT").toInt()
         HTTPServer(port)
     }
 

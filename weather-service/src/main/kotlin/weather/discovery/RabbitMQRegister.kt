@@ -2,20 +2,25 @@ package weather.discovery
 
 import com.google.gson.Gson
 import com.rabbitmq.client.ConnectionFactory
+import org.koin.core.KoinComponent
+import org.koin.core.inject
+import weather.util.secrets.ISecretProvider
 import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets
 
 
-class RabbitMQRegister : IRegisterService {
+class RabbitMQRegister : IRegisterService, KoinComponent {
+
+    val secrets: ISecretProvider by inject()
 
     val QUEUE_NAME: String = "discovery"
 
     override fun register(handlers: List<String>) {
         val factory = ConnectionFactory()
-        factory.port = System.getenv("SB_PORT").toInt()
-        factory.username = System.getenv("SB_USER")
-        factory.password = System.getenv("SB_PWD")
-        factory.host = System.getenv("SB_HOST")
+        factory.port = secrets.getValue("SB_PORT").toInt()
+        factory.username = secrets.getValue("SB_USER")
+        factory.password = secrets.getValue("SB_PWD")
+        factory.host = secrets.getValue("SB_HOST")
 
         factory.newConnection().use { connection ->
             connection.createChannel().use { channel ->
