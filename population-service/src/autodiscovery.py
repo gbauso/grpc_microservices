@@ -1,16 +1,15 @@
 import pika
 import json
 import os
-import config
 
 class AutoDiscovery:
     def __init__(self):
         self.services = []
-        credentials = pika.PlainCredentials(os.getenv('SB_USER', config.ampq['user']),
-                                            os.getenv('SB_PWD', config.ampq['password']))
+        credentials = pika.PlainCredentials(os.getenv('SB_USER'),
+                                            os.getenv('SB_PWD'))
 
-        parameters = pika.ConnectionParameters(os.getenv('SB_URL', config.ampq['host']),
-                                            os.getenv('SB_PORT', config.ampq['port']),
+        parameters = pika.ConnectionParameters(os.getenv('SB_URL'),
+                                            os.getenv('SB_PORT'),
                                             '/',
                                             credentials)
 
@@ -30,7 +29,7 @@ class AutoDiscovery:
         self.services.append(self.get_service_name(handler))
 
     def register(self, port):
-        register_as = os.getenv('REGISTER_AS', config.register_as)
+        register_as = os.getenv('REGISTER_AS')
 
         message = {"service": f'{register_as}:{port}' , "handlers": self.services}
         self.channel.queue_declare(queue='discovery', durable=True)

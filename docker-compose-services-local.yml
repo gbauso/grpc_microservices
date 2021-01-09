@@ -1,29 +1,29 @@
 version: '3.5'
 
 services:
-  # api-gateway:
-  #   image: msexp/api-gateway:0.0.184
-  #   restart: always
-  #   ports: 
-  #     - 8081:80
-  #   environment: 
-  #     - ASPNETCORE_URLS=http://+:80
-  #     - DiscoveryService__Url=discovery:80
-  #     - Logging__Host=fluentd
-  #     - Logging__Port=24224
-  #     - Logging__Tag=api-gateway
-  #     - VaultOptions__Server=http://vault:8200
-  #     - VaultOptions__SecretId=b6qub2Ak0Hc2oLJQwnkXQo2fHU1SeKQ/Zp5Gz1HXNiU=
-  #     - VaultOptions__TokenId=s.dnMzpkdGMVweGhDCe1vnRiWl
-  #     - VaultOptions__Prefix=kv/data
-  #     - Metrics__Port=3000
-  #   depends_on: 
-  #     - population
-  #     - weather
-  #     - nearby-cities
-  #     - discovery
-  #   networks:
-  #     - grpc_
+  api-gateway:
+    image: msexp/api-gateway:0.0.203
+    restart: always
+    ports: 
+      - 8081:80
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+      - DiscoveryService__Url=discovery:80
+      - Logging__Host=fluentd
+      - Logging__Port=24224
+      - Logging__Tag=api-gateway
+      - VaultOptions__Server=http://vault:8200
+      - VaultOptions__SecretId=b6qub2Ak0Hc2oLJQwnkXQo2fHU1SeKQ/Zp5Gz1HXNiU=
+      - VaultOptions__TokenId=s.dnMzpkdGMVweGhDCe1vnRiWl
+      - VaultOptions__Prefix=kv/data
+      - Metrics__Port=3000
+    depends_on: 
+      - population
+      - weather
+      - nearby-cities
+      - discovery
+    networks:
+      - grpc_
   population:
     image: msexp/population-service:0.0.190
     restart: always
@@ -37,6 +37,7 @@ services:
       - SB_PWD=Secr3t
       - SB_PORT=5672
       - LOGGER_HOST=fluentd
+      - LOGGER_PORT=24224
       - REGISTER_AS=localhost
       - METRICS_PORT=3000
     networks:

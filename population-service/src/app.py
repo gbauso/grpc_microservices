@@ -1,8 +1,6 @@
 from concurrent import futures
-import config
 
 import logging
-import config
 import threading
 
 import grpc
@@ -21,6 +19,7 @@ from logger import Logger
 
 import metrics_interceptor
 from prometheus import Prometheus
+from dotenv import load_dotenv
 
 
 class ThreadJob(threading.Thread):
@@ -62,7 +61,7 @@ def serve():
 
     registerAutoDiscovery(server, CityService(),
                           cityinformation_pb2_grpc, discovery)
-    port = os.getenv('PORT', config.port)
+    port = os.getenv('PORT')
 
     server.add_insecure_port('[::]:{}'.format(port))
     logger.info('Server running on [::]:{}'.format(port), {'port': port})
@@ -81,5 +80,6 @@ def registerAutoDiscovery(server, service, grpc, autodiscovery):
 
 
 if __name__ == '__main__':
+    load_dotenv()
     logging.basicConfig()
     serve()
