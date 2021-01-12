@@ -32,10 +32,10 @@ fluentd:
   port: 24244
 
 elastic:
-  image: blacktop/elastic-stack
-  host: elasticsearch
-  kibanaPort: 5601
-  port: 9200
+  host: 
+  region: 
+  accessKey: 
+  accessSecret: 
 
 rabbitmq:
   image: rabbitmq:3.8-management-alpine
