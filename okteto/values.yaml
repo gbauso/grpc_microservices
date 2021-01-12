@@ -1,0 +1,48 @@
+tag: latest
+namespace:
+
+apiGateway:
+  replicaCount: 1
+  image: msexp/api-gateway
+
+discoveryService:
+  replicaCount: 1
+  host: discovery
+  image: msexp/discovery-service
+
+populationService:
+  replicaCount: 2
+  image: msexp/population-service
+
+weatherService:
+  replicaCount: 2
+  image: msexp/weather-service
+
+nearbyCitiesService:
+  replicaCount: 2
+  image: msexp/nearby-cities-service
+
+etcd:
+  host: http://etcd
+  image: bitnami/etcd
+
+fluentd:
+  image: msexp/fluentd:k8s
+  host: fluentd
+  port: 24244
+
+elastic:
+  image: blacktop/elastic-stack
+  host: elasticsearch
+  kibanaPort: 5601
+  port: 9200
+
+rabbitmq:
+  image: rabbitmq:3.8-management-alpine
+  host: rabbitmq
+  port: 5672
+  user: admin
+  password: Secr3t
+
+prometheus:
+  image: prom/prometheus:v2.23.0

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-deployment
+  labels:
+    app: discovery
+spec:
+  replicas: {{ .Values.discoveryService.replicaCount }}
+  selector:
+    matchLabels:
+      app: discovery
+  template:
+    metadata:
+      labels:
+        app: discovery
+    spec:
+      containers:
+      - name: discovery
+        image: {{ .Values.discoveryService.image }}
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "200Mi"
+          requests:
+            memory: "100Mi"
+        env:
+          - name: ServiceBus__Username
+            value: {{ .Values.rabbitmq.user | quote }}
+          - name: ServiceBus__Host
+            value: {{ .Values.rabbitmq.host | quote }}
+          - name: ServiceBus__Password
+            value: {{ .Values.rabbitmq.password | quote }}
+          - name: ConnectionStrings__Etcd
+            value: {{ .Values.etcd.host | quote }}
+          - name: Grpc__Host
+            value: {{ .Values.discoveryService.host | quote }}
+          - name: Grpc__Port
+            value: "80"
+          - name: Logging__Host
+            value: {{ .Values.fluentd.host | quote }}
+          - name: Logging__Port
+            value: {{ .Values.fluentd.port | quote }}
+          - name: Logging__Tag
+            value: "discovery"
+          - name: Metrics__Port
+            value: "3000"
