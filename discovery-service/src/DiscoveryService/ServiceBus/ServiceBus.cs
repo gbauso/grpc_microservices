@@ -19,7 +19,7 @@ namespace DiscoveryService
 
                 if(connection.IsCloudAmqp)
                 {
-                    cfg.Host(connection.Host, 5672, connection.Username, h =>
+                    cfg.Host(connection.Host, connection.Port, connection.Username, h =>
                     {
                         h.Username(connection.Username);
                         h.Password(connection.Password);
