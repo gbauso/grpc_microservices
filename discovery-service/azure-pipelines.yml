@@ -43,7 +43,7 @@ stages:
             containerRegistryType: 'Azure Container Registry'
             outputFormat: 'yaml'
         - task: Kubernetes@1
-          condition: and(succeeded(), eq(variables['IsOketo'], true)) 
+          condition: and(succeeded(), eq(variables['IsOkteto'], true)) 
           inputs:
             connectionType: 'Kubernetes Service Connection'
             kubernetesServiceEndpoint: '$(K8sServiceEndpoint)'

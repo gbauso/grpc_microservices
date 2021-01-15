@@ -74,4 +74,4 @@ spec:
     targetPort: {{ .Values.fluentd.port }} 
     port: {{ .Values.fluentd.port }} 
   selector:
-    app.kubernetes.io/name: fluentd
+    app.kubernetes.io/name: {{ .Values.fluentd.host }} 
