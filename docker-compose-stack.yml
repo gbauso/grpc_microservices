@@ -41,7 +41,6 @@ services:
     image: prom/prometheus:v2.23.0
     volumes:
       - ./infra/prometheus:/etc/prometheus
-      - ./infra/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/config.yaml
     ports:
     - 9090:9090

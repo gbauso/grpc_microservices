@@ -1,0 +1,3 @@
+deploy:
+  - printenv
+  - helm upgrade --install grpc charts 

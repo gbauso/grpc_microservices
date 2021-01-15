@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elk
+  labels:
+    app.kubernetes.io/component: elk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: elk
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: elk
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+          - name: elk
+            image: {{ .Values.elastic.image }}
+            ports:
+            - containerPort: {{ .Values.elastic.kibanaPort }}
+            - containerPort: {{ .Values.elastic.port }}
+            resources:
+              limits:
+                cpu: "750m"
+                memory: "2000Mi"
+              requests:
+                cpu: "500m"
+                memory: "750Mi"

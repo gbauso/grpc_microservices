@@ -3,6 +3,7 @@ using MassTransit;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Security.Authentication;
 
 namespace DiscoveryService
 {
@@ -16,11 +17,27 @@ namespace DiscoveryService
             {
                 var connection = configuration.GetSection("ServiceBus").FromSection<ServiceBusConfiguration>();
 
-                cfg.Host(connection.Host, c =>
+                if(connection.IsCloudAmqp)
                 {
-                    c.Username(connection.Username);
-                    c.Password(connection.Password);
-                });
+                    cfg.Host(connection.Host, connection.Port, connection.Username, h =>
+                    {
+                        h.Username(connection.Username);
+                        h.Password(connection.Password);
+
+                        h.UseSsl(s =>
+                        {
+                            s.Protocol = SslProtocols.Tls12;
+                        }); 
+                    });
+                }
+                else
+                {
+                    cfg.Host(connection.Host, c =>
+                    {
+                        c.Username(connection.Username);
+                        c.Password(connection.Password);
+                    });
+                }
 
 
                 cfg.ReceiveEndpoint("discovery", e =>
