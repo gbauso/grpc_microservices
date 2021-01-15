@@ -38,6 +38,14 @@ stages:
             kubernetesServiceEndpoint: $(K8sServiceEndpoint)
             namespace: $(Namespace)
             command: 'set'
-            arguments: 'image deployment/discovery discovery=$(Repository)/discovery-service:0.0.$(Build.BuildId)'
+            arguments: 'image deployment/discovery discovery=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+        - task: Kubernetes@1
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: '$(K8sServiceEndpoint)'
+            namespace: '$(Namespace)'
+            arguments: 'rollout restart deployment/discovery'
             secretType: 'dockerRegistry'
             containerRegistryType: 'Azure Container Registry'
