@@ -46,6 +46,6 @@ stages:
             connectionType: 'Kubernetes Service Connection'
             kubernetesServiceEndpoint: '$(K8sServiceEndpoint)'
             namespace: '$(Namespace)'
-            arguments: 'rollout restart deployment/discovery'
+            arguments: 'delete pod -l app.kubernetes.io/name=discovery'
             secretType: 'dockerRegistry'
             containerRegistryType: 'Azure Container Registry'
