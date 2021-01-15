@@ -1,30 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: discovery-deployment
+  name: discovery
   labels:
-    app: discovery
+    app.kubernetes.io/component: discovery
 spec:
-  replicas: {{ .Values.discoveryService.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      app: discovery
+      app.kubernetes.io/name: discovery
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: discovery
+        app.kubernetes.io/name: discovery
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      initContainers:
+      {{ include "grpc.initContainers" . }}
       containers:
       - name: discovery
         image: {{ .Values.discoveryService.image }}
         ports:
-        - containerPort: 80
+        - containerPort: {{ .Values.discoveryService.port }} 
         resources:
           limits:
-            cpu: "100m"
-            memory: "200Mi"
+            cpu: "300m"
+            memory: "400Mi"
           requests:
-            memory: "100Mi"
+            cpu: "200m"
+            memory: "200Mi"
         env:
           - name: ServiceBus__Username
             value: {{ .Values.rabbitmq.user | quote }}
@@ -35,9 +40,9 @@ spec:
           - name: ConnectionStrings__Etcd
             value: {{ .Values.etcd.host | quote }}
           - name: Grpc__Host
-            value: {{ .Values.discoveryService.host | quote }}
+            value: "0.0.0.0"
           - name: Grpc__Port
-            value: "80"
+            value: {{ .Values.discoveryService.port | quote }}
           - name: Logging__Host
             value: {{ .Values.fluentd.host | quote }}
           - name: Logging__Port

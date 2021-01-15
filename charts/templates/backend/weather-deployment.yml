@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather
+  labels:
+    app.kubernetes.io/component: {{ .Values.weatherService.host }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.weatherService.host }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.weatherService.host }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{ include "grpc.initContainers" . }}
+      containers:
+      - name: {{ .Values.weatherService.host }}
+        image: {{ .Values.weatherService.image }}
+        ports:
+        - containerPort: {{ .Values.weatherService.port }} 
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+          - name: HOST
+            value: "0.0.0.0"
+          - name: PORT
+            value: {{ .Values.weatherService.port | quote }}
+          - name: SB_USER
+            value: {{ .Values.rabbitmq.user | quote }}
+          - name: SB_HOST
+            value: {{ .Values.rabbitmq.host | quote }}
+          - name: SB_PWD
+            value: {{ .Values.rabbitmq.password | quote }}
+          - name: SB_PORT
+            value: {{ .Values.rabbitmq.port | quote }}
+          - name: LOGGER_HOST
+            value: {{ .Values.fluentd.host | quote }}
+          - name: LOGGER_PORT
+            value: {{ .Values.fluentd.port | quote }}
+          - name: METRICS_PORT
+            value: "3000"
+          - name: REGISTER_AS
+            value: {{ .Values.weatherService.host | quote }}
+          - name: OPENWEATHER_APP_ID
+            value: {{ .Values.weatherService.openWeatherId | quote }}

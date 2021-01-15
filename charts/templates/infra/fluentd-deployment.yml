@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluentd
+  labels:
+    app.kubernetes.io/component: fluentd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fluentd
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fluentd
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: fluentd-volume
+          configMap:
+            name: fluentd
+      containers:
+        - name: fluentd
+          image: {{ .Values.fluentd.image }}
+          resources:
+            limits:
+              cpu: "50m"
+              memory: "100Mi"
+            requests:
+              memory: "100Mi"
+          env:
+            - name: ELASTIC_HOST
+              value: {{ .Values.elastic.host | quote }}
+            - name: ELASTIC_PORT
+              value: {{ .Values.elastic.port | quote }}
+          ports:
+            - containerPort: {{ .Values.fluentd.port }}
+          volumeMounts:
+            - name: fluentd-volume
+              mountPath: /fluentd/etc/
+        

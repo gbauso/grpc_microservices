@@ -4,7 +4,6 @@ metadata:
   name: fluentd
 data:
   fluent.conf: |
-    # fluentd/conf/fluent.conf
     <source>
       @type forward
       port 24224
@@ -14,15 +13,21 @@ data:
       @type record_transformer
       enable_ruby
       <record>
-        timestamp ${ require 'time' }
+        timestamp ${ require 'time'; Time.now.utc.iso8601(3) }
       </record>
     </filter>
     <match *.**>
       @type copy
       <store>   
         @type elasticsearch
-        host {{ .Values.elastic.host }}
+        host {{ .Values.elastic.host | quote }}
         port {{ .Values.elastic.port }}
+        {{- if not .Values.elastic.useLocal }}
+        user {{ .Values.elastic.user | quote }}
+        password {{ .Values.elastic.password | quote }}
+        scheme https
+        index_name fluentd.${tag}
+        {{- end }}
         logstash_format true
         logstash_prefix fluentd
         logstash_dateformat %Y%m%d

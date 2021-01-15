@@ -10,15 +10,46 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- checkout: self
-  submodules: true
-- task: Docker@2
-  inputs:
-    containerRegistry: $(RegistryConnection)
-    repository: $(Repository)
-    command: 'buildAndPush'
-    Dockerfile: '**/nearby-cities-service/Dockerfile'
-    tags: |
-      0.0.$(Build.BuildId)
-      latest
+stages:
+  - stage: 'Build'
+    jobs:
+      - job: 'BuildDockerImage'
+        displayName: 'Build docker image'
+        steps:
+        - checkout: self
+          submodules: true
+        - task: Docker@2
+          inputs:
+            containerRegistry: $(RegistryConnection)
+            repository: $(Repository)
+            command: 'buildAndPush'
+            Dockerfile: '**/nearby-cities-service/Dockerfile'
+            tags: |
+              0.0.$(Build.BuildId)
+              latest
+  - stage: 'Deploy'
+    jobs:
+      - job: 'DeployKubernetes'
+        displayName: 'Deploy to k8s'
+        steps:
+        - task: Kubernetes@1
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'set'
+            arguments: 'image deployment/nearby-cities nearby-cities=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'
+        - task: Kubernetes@1
+          condition: and(succeeded(), eq(variables['IsOketo'], true)) 
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: '$(K8sServiceEndpoint)'
+            namespace: '$(Namespace)'
+            command: 'delete'
+            arguments: 'pod -l app.kubernetes.io/name=nearby-cities'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'

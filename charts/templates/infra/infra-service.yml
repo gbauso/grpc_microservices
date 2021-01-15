@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elastic.host }}
+  {{ if .Values.isOkteto }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+  {{ end }}
+spec:
+  ports:
+  - name: kibana
+    targetPort: {{ .Values.elastic.kibanaPort }}
+    port: {{ .Values.elastic.kibanaPort }}
+  - name: {{ .Values.elastic.host }}
+    targetPort: {{ .Values.elastic.port }}
+    port: {{ .Values.elastic.port }}
+  selector:
+    app.kubernetes.io/name: elk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.prometheus.host }}
+  {{ if .Values.isOkteto }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+  {{ end }}
+spec:
+  ports:
+  - name: http
+    targetPort: {{ .Values.prometheus.port }}
+    port: {{ .Values.prometheus.port }}
+  selector:
+    app.kubernetes.io/name: {{ .Values.prometheus.host }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.rabbitmq.host }}
+  {{ if .Values.isOkteto }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+  {{ end }}
+spec:
+  ports:
+  - name: http
+    targetPort: 15672
+    port: 15672
+  - name: amqp
+    targetPort: 5672
+    port: 5672
+  selector:
+    app.kubernetes.io/name: rabbitmq
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+spec:
+  ports:
+  - name: db
+    targetPort: 2379
+    port: 2379
+  selector:
+    app.kubernetes.io/name: etcd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.fluentd.host }} 
+spec:
+  ports:
+  - name: logging
+    targetPort: {{ .Values.fluentd.port }} 
+    port: {{ .Values.fluentd.port }} 
+  selector:
+    app.kubernetes.io/name: fluentd
