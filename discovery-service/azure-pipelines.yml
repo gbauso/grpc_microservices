@@ -11,7 +11,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-  - stage: 'Buil'
+  - stage: 'Build'
     jobs:
       - job: 'BuildDockerImage'
         displayName: 'Build docker image'
@@ -36,7 +36,8 @@ stages:
           inputs:
             connectionType: 'Kubernetes Service Connection'
             kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: ${Namespace}
             command: 'set'
-            arguments: 'image deployment/discovery www=$(Repository)/discovery-service:0.0.$(Build.BuildId)'
+            arguments: 'image deployment/discovery discovery=$(Repository)/discovery-service:0.0.$(Build.BuildId)'
             secretType: 'dockerRegistry'
             containerRegistryType: 'Azure Container Registry'
