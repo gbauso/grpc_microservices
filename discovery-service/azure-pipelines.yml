@@ -36,7 +36,7 @@ stages:
           inputs:
             connectionType: 'Kubernetes Service Connection'
             kubernetesServiceEndpoint: $(K8sServiceEndpoint)
-            namespace: ${Namespace}
+            namespace: $(Namespace)
             command: 'set'
             arguments: 'image deployment/discovery discovery=$(Repository)/discovery-service:0.0.$(Build.BuildId)'
             secretType: 'dockerRegistry'
