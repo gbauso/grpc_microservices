@@ -20,6 +20,7 @@ spec:
       containers:
       - name: {{ .Values.weatherService.host }}
         image: {{ .Values.weatherService.image }}
+        imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.weatherService.port }} 
         resources:

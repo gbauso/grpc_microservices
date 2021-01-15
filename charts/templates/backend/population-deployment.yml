@@ -20,6 +20,7 @@ spec:
       containers:
       - name: {{ .Values.populationService.host }} 
         image: {{ .Values.populationService.image }}
+        imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.populationService.port }} 
         resources:

@@ -21,6 +21,7 @@ spec:
       containers:
       - name: discovery
         image: {{ .Values.discoveryService.image }}
+        imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.discoveryService.port }} 
         resources:

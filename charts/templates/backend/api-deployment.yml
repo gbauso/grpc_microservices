@@ -20,6 +20,7 @@ spec:
       containers:
       - name: {{ .Values.apiGateway.host }} 
         image: {{ .Values.apiGateway.image }}
+        imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.apiGateway.port }} 
         resources:

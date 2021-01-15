@@ -20,6 +20,7 @@ spec:
       containers:
       - name: {{ .Values.nearbyCitiesService.host }}
         image: {{ .Values.nearbyCitiesService.image }}
+        imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.nearbyCitiesService.port }} 
         resources:
