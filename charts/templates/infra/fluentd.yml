@@ -41,11 +41,6 @@ spec:
               memory: "100Mi"
             requests:
               memory: "100Mi"
-          env:
-            - name: ELASTIC_HOST
-              value: {{ .Values.elastic.host | quote }}
-            - name: ELASTIC_PORT
-              value: {{ .Values.elastic.port | quote }}
           ports:
             - containerPort: {{ .Values.fluentd.port }}
           volumeMounts:
@@ -76,12 +71,6 @@ data:
         @type elasticsearch
         host {{ .Values.elastic.host | quote }}
         port {{ .Values.elastic.port }}
-        {{- if not .Values.elastic.useLocal }}
-        user {{ .Values.elastic.user | quote }}
-        password {{ .Values.elastic.password | quote }}
-        scheme https
-        index_name fluentd.${tag}
-        {{- end }}
         logstash_format true
         logstash_prefix fluentd
         logstash_dateformat %Y%m%d
