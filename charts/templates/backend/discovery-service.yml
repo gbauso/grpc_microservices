@@ -53,7 +53,7 @@ spec:
           - name: ServiceBus__Password
             value: {{ .Values.rabbitmq.password | quote }}
           - name: ConnectionStrings__Etcd
-            value: http://{{ .Values.etcd.host | quote }}
+            value: "http://{{ .Values.etcd.host }}"
           - name: Grpc__Host
             value: "0.0.0.0"
           - name: Grpc__Port
