@@ -1,6 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.etcd.namespace }}
+  {{ end }}
   name: {{ .Values.etcd.host }}
 spec:
   ports:
@@ -13,6 +16,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.etcd.namespace }}
+  {{ end }}
   name: {{ .Values.etcd.host }}
   labels:
     app.kubernetes.io/component: {{ .Values.etcd.host }}
@@ -24,6 +30,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      {{- if not .Values.isOkteto }}
+      namespace: {{ .Values.etcd.namespace }}
+      {{ end }}
       labels:
         app: {{ .Values.etcd.host }}
         app.kubernetes.io/instance: {{ .Release.Name }}

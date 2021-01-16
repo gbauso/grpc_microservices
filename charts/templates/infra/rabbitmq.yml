@@ -2,6 +2,9 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.rabbitmq.namespace }}
+  {{ end }}
   name: {{ .Values.rabbitmq.host }}-gateway
 spec:
   selector:
@@ -17,6 +20,9 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.rabbitmq.namespace }}
+  {{ end }}
   name: {{ .Values.rabbitmq.host }}
 spec:
   hosts:
@@ -34,6 +40,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.rabbitmq.namespace }}
+  {{ end }}
   name: {{ .Values.rabbitmq.host }}
   labels:
     app: {{ .Values.rabbitmq.host }}
@@ -56,6 +65,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.rabbitmq.namespace }}
+  {{ end }}
   name: rabbitmq
   labels:
     app.kubernetes.io/component: rabbitmq

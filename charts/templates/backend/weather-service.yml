@@ -1,6 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.weatherService.namespace }}
+  {{ end }}
   name: {{ .Values.weatherService.host }} 
 spec:
   ports:
@@ -14,6 +17,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.weatherService.namespace }}
+  {{ end }}
   name: weather
   labels:
     app.kubernetes.io/component: {{ .Values.weatherService.host }}
@@ -25,6 +31,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      {{- if not .Values.isOkteto }}
+      namespace: {{ .Values.weatherService.namespace }}
+      {{ end }}
       labels:
         app: {{ .Values.weatherService.host }}
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -51,9 +60,9 @@ spec:
           - name: SB_USER
             value: {{ .Values.rabbitmq.user | quote }}
           - name: SB_HOST
-            value: {{ .Values.rabbitmq.host | quote }}
+            value: "{{ .Values.rabbitmq.host }}{{ coalesce .Values.rabbitmq.namespace (printf ". %s" .Values.rabbitmq.namespace) "" }}"
           - name: SB_PWD
-            value: {{ .Values.rabbitmq.password | quote }}
+            value: {{ .Values.rabbitmq.password }}
           - name: SB_PORT
             value: {{ .Values.rabbitmq.port | quote }}
           - name: LOGGER_HOST

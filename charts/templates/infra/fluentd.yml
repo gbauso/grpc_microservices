@@ -1,6 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.fluentd.namespace }}
+  {{ end }}
   name: {{ .Values.fluentd.host }} 
 spec:
   ports:
@@ -13,6 +16,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.fluentd.namespace }}
+  {{ end }}
   name: {{ .Values.fluentd.host }} 
   labels:
     app.kubernetes.io/component: {{ .Values.fluentd.host }} 
@@ -32,6 +38,7 @@ spec:
         - name: fluentd-volume
           configMap:
             name: fluentd
+      {{ include "grpc.initContainers" . }}
       containers:
         - name: fluentd
           image: {{ .Values.fluentd.image }}
@@ -50,6 +57,9 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.fluentd.namespace }}
+  {{ end }}
   name: fluentd
 data:
   fluent.conf: |

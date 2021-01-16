@@ -7,53 +7,61 @@ apiGateway:
   replicaCount: 2
   host: api
   port: 5600
+  namespace: api
   image: msexp/api-gateway
 
 discoveryService:
   replicaCount: 2
   host: discovery
   port: 5650
+  namespace: backend
   image: msexp/discovery-service
 
 populationService:
   replicaCount: 3
   host: population
   port: 5650
+  namespace: backend
   image: msexp/population-service
 
 weatherService:
   replicaCount: 3
   host: weather
   port: 5650
-  openWeatherId: 
+  namespace: backend
   image: msexp/weather-service
 
 nearbyCitiesService:
   replicaCount: 3
   host: nearby-cities
   port: 5650
+  namespace: backend
   image: msexp/nearby-cities-service
 
 etcd:
   host: etcd
   image: bitnami/etcd
   port: 2379
+  namespace: infra
 
 fluentd:
   image: msexp/fluentd:k8s
   host: fluentd
   port: 24224
+  namespace: infra
 
 elastic:
   image: blacktop/elastic-stack
   host: elasticsearch
   kibanaPort: 80
   port: 9200
+  namespace: infra
   
 rabbitmq:
   image: rabbitmq:3.8-management-alpine
   host: rabbitmq
   port: 5672
+  namespace: infra
   adminPort: 15672
   user: admin
   password: Secr3t
@@ -62,3 +70,4 @@ prometheus:
   image: prom/prometheus:v2.23.0
   host: prom
   port: 9090
+  namespace: infra
