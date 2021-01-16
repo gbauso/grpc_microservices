@@ -60,7 +60,7 @@ spec:
           - name: SB_USER
             value: {{ .Values.rabbitmq.user | quote }}
           - name: SB_HOST
-            value: "{{ .Values.rabbitmq.host }}{{ coalesce .Values.rabbitmq.namespace (printf ". %s" .Values.rabbitmq.namespace) "" }}"
+            value: {{ include "grpc.rabbitmmq" . }}
           - name: SB_PWD
             value: {{ .Values.rabbitmq.password | quote }}
           - name: SB_PORT
