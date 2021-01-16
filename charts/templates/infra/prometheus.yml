@@ -1,0 +1,78 @@
+{{ if .Values.isOkteto }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.prometheus.host }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+spec:
+  ports:
+  - name: http
+    targetPort: {{ .Values.prometheus.port }}
+    port: {{ .Values.prometheus.port }}
+  selector:
+    app: {{ .Values.prometheus.host }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.prometheus.host }}
+  labels:
+    app.kubernetes.io/component: {{ .Values.prometheus.host }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.prometheus.host }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.prometheus.host }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: prometheus-volume
+          configMap:
+            name: prometheus
+      containers:
+        - name: prometheus
+          image: {{ .Values.prometheus.image }}
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "300Mi"
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+          ports:
+            - containerPort: {{ .Values.prometheus.port }}
+          volumeMounts:
+            - name: prometheus-volume
+              mountPath: /etc/prometheus
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      external_labels:
+        monitor: grpc-monitor
+    scrape_configs:
+      - job_name: prometheus
+        scrape_interval: 5s
+        static_configs:
+          - targets:
+              - 'localhost:9090'
+              {{- if .Values.isOkteto }}
+              - {{ .Values.apiGateway.host }}:{{ .Values.metricsPort }}
+              - {{ .Values.discoveryService.host }}:{{ .Values.metricsPort }}
+              - {{ .Values.nearbyCitiesService.host }}:{{ .Values.metricsPort }}
+              - {{ .Values.populationService.host }}:{{ .Values.metricsPort }}
+              - {{ .Values.weatherService.host }}:{{ .Values.metricsPort }}
+              {{ end }}
+{{ end }}
+        

@@ -1,36 +1,35 @@
-isOkteto: true
-monitoringNamespace:
+isOkteto: false
 metricsPort: 3000
-pullPolicy: Always
-domain:
+pullPolicy: IfNotPresent
+domain: localhost
 
 apiGateway:
-  replicaCount: 1
+  replicaCount: 2
   host: api
   port: 5600
   image: msexp/api-gateway
 
 discoveryService:
-  replicaCount: 1
+  replicaCount: 2
   host: discovery
   port: 5650
   image: msexp/discovery-service
 
 populationService:
-  replicaCount: 1
+  replicaCount: 3
   host: population
   port: 5650
   image: msexp/population-service
 
 weatherService:
-  replicaCount: 1
+  replicaCount: 3
   host: weather
   port: 5650
   openWeatherId: 
   image: msexp/weather-service
 
 nearbyCitiesService:
-  replicaCount: 1
+  replicaCount: 3
   host: nearby-cities
   port: 5650
   image: msexp/nearby-cities-service

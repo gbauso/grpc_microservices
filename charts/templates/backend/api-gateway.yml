@@ -1,3 +1,53 @@
+{{- if not .Values.isOkteto }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ .Values.apiGateway.host }}-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "api.{{ .Values.domain }}"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Values.apiGateway.host }}
+spec:
+  hosts:
+  - "api.{{ .Values.domain }}"
+  gateways:
+  - {{ .Values.apiGateway.host }}-gateway
+  http:
+  - route:
+    - destination:
+        host: {{ .Values.apiGateway.host }}
+        port:
+          number: {{ .Values.apiGateway.port }}
+---
+{{ end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.apiGateway.host }} 
+  {{ if .Values.isOkteto }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+  {{ end }}
+spec:
+  ports:
+  - name: http
+    targetPort: {{ .Values.apiGateway.port }} 
+    port: {{ .Values.apiGateway.port }} 
+  {{ include "grpc.metrics" .}}
+  selector:
+    app: {{ .Values.apiGateway.host }} 
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,22 +55,22 @@ metadata:
   labels:
     app.kubernetes.io/component: {{ .Values.apiGateway.host }} 
 spec:
-  replicas: 1
+  replicas: {{ .Values.apiGateway.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Values.apiGateway.host }} 
+      app: {{ .Values.apiGateway.host }} 
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ .Values.apiGateway.host }} 
+        app: {{ .Values.apiGateway.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       {{ include "grpc.initContainers" . }}
       containers:
       - name: {{ .Values.apiGateway.host }} 
         image: {{ .Values.apiGateway.image }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
         - containerPort: {{ .Values.apiGateway.port }} 
         resources:

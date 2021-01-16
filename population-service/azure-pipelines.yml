@@ -49,7 +49,7 @@ stages:
             kubernetesServiceEndpoint: '$(K8sServiceEndpoint)'
             namespace: '$(Namespace)'
             command: 'delete'
-            arguments: 'pod -l app.kubernetes.io/name=population'
+            arguments: 'pod -l app=population'
             secretType: 'dockerRegistry'
             containerRegistryType: 'Azure Container Registry'
             outputFormat: 'yaml'

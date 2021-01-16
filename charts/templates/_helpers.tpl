@@ -46,7 +46,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "grpc.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "grpc.name" . }}
+app: {{ include "grpc.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
