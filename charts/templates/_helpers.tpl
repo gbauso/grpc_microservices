@@ -80,3 +80,11 @@ initContainers:
     targetPort: {{ .Values.metricsPort }} 
     port: {{ .Values.metricsPort }}
 {{- end }}
+
+{{- define "grpc.rabbitmmq" -}}
+{{- if .Values.rabbitmq.namespace }}
+{{- printf "%s.%s" .Values.rabbitmq.host .Values.rabbitmq.namespace }}
+{{- else }}
+{{- .Values.rabbitmq.host }}
+{{- end }}
+{{- end }}
