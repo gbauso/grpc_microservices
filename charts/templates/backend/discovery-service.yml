@@ -57,17 +57,17 @@ spec:
           - name: ServiceBus__Username
             value: {{ .Values.rabbitmq.user | quote }}
           - name: ServiceBus__Host
-            value: "{{ .Values.rabbitmq.host }}{{ coalesce .Values.rabbitmq.namespace (printf ". %s" .Values.rabbitmq.namespace) "" }}"
+            value: {{ include "grpc.rabbitmq" . }}
           - name: ServiceBus__Password
             value: {{ .Values.rabbitmq.password | quote }}
           - name: ConnectionStrings__Etcd
-            value: "http://{{ .Values.etcd.host }}"
+            value: "http://{{ include "grpc.etcd" . }}"
           - name: Grpc__Host
             value: "0.0.0.0"
           - name: Grpc__Port
             value: {{ .Values.discoveryService.port | quote }}
           - name: Logging__Host
-            value: {{ .Values.fluentd.host | quote }}
+            value: {{ include "grpc.fluentd" . }}
           - name: Logging__Port
             value: {{ .Values.fluentd.port | quote }}
           - name: Logging__Tag

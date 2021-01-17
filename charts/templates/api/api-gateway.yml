@@ -96,9 +96,9 @@ spec:
           - name: ASPNETCORE_URLS
             value: "http://+:{{ .Values.apiGateway.port }}"
           - name: DiscoveryService__Url
-            value: "{{ .Values.discoveryService.host }}:{{ .Values.discoveryService.port }}"
+            value: "{{ include "grpc.discoveryService" . }}:{{ .Values.discoveryService.port }}"
           - name: Logging__Host
-            value: {{ .Values.fluentd.host | quote }}
+            value: {{ include "grpc.fluentd" . }}
           - name: Logging__Port
             value: {{ .Values.fluentd.port | quote }}
           - name: Logging__Tag

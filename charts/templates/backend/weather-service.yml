@@ -60,18 +60,18 @@ spec:
           - name: SB_USER
             value: {{ .Values.rabbitmq.user | quote }}
           - name: SB_HOST
-            value: "{{ .Values.rabbitmq.host }}{{ coalesce .Values.rabbitmq.namespace (printf ". %s" .Values.rabbitmq.namespace) "" }}"
+            value: {{ include "grpc.rabbitmq" . }}
           - name: SB_PWD
             value: {{ .Values.rabbitmq.password }}
           - name: SB_PORT
             value: {{ .Values.rabbitmq.port | quote }}
           - name: LOGGER_HOST
-            value: {{ .Values.fluentd.host | quote }}
+            value: {{ include "grpc.fluentd" . }}
           - name: LOGGER_PORT
             value: {{ .Values.fluentd.port | quote }}
           - name: METRICS_PORT
             value: "3000"
           - name: REGISTER_AS
-            value: {{ .Values.weatherService.host | quote }}
+            value: {{ include "grpc.weatherService" . }}
           - name: OPENWEATHER_APP_ID
             value: {{ .Values.weatherService.openWeatherId | quote }}
