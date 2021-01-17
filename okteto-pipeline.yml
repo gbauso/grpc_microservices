@@ -1,3 +1,2 @@
 deploy:
-  - printenv
-  - helm upgrade --install grpc charts 
+  - helm upgrade --install grpc charts --set weatherService.openWeatherId=${OPENWEATHER_ID}

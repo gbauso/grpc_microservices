@@ -1,28 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.weatherService.namespace }}
+  {{ end }}
+  name: {{ .Values.weatherService.host }} 
+spec:
+  ports:
+  - name: grpc
+    targetPort: {{ .Values.weatherService.port }} 
+    port: {{ .Values.weatherService.port }} 
+  {{ include "grpc.metrics" .}}
+  selector:
+    app: {{ .Values.weatherService.host }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: weather
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.weatherService.namespace }}
+  {{ end }}
+  name: weather       
   labels:
     app.kubernetes.io/component: {{ .Values.weatherService.host }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.weatherService.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Values.weatherService.host }}
+      app: {{ .Values.weatherService.host }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      {{- if not .Values.isOkteto }}
+      namespace: {{ .Values.weatherService.namespace }}
+      {{ end }}
       labels:
-        app.kubernetes.io/name: {{ .Values.weatherService.host }}
+        app: {{ .Values.weatherService.host }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       {{ include "grpc.initContainers" . }}
       containers:
       - name: {{ .Values.weatherService.host }}
         image: {{ .Values.weatherService.image }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.weatherService.port }} 
+        - containerPort: {{ .Values.weatherService.port }}
+        - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
             cpu: "300m"
@@ -38,18 +61,18 @@ spec:
           - name: SB_USER
             value: {{ .Values.rabbitmq.user | quote }}
           - name: SB_HOST
-            value: {{ .Values.rabbitmq.host | quote }}
+            value: {{ include "grpc.rabbitmq" . }}
           - name: SB_PWD
-            value: {{ .Values.rabbitmq.password | quote }}
+            value: {{ .Values.rabbitmq.password }}
           - name: SB_PORT
             value: {{ .Values.rabbitmq.port | quote }}
           - name: LOGGER_HOST
-            value: {{ .Values.fluentd.host | quote }}
+            value: {{ include "grpc.fluentd" . }}
           - name: LOGGER_PORT
             value: {{ .Values.fluentd.port | quote }}
           - name: METRICS_PORT
-            value: "3000"
+            value: {{ .Values.metricsPort | quote }}
           - name: REGISTER_AS
-            value: {{ .Values.weatherService.host | quote }}
+            value: {{ include "grpc.weatherService" . }}
           - name: OPENWEATHER_APP_ID
             value: {{ .Values.weatherService.openWeatherId | quote }}

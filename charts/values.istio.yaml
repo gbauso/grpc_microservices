@@ -1,68 +1,68 @@
-isOkteto: true
+isOkteto: false
 metricsPort: 3000
-pullPolicy: Always
-domain:
+pullPolicy: IfNotPresent
+domain: localhost
 
 apiGateway:
-  replicaCount: 1
+  replicaCount: 2
   host: api
   port: 5600
-  namespace:
+  namespace: api
   image: msexp/api-gateway
 
 discoveryService:
-  replicaCount: 1
+  replicaCount: 2
   host: discovery
   port: 5650
-  namespace:
+  namespace: backend
   image: msexp/discovery-service
 
 populationService:
-  replicaCount: 1
+  replicaCount: 3
   host: population
   port: 5650
-  namespace:
+  namespace: backend
   image: msexp/population-service
 
 weatherService:
-  replicaCount: 1
+  replicaCount: 3
   host: weather
   port: 5650
-  namespace:
+  namespace: backend
   openWeatherId: 5e1faa4ff336e703c364487b3ec7f325
   image: msexp/weather-service
 
 nearbyCitiesService:
-  replicaCount: 1
+  replicaCount: 3
   host: nearby-cities
   port: 5650
-  namespace:
+  namespace: backend
   image: msexp/nearby-cities-service
 
 etcd:
   host: etcd
   image: bitnami/etcd
   port: 2379
-  namespace:
+  namespace: infra
 
 fluentd:
   image: msexp/fluentd:k8s
   host: fluentd
   port: 24224
-  namespace:
+  namespace: infra
 
 elastic:
   image: blacktop/elastic-stack
   host: elasticsearch
   kibanaPort: 80
   port: 9200
-  namespace:
+  namespace: infra
   
 rabbitmq:
   image: rabbitmq:3.8-management-alpine
   host: rabbitmq
   port: 5672
-  namespace:
+  namespace: infra
   adminPort: 15672
   user: admin
   password: Secr3t
@@ -71,4 +71,4 @@ prometheus:
   image: prom/prometheus:v2.23.0
   host: prom
   port: 9090
-  namespace:
+  namespace: infra

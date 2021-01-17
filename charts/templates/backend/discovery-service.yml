@@ -1,29 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.discoveryService.host }} 
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.discoveryService.namespace }}
+  {{ end }}
+spec:
+  ports:
+  - name: http2
+    targetPort: {{ .Values.discoveryService.port }} 
+    port: {{ .Values.discoveryService.port }} 
+  {{ include "grpc.metrics" .}}
+  selector:
+    app: {{ .Values.discoveryService.host }} 
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: discovery
+  name: {{ .Values.discoveryService.host }}
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.discoveryService.namespace }}
+  {{ end }}
   labels:
-    app.kubernetes.io/component: discovery
+    app.kubernetes.io/component: {{ .Values.discoveryService.host }} 
 spec:
-  replicas: 1
+  replicas: {{ .Values.discoveryService.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: discovery
+      app: {{ .Values.discoveryService.host }} 
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      {{- if not .Values.isOkteto }}
+      namespace: {{ .Values.discoveryService.namespace }}
+      {{ end }}
       labels:
-        app.kubernetes.io/name: discovery
+        app: {{ .Values.discoveryService.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       initContainers:
       {{ include "grpc.initContainers" . }}
       containers:
-      - name: discovery
+      - name: {{ .Values.discoveryService.host }} 
         image: {{ .Values.discoveryService.image }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
         - containerPort: {{ .Values.discoveryService.port }} 
+        - containerPort: {{ .Values.metricsPort }}
         resources:
           limits:
             cpu: "300m"
@@ -35,20 +58,20 @@ spec:
           - name: ServiceBus__Username
             value: {{ .Values.rabbitmq.user | quote }}
           - name: ServiceBus__Host
-            value: {{ .Values.rabbitmq.host | quote }}
+            value: {{ include "grpc.rabbitmq" . }}
           - name: ServiceBus__Password
             value: {{ .Values.rabbitmq.password | quote }}
           - name: ConnectionStrings__Etcd
-            value: {{ .Values.etcd.host | quote }}
+            value: "http://{{ include "grpc.etcd" . }}"
           - name: Grpc__Host
             value: "0.0.0.0"
           - name: Grpc__Port
             value: {{ .Values.discoveryService.port | quote }}
           - name: Logging__Host
-            value: {{ .Values.fluentd.host | quote }}
+            value: {{ include "grpc.fluentd" . }}
           - name: Logging__Port
             value: {{ .Values.fluentd.port | quote }}
           - name: Logging__Tag
             value: "discovery"
           - name: Metrics__Port
-            value: "3000"
+            value: {{ .Values.metricsPort | quote }}

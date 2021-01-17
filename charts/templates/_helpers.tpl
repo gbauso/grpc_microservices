@@ -46,7 +46,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "grpc.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "grpc.name" . }}
+app: {{ include "grpc.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
@@ -66,17 +66,96 @@ initContainers:
       - name: check-rabbitmq-ready
         image: busybox
         command: [ 'sh', '-c',
-            'until wget http://{{ .Values.rabbitmq.user }}:{{ .Values.rabbitmq.password }}@{{ .Values.rabbitmq.host }}:15672/api/aliveness-test/%2F;
+            'until wget http://{{ .Values.rabbitmq.user }}:{{ .Values.rabbitmq.password }}@{{ include "grpc.rabbitmq" . }}:15672/api/aliveness-test/%2F;
             do echo waiting for rabbitmq; sleep 2; done;' ]
+        resources:
+            limits:
+              cpu: "50m"
+              memory: "100Mi"
       - name: check-elk-ready
         image: busybox
         command: [ 'sh', '-c',
-            'until wget http://{{ .Values.elastic.host }}:{{ .Values.elastic.port }};
-            do echo waiting for {{ .Values.elastic.host }}; sleep 2; done;' ]
+            'until wget http://{{ include "grpc.elastic" . }}:{{ .Values.elastic.port }};
+            do echo waiting for {{ include "grpc.elastic" . }}; sleep 2; done;' ]
+        resources:
+            limits:
+              cpu: "50m"
+              memory: "100Mi"
 {{- end }}
 
 {{- define "grpc.metrics" -}}
 - name: metrics
     targetPort: {{ .Values.metricsPort }} 
     port: {{ .Values.metricsPort }}
+{{- end }}
+
+{{- define "grpc.metrics.annotation" -}}
+annotations:
+    prometheus.io/scrape: true   
+    prometheus.io/path: /metrics 
+    prometheus.io/port: 3000
+{{- end }}
+
+{{- define "grpc.rabbitmq" -}}
+{{- if .Values.rabbitmq.namespace }}
+{{- printf "%s.%s" .Values.rabbitmq.host .Values.rabbitmq.namespace }}
+{{- else }}
+{{- .Values.rabbitmq.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.etcd" -}}
+{{- if .Values.etcd.namespace }}
+{{- printf "%s.%s" .Values.etcd.host .Values.etcd.namespace }}
+{{- else }}
+{{- .Values.etcd.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.fluentd" -}}
+{{- if .Values.fluentd.namespace }}
+{{- printf "%s.%s" .Values.fluentd.host .Values.fluentd.namespace }}
+{{- else }}
+{{- .Values.fluentd.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.elastic" -}}
+{{- if .Values.elastic.namespace }}
+{{- printf "%s.%s" .Values.elastic.host .Values.elastic.namespace }}
+{{- else }}
+{{- .Values.elastic.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.weatherService" -}}
+{{- if .Values.weatherService.namespace }}
+{{- printf "%s.%s" .Values.weatherService.host .Values.weatherService.namespace }}
+{{- else }}
+{{- .Values.weatherService.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.populationService" -}}
+{{- if .Values.populationService.namespace }}
+{{- printf "%s.%s" .Values.populationService.host .Values.populationService.namespace }}
+{{- else }}
+{{- .Values.populationService.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.discoveryService" -}}
+{{- if .Values.discoveryService.namespace }}
+{{- printf "%s.%s" .Values.discoveryService.host .Values.discoveryService.namespace }}
+{{- else }}
+{{- .Values.discoveryService.host }}
+{{- end }}
+{{- end }}
+
+{{- define "grpc.nearbyCitiesService" -}}
+{{- if .Values.nearbyCitiesService.namespace }}
+{{- printf "%s.%s" .Values.nearbyCitiesService.host .Values.nearbyCitiesService.namespace }}
+{{- else }}
+{{- .Values.nearbyCitiesService.host }}
+{{- end }}
 {{- end }}
