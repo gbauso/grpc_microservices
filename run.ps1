@@ -33,7 +33,7 @@ catch {
 }
 
 try {
-    helm upgrade --install -f ./charts/values.istio.yaml grpc charts --set weather.openWeatherId=$open_weather_id
+    helm upgrade --install -f ./charts/values.istio.yaml grpc charts --set weatherService.openWeatherId=$open_weather_id
 }
 catch {
     Write-Output "Error: You don't have helm charts installed"
