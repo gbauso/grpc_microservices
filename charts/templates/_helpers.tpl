@@ -81,6 +81,13 @@ initContainers:
     port: {{ .Values.metricsPort }}
 {{- end }}
 
+{{- define "grpc.metrics.annotation" -}}
+annotations:
+    prometheus.io/scrape: true   
+    prometheus.io/path: /metrics 
+    prometheus.io/port: 3000
+{{- end }}
+
 {{- define "grpc.rabbitmq" -}}
 {{- if .Values.rabbitmq.namespace }}
 {{- printf "%s.%s" .Values.rabbitmq.host .Values.rabbitmq.namespace }}

@@ -20,7 +20,7 @@ metadata:
   {{- if not .Values.isOkteto }}
   namespace: {{ .Values.weatherService.namespace }}
   {{ end }}
-  name: weather
+  name: weather       
   labels:
     app.kubernetes.io/component: {{ .Values.weatherService.host }}
 spec:
@@ -44,7 +44,8 @@ spec:
         image: {{ .Values.weatherService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.weatherService.port }} 
+        - containerPort: {{ .Values.weatherService.port }}
+        - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
             cpu: "300m"
@@ -70,7 +71,7 @@ spec:
           - name: LOGGER_PORT
             value: {{ .Values.fluentd.port | quote }}
           - name: METRICS_PORT
-            value: "3000"
+            value: {{ .Values.metricsPort | quote }}
           - name: REGISTER_AS
             value: {{ include "grpc.weatherService" . }}
           - name: OPENWEATHER_APP_ID

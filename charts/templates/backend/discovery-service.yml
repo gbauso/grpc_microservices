@@ -17,7 +17,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.discoveryService.host }} 
+  name: {{ .Values.discoveryService.host }}
   {{- if not .Values.isOkteto }}
   namespace: {{ .Values.discoveryService.namespace }}
   {{ end }}
@@ -46,6 +46,7 @@ spec:
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
         - containerPort: {{ .Values.discoveryService.port }} 
+        - containerPort: {{ .Values.metricsPort }}
         resources:
           limits:
             cpu: "300m"
@@ -73,4 +74,4 @@ spec:
           - name: Logging__Tag
             value: "discovery"
           - name: Metrics__Port
-            value: "3000"
+            value: {{ .Values.metricsPort | quote }}

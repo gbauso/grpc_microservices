@@ -44,7 +44,8 @@ spec:
         image: {{ .Values.populationService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.populationService.port }} 
+        - containerPort: {{ .Values.populationService.port }}
+        - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
             cpu: "300m"
@@ -70,6 +71,6 @@ spec:
           - name: LOGGER_PORT
             value: {{ .Values.fluentd.port | quote }}
           - name: METRICS_PORT
-            value: "3000"
+            value: {{ .Values.metricsPort | quote }}
           - name: REGISTER_AS
             value: {{ include "grpc.populationService" . }}

@@ -63,7 +63,7 @@ metadata:
   {{- if not .Values.isOkteto }}
   namespace: {{ .Values.apiGateway.namespace }}
   {{ end }}
-  name: {{ .Values.apiGateway.host }} 
+  name: {{ .Values.apiGateway.host }}
   labels:
     app.kubernetes.io/component: {{ .Values.apiGateway.host }} 
 spec:
@@ -84,7 +84,8 @@ spec:
         image: {{ .Values.apiGateway.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.apiGateway.port }} 
+        - containerPort: {{ .Values.apiGateway.port }}
+        - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
             cpu: "300m"
@@ -104,4 +105,4 @@ spec:
           - name: Logging__Tag
             value: {{ .Values.apiGateway.host | quote }}
           - name: Metrics__Port
-            value: "3000"
+            value: {{ .Values.metricsPort | quote }}
