@@ -68,11 +68,19 @@ initContainers:
         command: [ 'sh', '-c',
             'until wget http://{{ .Values.rabbitmq.user }}:{{ .Values.rabbitmq.password }}@{{ include "grpc.rabbitmq" . }}:15672/api/aliveness-test/%2F;
             do echo waiting for rabbitmq; sleep 2; done;' ]
+        resources:
+            limits:
+              cpu: "50m"
+              memory: "100Mi"
       - name: check-elk-ready
         image: busybox
         command: [ 'sh', '-c',
             'until wget http://{{ include "grpc.elastic" . }}:{{ .Values.elastic.port }};
             do echo waiting for {{ include "grpc.elastic" . }}; sleep 2; done;' ]
+        resources:
+            limits:
+              cpu: "50m"
+              memory: "100Mi"
 {{- end }}
 
 {{- define "grpc.metrics" -}}
