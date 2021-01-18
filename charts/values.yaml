@@ -29,7 +29,7 @@ weatherService:
   host: weather
   port: 5650
   namespace:
-  openWeatherId: 5e1faa4ff336e703c364487b3ec7f325
+  openWeatherId: 
   image: msexp/weather-service
 
 nearbyCitiesService:
