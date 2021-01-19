@@ -39,11 +39,14 @@ nearbyCitiesService:
   namespace: backend
   image: msexp/nearby-cities-service
 
-etcd:
-  host: etcd
-  image: bitnami/etcd
-  port: 2379
-  namespace: infra
+pgsql:
+  host: postgres
+  image: postgres:12-alpine
+  port: 5432
+  user: admin
+  password: Secr3t
+  database: discovery
+  namespace:
 
 fluentd:
   image: msexp/fluentd:k8s

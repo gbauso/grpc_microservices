@@ -31,7 +31,7 @@ services:
       - ServiceBus__Username=${SERVICE_BUS_USER}
       - ServiceBus__Host=${SERVICE_BUS_HOST}
       - ServiceBus__Password=${SERVICE_BUS_PASSWORD}
-      - ConnectionStrings__Etcd=${ETCD_CONNECTION_STRING}
+      - ConnectionStrings__DiscoveryDbContext=User ID=${PG_USER};Password=${PG_PWD};Host=${PG_HOST};Port=${PG_PORT};Database=${PG_DB};
       - Grpc__Host=${DISCOVERY_REGISTER_AS}
       - Grpc__Port=${DISCOVERY_GRPC_PORT}
       - Logging__Host=${LOGGER_HOST}
