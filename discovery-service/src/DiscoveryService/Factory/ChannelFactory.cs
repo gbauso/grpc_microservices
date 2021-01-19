@@ -7,7 +7,7 @@ namespace DiscoveryService.Factory
     {
         private readonly IDictionary<string, Channel> _instances = new Dictionary<string, Channel>();
 
-        public Channel GetChannel(string key)
+        public virtual Channel GetChannel(string key)
         {
             if (_instances.ContainsKey(key))
             {

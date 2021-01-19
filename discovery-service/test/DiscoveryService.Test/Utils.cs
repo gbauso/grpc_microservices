@@ -1,3 +1,4 @@
+using DiscoveryService.Factory;
 using DiscoveryService.Infra.Operations;
 using DiscoveryService.Infra.UnitOfWork;
 using MassTransit;
@@ -21,5 +22,6 @@ namespace DiscoveryService.Test
         {
             return new Mock<ILogger<T>>().Object;
         }
+
     }
 }

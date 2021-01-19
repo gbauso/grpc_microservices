@@ -9,16 +9,16 @@ namespace DiscoveryService
 {
     public class DiscoveryConsumer : IConsumer<Discovery>
     {
-        private readonly IServiceRegisterOperations _serviceRegisterRepository;
+        private readonly IServiceRegisterOperations _serviceRegisteroperations;
         private readonly IServiceRegisterUnitOfWork _serviceRegisterUnitOfWork;
         private readonly ILogger<DiscoveryConsumer> _logger;
 
         public DiscoveryConsumer(
-            IServiceRegisterOperations serviceRegisterRepository,
+            IServiceRegisterOperations serviceRegisteroperations,
             IServiceRegisterUnitOfWork serviceRegisterUnitOfWork,
             ILogger<DiscoveryConsumer> logger)
         {
-            _serviceRegisterRepository = serviceRegisterRepository;
+            _serviceRegisteroperations = serviceRegisteroperations;
             _serviceRegisterUnitOfWork = serviceRegisterUnitOfWork;
             _logger = logger;
         }
@@ -30,10 +30,10 @@ namespace DiscoveryService
 
             // Try to find if there's some 
             var handlerKeyValue = message.Handlers
-                                .Select(i => new { Key = i, Value = _serviceRegisterRepository.GetMethodHandlers(i).Result })
+                                .Select(i => new { Key = i, Value = _serviceRegisteroperations.GetMethodHandlers(i).Result })
                                 .ToList();
 
-            var serviceKeyValue = await _serviceRegisterRepository.GetServiceMethods(message.Service);
+            var serviceKeyValue = await _serviceRegisteroperations.GetServiceMethods(message.Service);
             var handlers = serviceKeyValue.Select(i => i.Name);
 
             var handlersToAdd = message.Handlers.Except(handlers).ToList();
@@ -44,13 +44,13 @@ namespace DiscoveryService
             if (handlersToAdd.Any())
             {
                 foreach (var handler in handlersToAdd)
-                    await _serviceRegisterRepository.AddHandler(handler, message.Service);
+                    await _serviceRegisteroperations.AddHandler(handler, message.Service);
             }
 
             if (handlersToRemove.Any())
             {
                 foreach (var handler in handlersToRemove)
-                    await _serviceRegisterRepository.RemoveHandler(handler, message.Service);
+                    await _serviceRegisteroperations.RemoveHandler(handler, message.Service);
             }
 
             await _serviceRegisterUnitOfWork.CommitTransaction();

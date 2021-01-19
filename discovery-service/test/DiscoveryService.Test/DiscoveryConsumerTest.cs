@@ -13,7 +13,7 @@ namespace DiscoveryService.Test
 {
     public class DiscoveryConsumerTest
     {
-        private readonly IServiceRegisterOperations _repository;
+        private readonly IServiceRegisterOperations _operations;
         private readonly IServiceRegisterUnitOfWork _uow;
         private readonly DiscoveryDbContext _discoveryDbContext;
 
@@ -24,7 +24,7 @@ namespace DiscoveryService.Test
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options);
 
-            _repository = new ServiceRegisterOperations(_discoveryDbContext);
+            _operations = new ServiceRegisterOperations(_discoveryDbContext);
             _uow = new ServiceRegisterUnitOfWork(_discoveryDbContext);
         }
 
@@ -40,10 +40,10 @@ namespace DiscoveryService.Test
             var context = Utils.GetContext(discovery);
             var logger = Utils.GetLogger<DiscoveryConsumer>();
 
-            var consumer = new DiscoveryConsumer(_repository, _uow, logger);
+            var consumer = new DiscoveryConsumer(_operations, _uow, logger);
             await consumer.Consume(context);
 
-            var methods = await _repository.GetServiceMethods(service);
+            var methods = await _operations.GetServiceMethods(service);
             string.Join(';', methods.Select(i => i.Name)).Should().Be(handlers);
         }
 
@@ -55,7 +55,7 @@ namespace DiscoveryService.Test
                                                                         string handlers,
                                                                         string expected)
         {
-            await _repository.AddHandler("svc1", service);
+            await _operations.AddHandler("svc1", service);
 
             var discovery = new Discovery() {
                 Service = service,
@@ -65,10 +65,10 @@ namespace DiscoveryService.Test
             var context = Utils.GetContext(discovery);
             var logger = Utils.GetLogger<DiscoveryConsumer>();
 
-            var consumer = new DiscoveryConsumer(_repository, _uow, logger);
+            var consumer = new DiscoveryConsumer(_operations, _uow, logger);
             await consumer.Consume(context);
 
-            var methods = await _repository.GetServiceMethods(service);
+            var methods = await _operations.GetServiceMethods(service);
             string.Join(';', methods.Select(i => i.Name)).Should().Be(expected);
         }
     }

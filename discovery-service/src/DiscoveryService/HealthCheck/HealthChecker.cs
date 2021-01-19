@@ -1,45 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using DiscoveryService.Extensions;
 using System.Linq;
 using DiscoveryService.Factory;
 using Healthcheck;
-using Grpc.Net.Client;
-using System.Threading.Tasks;
 using Grpc.Core;
 using DiscoveryService.Infra.Operations;
 using DiscoveryService.Infra.UnitOfWork;
+using static Healthcheck.HealthCheckService;
 
 namespace DiscoveryService.HealthCheck
 {
     public class HealthChecker
     {
-        private readonly IServiceRegisterOperations _serviceRegisterRepository;
+        private readonly IServiceRegisterOperations _serviceRegisteroperations;
         private readonly IServiceRegisterUnitOfWork _serviceRegisterUnitOfWork;
         private readonly ChannelFactory _channelFactory;
+        private readonly Func<Channel, HealthCheckServiceClient> _serviceClientFactory;
+
 
         public HealthChecker(
-            IServiceRegisterOperations serviceRegisterRepository,
+            IServiceRegisterOperations serviceRegisteroperations,
             IServiceRegisterUnitOfWork serviceRegisterUnitOfWork,
-            ChannelFactory channelFactory)
+            ChannelFactory channelFactory,
+            Func<Channel, HealthCheckServiceClient> serviceClientFactory)
         {
-            _serviceRegisterRepository = serviceRegisterRepository;
+            _serviceRegisteroperations = serviceRegisteroperations;
             _serviceRegisterUnitOfWork = serviceRegisterUnitOfWork;
             _channelFactory = channelFactory;
+            _serviceClientFactory = serviceClientFactory;
         }
 
         public void Handle(object state)
         {
             // Get all services registered 
-            var servicesRegistered = _serviceRegisterRepository.GetAll();
+            var servicesRegistered = _serviceRegisteroperations.GetAllServices();
 
             _serviceRegisterUnitOfWork.BeginTransaction();
 
-            foreach (var service in servicesRegistered.Select(i => i.Service).Distinct())
+            foreach (var service in servicesRegistered.Distinct())
             {
                 var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name));
-                _serviceRegisterRepository.SetServiceState(service.Id, isAlive);
+                _serviceRegisteroperations.SetServiceState(service.Id, isAlive);
             }
 
             _serviceRegisterUnitOfWork.CommitTransaction();
@@ -48,7 +49,7 @@ namespace DiscoveryService.HealthCheck
 
         private bool IsServiceUp(Channel channel)
         {
-            var client = new HealthCheckService.HealthCheckServiceClient(channel);
+            var client = _serviceClientFactory(channel);
 
             try
             {
@@ -61,9 +62,5 @@ namespace DiscoveryService.HealthCheck
             }
         }
 
-        //private KeyValuePair<string, string> GetKeyValuePair(string key, IEnumerable<string> value)
-        //{
-        //    return new KeyValuePair<string, string>(key, string.Join(";", value));
-        //}
     }
 }

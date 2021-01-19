@@ -33,19 +33,19 @@ namespace DiscoveryService.Infra.Operations
             return Task.CompletedTask;
         }
 
-        public IEnumerable<ServiceMethod> GetAll()
+        public IEnumerable<Service> GetAllServices()
         {
-            return _discoveryDbContext.ServiceMethods.AsNoTracking().AsEnumerable();
+            return _discoveryDbContext.Services.AsNoTracking().AsEnumerable();
         }
 
-        public Task<IEnumerable<Service>> GetMethodHandlers(string grpcMethod)
+        public Task<IEnumerable<Service>> GetMethodHandlers(string grpcMethod, bool isAlive = true)
         {
             var method = _discoveryDbContext.GrpcMethods.FirstOrDefault(i => i.Name == grpcMethod);
 
             if (method == null) return Task.FromResult(Enumerable.Empty<Service>());
 
             var services = _discoveryDbContext.ServiceMethods
-                                    .Where(i => i.GrpcMethodId == method.Id && i.IsAlive)
+                                    .Where(i => i.GrpcMethodId == method.Id && i.IsAlive == isAlive)
                                     .Select(i => i.Service);
 
             return Task.FromResult(services.AsEnumerable());

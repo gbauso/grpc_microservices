@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using DiscoveryService.Infra.Operations;
 using DiscoveryService.Infra.UnitOfWork;
+using static Healthcheck.HealthCheckService;
+using Grpc.Core;
 
 namespace DiscoveryService
 {
@@ -47,6 +49,9 @@ namespace DiscoveryService
 
                     services.AddSingleton<IServiceRegisterOperations, ServiceRegisterOperations>();
                     services.AddSingleton<IServiceRegisterUnitOfWork, ServiceRegisterUnitOfWork>();
+
+                    services.AddSingleton<Func<Channel, HealthCheckServiceClient>>
+                            ((Channel channel) => new HealthCheckServiceClient(channel));
 
                     services.AddSingleton<GrpcServerFactory>();
                     services.AddSingleton<ChannelFactory>();
