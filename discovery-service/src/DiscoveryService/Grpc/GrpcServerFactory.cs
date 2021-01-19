@@ -1,6 +1,4 @@
 using Grpc.Core;
-using MassTransit.ExtensionsDependencyInjectionIntegration;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace DiscoveryService.Grpc

@@ -43,7 +43,7 @@ namespace Application.Factory
             foreach (var handler in handlers)
             {
                 if (!_instances.ContainsKey(handler))
-                    _instances[handler] = new Channel($"{handler}", ChannelCredentials.Insecure);
+                    _instances[handler] = new Channel(handler, ChannelCredentials.Insecure);
             }
         }
 

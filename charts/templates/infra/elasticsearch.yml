@@ -1,0 +1,95 @@
+{{- if not .Values.isOkteto }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ .Values.elastic.host }}-gateway
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.elastic.namespace }}
+  {{ end }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "kibana.{{ .Values.domain }}"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Values.elastic.host }}
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.elastic.namespace }}
+  {{ end }}
+spec:
+  hosts:
+  - "kibana.{{ .Values.domain }}"
+  gateways:
+  - {{ .Values.elastic.host }}-gateway
+  http:
+  - route:
+    - destination:
+        host: {{ .Values.elastic.host }}
+        port:
+          number: {{ .Values.elastic.kibanaPort }}
+---
+{{ end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elastic.host }}
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.elastic.namespace }}
+  {{ end }}
+  {{ if .Values.isOkteto }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+  {{ end }}
+spec:
+  ports:
+  - name: http
+    targetPort: {{ .Values.elastic.kibanaPort }}
+    port: {{ .Values.elastic.kibanaPort }}
+  - name: {{ .Values.elastic.host }}
+    targetPort: {{ .Values.elastic.port }}
+    port: {{ .Values.elastic.port }}
+  selector:
+    app: {{ .Values.elastic.host }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.elastic.host }}
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.elastic.namespace }}
+  {{ end }}
+  labels:
+    app.kubernetes.io/component: {{ .Values.elastic.host }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.elastic.host }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.elastic.host }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+          - name: {{ .Values.elastic.host }}
+            image: {{ .Values.elastic.image }}
+            ports:
+            - containerPort: {{ .Values.elastic.kibanaPort }}
+            - containerPort: {{ .Values.elastic.port }}
+            resources:
+              limits:
+                cpu: "750m"
+                memory: "2000Mi"
+              requests:
+                cpu: "500m"
+                memory: "750Mi"

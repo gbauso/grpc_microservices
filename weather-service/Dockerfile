@@ -8,6 +8,7 @@ FROM adoptopenjdk/openjdk14:x86_64-debian-jdk14u-nightly-slim as build
 
 WORKDIR /app
 COPY . .
+RUN chmod +x ./gradlew
 RUN ./gradlew installDist
 
 FROM base as final

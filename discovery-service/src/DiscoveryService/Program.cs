@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DiscoveryService.Grpc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MassTransit;
-using dotnet_etcd;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using DiscoveryService.Factory;
 using DiscoveryService.HealthCheck;
+using DiscoveryService.Util;
 
 namespace DiscoveryService
 {
@@ -29,6 +25,9 @@ namespace DiscoveryService
                     services.AddSingleton(new EtcdClientWrap(hostContext.Configuration.GetConnectionString("Etcd")));
                     services.AddSingleton<DiscoveryGrpc>();
                     services.Configure<GrpcConfiguration>(hostContext.Configuration.GetSection("Grpc"));
+                    services.Configure<MetricsConfiguration>(hostContext.Configuration.GetSection("Metrics"));
+                    
+
                     services.AddSingleton<GrpcServerFactory>();
                     services.AddSingleton<ChannelFactory>();
                     services.AddSingleton<HealthChecker>();

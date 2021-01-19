@@ -14,6 +14,8 @@ namespace Application.GrpcClients
         private readonly Operation _operation;
         protected ILogger<GrpcClientBase> Logger;
 
+        private const int TIMEOUT = 30;
+
         protected GrpcClientBase(ClientFactory clientFactory,
                                  Operation operation,
                                  ILogger<GrpcClientBase> logger)
@@ -36,7 +38,7 @@ namespace Application.GrpcClients
 
             Logger.LogInformation("Calling Channel {Channel} for {Service}", channel.ResolvedTarget, service);
 
-            return method?.Invoke(client, new object[] {request, GetCallContext(service, method.Name)});
+            return method?.Invoke(client, new object[] {request, GetCallContext(service, method.Name, channel.ResolvedTarget) });
         }
 
         protected Res MergeAll<Res>(Res[] responseList) where Res : IMessage<Res>
@@ -51,16 +53,17 @@ namespace Application.GrpcClients
             return response;
         }
 
-        private CallOptions GetCallContext(string service, string methodName)
+        private CallOptions GetCallContext(string service, string methodName, string target)
         {
-            var context = new Metadata
+            var headers = new Metadata
             {
                 {"service", service},
                 {"rpc", methodName},
-                {"operation_id", _operation.OperationId.ToString()}
+                {"operation_id", _operation.OperationId.ToString()},
+                {"target", target}
             };
 
-            return new CallOptions(context);
+            return new CallOptions(headers, DateTime.UtcNow.AddSeconds(TIMEOUT));
         }
 
 

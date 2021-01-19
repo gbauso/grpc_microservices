@@ -1,0 +1,8 @@
+{{- if not .Values.isOkteto }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: infra
+  labels:
+    istio-injection: enabled
+{{ end }}

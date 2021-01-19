@@ -4,14 +4,16 @@ using Application;
 using Application.DiscoveryClient;
 using Application.Factory;
 using Application.GrpcClients;
+using Application.GrpcClients.Interceptors;
+using Application.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
-using DiscoveryService = Discovery.DiscoveryService;
 
 namespace Api
 {
@@ -33,12 +35,16 @@ namespace Api
             });
 
             services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
-
+            
             services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
+            services.AddSingleton<IMetricsProvider, PrometheusMetrics>();
+
             services.AddSingleton<ChannelFactory>();
             services.AddSingleton<ClientFactory>();
+            
+            services.AddSingleton<MetricsInterceptor>();
 
-            services.AddScoped<Operation>();
+            services.AddSingleton<Operation>();
 
             services.AddScoped<IGrpcClient, UnaryGrpcClientSingle>();
 
@@ -49,10 +55,10 @@ namespace Api
                                         Configuration.GetValue<int>("Logging:Port"),
                                         Configuration.GetValue<string>("Logging:Tag"))
                                     .CreateLogger();
-                
+
                 logging.AddSerilog(log);
             });
-            
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
@@ -70,6 +76,10 @@ namespace Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseHttpMetrics();
+            app.UseGrpcMetrics();
+
+            new KestrelMetricServer(port: Configuration.GetValue<int>("Metrics:Port")).Start();
 
             app.UseSwagger();
 
@@ -84,6 +94,7 @@ namespace Api
             {
                 endpoints.MapControllers();
             });
+
         }
 
     }

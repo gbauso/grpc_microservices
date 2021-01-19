@@ -1,9 +1,7 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.Factory;
 using Grpc.Core;
-using Grpc.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Application.GrpcClients
@@ -25,8 +23,6 @@ namespace Application.GrpcClients
         {
             var client = _clientFactory.GetClientInfo(typeof(TRes));
             var channels = await _channelFactory.GetChannels(client.service);
-
-
             
             var execution = channels.Select(ch =>
                 {

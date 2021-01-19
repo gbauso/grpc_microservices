@@ -9,21 +9,30 @@ import weather.di.openWeatherModule
 import weather.discovery.IRegisterService
 import weather.interceptors.LoggingInterceptor
 import weather.service.HealthCheckService
+import weather.interceptors.MetricsInterceptor
 import weather.service.WeatherService
-import weather.util.ILogger
+import weather.util.logging.ILogger
+import weather.util.metrics.IMetricsProvider
+import weather.util.secrets.ISecretProvider
+import java.util.*
+import kotlin.concurrent.schedule
+
 
 class WeatherServer constructor(
-        private val port: Int
-) : KoinComponent  {
+) : KoinComponent {
 
     val logger: ILogger by inject()
+    val metricsProvider: IMetricsProvider by inject()
     val register: IRegisterService by inject()
+    val secrets: ISecretProvider by inject()
+    val port = secrets.getValue("PORT").toInt()
 
     val server: Server = ServerBuilder
             .forPort(port)
             .addService(WeatherService())
             .addService(HealthCheckService())
             .intercept(LoggingInterceptor(logger))
+            .intercept(MetricsInterceptor(metricsProvider))
             .build()
 
     fun start() {
@@ -48,13 +57,14 @@ class WeatherServer constructor(
     }
 }
 
+
+
 fun main() {
     startKoin {
         modules(openWeatherModule)
     }
 
-    val port = System.getenv("PORT").toInt()
-    val server = WeatherServer(port)
+    val server = WeatherServer()
     server.start()
     server.blockUntilShutdown()
 }

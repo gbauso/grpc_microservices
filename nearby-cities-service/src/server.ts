@@ -1,13 +1,11 @@
 import { Server, ServerCredentials } from 'grpc';
 import { injectable, inject } from 'tsyringe';
-import config from '../config.json';
 import { ServiceDefinition } from './service/serviceDefinition';
 import { Logger } from './util/logging/logger';
 import { AutoDiscovery } from './discovery/autodiscovery';
 import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
-
-const interceptors = require('@echo-health/grpc-interceptors');
+import { serverProxy } from '@pionerlabs/grpc-interceptors';
 
 @injectable()
 export class GrpcServer {
@@ -17,22 +15,25 @@ export class GrpcServer {
                     private autoDiscovery: AutoDiscovery,
                 @inject('Interceptor')
                     private loggerInterceptor: Interceptor,
+                @inject('MetricsInterceptor')
+                    private metricsInterceptor: Interceptor,
                 @inject('Logger')
                     private logger: Logger) {}
 
   start() : void {
-    const host = process.env.HOST || config.host;
-    const port = (process.env.PORT || config.port) as number;
+    const host = process.env.HOST;
+    const port = (process.env.PORT || 0) as number;
 
     const cityinformation = ServiceDefinition.getCityInformation();
     const healthCheck = ServiceDefinition.getStatusPackage();
 
-    const grpcServer = new Server();
+    const grpcServer:any = new Server();
     grpcServer.bind(`${host}:${port}`, ServerCredentials.createInsecure());
 
 
-    const server = interceptors.serverProxy(grpcServer);
+    const server = serverProxy(grpcServer);
     server.use(this.loggerInterceptor.intercept);
+    server.use(this.metricsInterceptor.intercept);
 
     const service = this.nearbyCitiesService;
     server.addService(cityinformation.CityService.service,
@@ -41,7 +42,7 @@ export class GrpcServer {
     server.addService(healthCheck.HealthCheckService.service,
       { getStatus: (call: any, callback: any) => { callback(null, { response: "pong"}); } });
 
-    this.autoDiscovery.registerAutoDiscovery(server.handlers, port).then();
+    this.autoDiscovery.registerAutoDiscovery(grpcServer.handlers, port).then();
 
     server.start();
 

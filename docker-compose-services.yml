@@ -1,0 +1,103 @@
+version: '3.5'
+
+services:
+  api-gateway:
+    image: msexp/api-gateway:0.0.215
+    restart: always
+    env_file: .env
+    ports: 
+      - 8081:80
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+      - DiscoveryService__Url=${DISCOVERY_REGISTER_AS}:${DISCOVERY_GRPC_PORT}
+      - Logging__Host=${LOGGER_HOST}
+      - Logging__Port=${LOGGER_PORT}
+      - Logging__Tag=api-gateway
+      - Metrics__Port=${API_METRICS_PORT}
+    depends_on: 
+      - population
+      - weather
+      - nearby-cities
+      - discovery
+    networks:
+      - grpc_
+  discovery:
+    image: msexp/discovery-service:0.0.212
+    restart: always
+    env_file: .env
+    ports: 
+      - 5010:${DISCOVERY_GRPC_PORT}
+    environment: 
+      - ServiceBus__Username=${SERVICE_BUS_USER}
+      - ServiceBus__Host=${SERVICE_BUS_HOST}
+      - ServiceBus__Password=${SERVICE_BUS_PASSWORD}
+      - ConnectionStrings__Etcd=${ETCD_CONNECTION_STRING}
+      - Grpc__Host=${DISCOVERY_REGISTER_AS}
+      - Grpc__Port=${DISCOVERY_GRPC_PORT}
+      - Logging__Host=${LOGGER_HOST}
+      - Logging__Port=${LOGGER_PORT}
+      - Logging__Tag=discovery
+      - Metrics__Port=${DISCOVERY_METRICS_PORT}
+    networks:
+      - grpc_
+  population:
+    image: msexp/population-service:0.0.210
+    restart: always
+    env_file: .env
+    ports: 
+      - 5011:${POPULATION_GRPC_PORT}
+    environment: 
+      - PORT=${POPULATION_GRPC_PORT}
+      - HOST=0.0.0.0
+      - SB_USER=${SERVICE_BUS_USER}
+      - SB_URL=${SERVICE_BUS_HOST}
+      - SB_PWD=${SERVICE_BUS_PASSWORD}
+      - SB_PORT=${SERVICE_BUS_PORT}
+      - LOGGER_HOST=${LOGGER_HOST}
+      - REGISTER_AS=${POPULATION_REGISTER_AS}
+      - METRICS_PORT=${POPULATION_METRICS_PORT}
+    networks:
+      - grpc_
+  weather:
+    image: msexp/weather-service:0.0.208
+    restart: always
+    env_file: .env
+    ports: 
+      - 5012:${WEATHER_GRPC_PORT}
+    environment: 
+      - PORT=${WEATHER_GRPC_PORT}
+      - HOST=0.0.0.0
+      - SB_USER=${SERVICE_BUS_USER}
+      - SB_HOST=${SERVICE_BUS_HOST}
+      - SB_PWD=${SERVICE_BUS_PASSWORD}
+      - SB_PORT=${SERVICE_BUS_PORT}
+      - OPENWEATHER_APP_ID=${OPENWEATHER_APP_ID}
+      - REGISTER_AS=${WEATHER_REGISTER_AS}
+      - LOGGER_HOST=${LOGGER_HOST}
+      - LOGGER_PORT=${LOGGER_PORT}
+      - METRICS_PORT=${WEATHER_METRICS_PORT}
+    networks:
+      - grpc_
+  nearby-cities:
+    image: msexp/nearby-cities-service:0.0.213
+    env_file: .env
+    ports: 
+      - 5013:${NEARBY_CITIES_GRPC_PORT}
+    environment: 
+      - PORT=${NEARBY_CITIES_GRPC_PORT}
+      - HOST=0.0.0.0
+      - SB_USER=${SERVICE_BUS_USER}
+      - SB_HOST=${SERVICE_BUS_HOST}
+      - SB_PWD=${SERVICE_BUS_PASSWORD}
+      - SB_PORT=${SERVICE_BUS_PORT}
+      - LOGGER_HOST=${LOGGER_HOST}
+      - LOGGER_PORT=${LOGGER_PORT}
+      - REGISTER_AS=${NEARBY_CITIES_REGISTER_AS}
+      - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
+    networks:
+      - grpc_
+networks:
+  grpc_:
+    external: true
+    name: grpc_
+
