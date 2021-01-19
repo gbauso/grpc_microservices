@@ -23,6 +23,8 @@ services:
       - POSTGRES_USER=${PG_USER}
       - POSTGRES_PASSWORD=${PG_PWD}
       - POSTGRES_DB=${PG_DB}
+    networks:
+      - grpc_
   fluentd:
     image: fluentd
     build: ./infra/fluentd
