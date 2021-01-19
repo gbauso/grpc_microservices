@@ -53,7 +53,7 @@ namespace DiscoveryService.HealthCheck
 
             try
             {
-                var result = client.GetStatus(new Empty());
+                var result = client.GetStatus(new Empty(), deadline: DateTime.UtcNow.AddSeconds(10));
                 return result.Response == "Pong";
             }
             catch

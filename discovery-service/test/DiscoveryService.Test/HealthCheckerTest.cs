@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using static Healthcheck.HealthCheckService;
@@ -40,7 +39,7 @@ namespace DiscoveryService.Test
 
             var clientMock = new Mock<HealthCheckServiceClient>();
             clientMock.Setup(i => i.GetStatus(It.IsAny<Empty>(),
-                                              null, null, default))
+                                              null, It.IsAny<DateTime>(), default))
                 .Returns(() => forceGrpcError ? throw new Exception() : new PingResponse { Response = "Pong" });
 
             _serviceClientFactory = (Channel ch) => clientMock.Object;
