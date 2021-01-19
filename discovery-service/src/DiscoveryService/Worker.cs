@@ -3,9 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscoveryService.Grpc;
 using DiscoveryService.HealthCheck;
+using DiscoveryService.Infra.Database;
 using DiscoveryService.Util;
 using Grpc.Core;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,22 +24,26 @@ namespace DiscoveryService
         private Timer _timer;
         private readonly HealthChecker _healthChecker;
         private readonly MetricServer _metricServer;
+        private readonly DiscoveryDbContext _discoveryDbContext;
 
         public Worker(IBusControl bus,
                       GrpcServerFactory grpcServerFactory,
                       ILogger<Worker> logger,
                       HealthChecker healthChecker,
+                      DiscoveryDbContext discoveryDbContext,
                       IOptions<MetricsConfiguration> metricsConfiguration)
         {
             _busControl = bus;
             _logger = logger;
             _server = grpcServerFactory.GetServer();
             _metricServer = new MetricServer(metricsConfiguration.Value.Port);
+            _discoveryDbContext = discoveryDbContext;
             _healthChecker = healthChecker;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            _discoveryDbContext.Database.Migrate();
             await _busControl.StartAsync(cancellationToken);
             _metricServer.Start();
             _server.Start();

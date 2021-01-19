@@ -43,8 +43,7 @@ namespace DiscoveryService
                                     maxRetryCount: 3,
                                     maxRetryDelay: TimeSpan.FromSeconds(10),
                                     errorCodesToAdd: null);
-                            }
-                            );
+                            });
                     }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
                     services.AddSingleton<IServiceRegisterOperations, ServiceRegisterOperations>();
