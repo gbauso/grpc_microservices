@@ -7,6 +7,11 @@ using Serilog;
 using DiscoveryService.Factory;
 using DiscoveryService.HealthCheck;
 using DiscoveryService.Util;
+using DiscoveryService.Infra.Database;
+using Microsoft.EntityFrameworkCore;
+using System;
+using DiscoveryService.Infra.Operations;
+using DiscoveryService.Infra.UnitOfWork;
 
 namespace DiscoveryService
 {
@@ -22,11 +27,26 @@ namespace DiscoveryService
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddMassTransit(cfg => ServiceBus.ConfigureMassTransit(cfg, hostContext.Configuration));
-                    services.AddSingleton(new EtcdClientWrap(hostContext.Configuration.GetConnectionString("Etcd")));
                     services.AddSingleton<DiscoveryGrpc>();
                     services.Configure<GrpcConfiguration>(hostContext.Configuration.GetSection("Grpc"));
                     services.Configure<MetricsConfiguration>(hostContext.Configuration.GetSection("Metrics"));
-                    
+
+                    services.AddDbContext<DiscoveryDbContext>(cfg =>
+                    {
+                        cfg.UseNpgsql(hostContext.Configuration.GetSection("ConnectionStrings")["DiscoveryDbContext"],
+                            mssqlOptions =>
+                            {
+                                mssqlOptions.MigrationsAssembly("DiscoveryService.Infra");
+                                mssqlOptions.EnableRetryOnFailure(
+                                    maxRetryCount: 3,
+                                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                                    errorCodesToAdd: null);
+                            }
+                            );
+                    }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+
+                    services.AddSingleton<IServiceRegisterOperations, ServiceRegisterOperations>();
+                    services.AddSingleton<IServiceRegisterUnitOfWork, ServiceRegisterUnitOfWork>();
 
                     services.AddSingleton<GrpcServerFactory>();
                     services.AddSingleton<ChannelFactory>();

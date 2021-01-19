@@ -5,7 +5,6 @@ using DiscoveryService.Grpc;
 using DiscoveryService.HealthCheck;
 using DiscoveryService.Util;
 using Grpc.Core;
-using Healthcheck;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,7 @@ namespace DiscoveryService
         public Worker(IBusControl bus,
                       GrpcServerFactory grpcServerFactory,
                       ILogger<Worker> logger,
-                      HealthChecker healthChecker)
+                      HealthChecker healthChecker,
                       IOptions<MetricsConfiguration> metricsConfiguration)
         {
             _busControl = bus;

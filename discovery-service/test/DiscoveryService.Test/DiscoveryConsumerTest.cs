@@ -1,23 +1,31 @@
-using System.Linq;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using dotnet_etcd;
+using DiscoveryService.Infra.Database;
+using DiscoveryService.Infra.Operations;
+using DiscoveryService.Infra.UnitOfWork;
 using FluentAssertions;
-using MassTransit;
-using MassTransit.Testing;
-using Moq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace DiscoveryService.Test
 {
     public class DiscoveryConsumerTest
     {
-        private readonly Func<IDictionary<string, string>, EtcdClientWrap> _EtcdClient;
+        private readonly IServiceRegisterOperations _repository;
+        private readonly IServiceRegisterUnitOfWork _uow;
+        private readonly DiscoveryDbContext _discoveryDbContext;
 
         public DiscoveryConsumerTest()
         {
-            _EtcdClient = (IDictionary<string, string> data) => Utils.GetEtcdClientMock(data).Object;
+            _discoveryDbContext = new DiscoveryDbContext(new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options);
+
+            _repository = new ServiceRegisterOperations(_discoveryDbContext);
+            _uow = new ServiceRegisterUnitOfWork(_discoveryDbContext);
         }
 
         [Theory]
@@ -31,12 +39,12 @@ namespace DiscoveryService.Test
 
             var context = Utils.GetContext(discovery);
             var logger = Utils.GetLogger<DiscoveryConsumer>();
-            var etcd = _EtcdClient(null);
 
-            var consumer = new DiscoveryConsumer(etcd, logger);
+            var consumer = new DiscoveryConsumer(_repository, _uow, logger);
             await consumer.Consume(context);
 
-            etcd.GetValue(service).Should().Be(handlers);
+            var methods = await _repository.GetServiceMethods(service);
+            string.Join(';', methods.Select(i => i.Name)).Should().Be(handlers);
         }
 
         [Theory]
@@ -47,9 +55,7 @@ namespace DiscoveryService.Test
                                                                         string handlers,
                                                                         string expected)
         {
-            var existentKv = new Dictionary<string,string>();
-            existentKv.Add("population", "svc1");
-            existentKv.Add("svc1", "population");
+            await _repository.AddHandler("svc1", service);
 
             var discovery = new Discovery() {
                 Service = service,
@@ -58,12 +64,12 @@ namespace DiscoveryService.Test
 
             var context = Utils.GetContext(discovery);
             var logger = Utils.GetLogger<DiscoveryConsumer>();
-            var etcd = _EtcdClient(existentKv);
 
-            var consumer = new DiscoveryConsumer(etcd, logger);
+            var consumer = new DiscoveryConsumer(_repository, _uow, logger);
             await consumer.Consume(context);
 
-            etcd.GetValue(service).Should().Be(handlers);
+            var methods = await _repository.GetServiceMethods(service);
+            string.Join(';', methods.Select(i => i.Name)).Should().Be(expected);
         }
     }
 }
