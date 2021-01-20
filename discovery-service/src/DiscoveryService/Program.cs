@@ -38,10 +38,6 @@ namespace DiscoveryService
                             mssqlOptions =>
                             {
                                 mssqlOptions.MigrationsAssembly("DiscoveryService.Infra");
-                                mssqlOptions.EnableRetryOnFailure(
-                                    maxRetryCount: 3,
-                                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                                    errorCodesToAdd: null);
                             });
                     }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
 
