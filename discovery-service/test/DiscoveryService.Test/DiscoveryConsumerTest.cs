@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DiscoveryService.Infra.Database;
 using DiscoveryService.Infra.Operations;
-using DiscoveryService.Infra.UnitOfWork;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -14,7 +13,6 @@ namespace DiscoveryService.Test
     public class DiscoveryConsumerTest
     {
         private readonly IServiceRegisterOperations _operations;
-        private readonly IServiceRegisterUnitOfWork _uow;
         private readonly DiscoveryDbContext _discoveryDbContext;
 
         public DiscoveryConsumerTest()
@@ -25,7 +23,6 @@ namespace DiscoveryService.Test
                 .Options);
 
             _operations = new ServiceRegisterOperations(_discoveryDbContext);
-            _uow = new ServiceRegisterUnitOfWork(_discoveryDbContext);
         }
 
         [Theory]
@@ -40,7 +37,7 @@ namespace DiscoveryService.Test
             var context = Utils.GetContext(discovery);
             var logger = Utils.GetLogger<DiscoveryConsumer>();
 
-            var consumer = new DiscoveryConsumer(_operations, _uow, logger);
+            var consumer = new DiscoveryConsumer(_operations, logger);
             await consumer.Consume(context);
 
             var methods = await _operations.GetServiceMethods(service);
@@ -65,7 +62,7 @@ namespace DiscoveryService.Test
             var context = Utils.GetContext(discovery);
             var logger = Utils.GetLogger<DiscoveryConsumer>();
 
-            var consumer = new DiscoveryConsumer(_operations, _uow, logger);
+            var consumer = new DiscoveryConsumer(_operations, logger);
             await consumer.Consume(context);
 
             var methods = await _operations.GetServiceMethods(service);

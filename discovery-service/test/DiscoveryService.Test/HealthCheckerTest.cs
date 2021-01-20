@@ -2,7 +2,6 @@
 using DiscoveryService.HealthCheck;
 using DiscoveryService.Infra.Database;
 using DiscoveryService.Infra.Operations;
-using DiscoveryService.Infra.UnitOfWork;
 using FluentAssertions;
 using Grpc.Core;
 using Healthcheck;
@@ -20,7 +19,6 @@ namespace DiscoveryService.Test
     public class HealthCheckerTest
     {
         private readonly IServiceRegisterOperations _operations;
-        private readonly IServiceRegisterUnitOfWork _uow;
         private readonly ChannelFactory _channelFactory;
         private readonly DiscoveryDbContext _discoveryDbContext;
         private readonly Func<Channel, HealthCheckServiceClient> _serviceClientFactory;
@@ -34,7 +32,6 @@ namespace DiscoveryService.Test
                 .Options);
 
             _operations = new ServiceRegisterOperations(_discoveryDbContext);
-            _uow = new ServiceRegisterUnitOfWork(_discoveryDbContext);
             _channelFactory = Mock.Of<ChannelFactory>();
 
             var clientMock = new Mock<HealthCheckServiceClient>();
@@ -54,7 +51,7 @@ namespace DiscoveryService.Test
         public async Task HealthChecker_Handle_ServicesDown(string serviceToCheckIfIsDown)
         {
             forceGrpcError = true;
-            var healthChecker = new HealthChecker(_operations, _uow, _channelFactory, _serviceClientFactory);
+            var healthChecker = new HealthChecker(_operations, _channelFactory, _serviceClientFactory);
 
             healthChecker.Handle(null);
 
@@ -69,7 +66,7 @@ namespace DiscoveryService.Test
         public async Task HealthChecker_Handle_ServicesUp(string serviceToCheckIfIsUp)
         {
             forceGrpcError = false;
-            var healthChecker = new HealthChecker(_operations, _uow, _channelFactory, _serviceClientFactory);
+            var healthChecker = new HealthChecker(_operations, _channelFactory, _serviceClientFactory);
 
             healthChecker.Handle(null);
 

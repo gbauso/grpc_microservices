@@ -1,8 +1,4 @@
-using DiscoveryService.Factory;
-using DiscoveryService.Infra.Operations;
-using DiscoveryService.Infra.UnitOfWork;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 

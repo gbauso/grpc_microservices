@@ -3,23 +3,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using DiscoveryService.Infra.Operations;
-using DiscoveryService.Infra.UnitOfWork;
+using System.Transactions;
 
 namespace DiscoveryService
 {
     public class DiscoveryConsumer : IConsumer<Discovery>
     {
         private readonly IServiceRegisterOperations _serviceRegisteroperations;
-        private readonly IServiceRegisterUnitOfWork _serviceRegisterUnitOfWork;
         private readonly ILogger<DiscoveryConsumer> _logger;
 
         public DiscoveryConsumer(
             IServiceRegisterOperations serviceRegisteroperations,
-            IServiceRegisterUnitOfWork serviceRegisterUnitOfWork,
             ILogger<DiscoveryConsumer> logger)
         {
             _serviceRegisteroperations = serviceRegisteroperations;
-            _serviceRegisterUnitOfWork = serviceRegisterUnitOfWork;
             _logger = logger;
         }
 
@@ -39,23 +36,25 @@ namespace DiscoveryService
             var handlersToAdd = message.Handlers.Except(handlers).ToList();
             var handlersToRemove = handlers.Except(message.Handlers).ToList();
 
-            await _serviceRegisterUnitOfWork.BeginTransaction();
-
-            if (handlersToAdd.Any())
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                foreach (var handler in handlersToAdd)
-                    await _serviceRegisteroperations.AddHandler(handler, message.Service);
+
+                if (handlersToAdd.Any())
+                {
+                    foreach (var handler in handlersToAdd)
+                        await _serviceRegisteroperations.AddHandler(handler, message.Service);
+                }
+
+                if (handlersToRemove.Any())
+                {
+                    foreach (var handler in handlersToRemove)
+                        await _serviceRegisteroperations.RemoveHandler(handler, message.Service);
+                }
+
+                transaction.Complete();
+
+                _logger.LogInformation("Message Handling FINISHED", message);
             }
-
-            if (handlersToRemove.Any())
-            {
-                foreach (var handler in handlersToRemove)
-                    await _serviceRegisteroperations.RemoveHandler(handler, message.Service);
-            }
-
-            await _serviceRegisterUnitOfWork.CommitTransaction();
-
-            _logger.LogInformation("Message Handling FINISHED", message);
         }
 
     }
