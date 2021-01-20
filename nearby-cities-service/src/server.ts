@@ -37,10 +37,10 @@ export class GrpcServer {
 
     const service = this.nearbyCitiesService;
     server.addService(cityinformation.CityService.service,
-      { getCityInformation: service.getCityInformation });
+      { GetCityInformation: service.getCityInformation });
     
     server.addService(healthCheck.HealthCheckService.service,
-      { getStatus: (call: any, callback: any) => { callback(null, { response: "pong"}); } });
+      { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
 
     this.autoDiscovery.registerAutoDiscovery(grpcServer.handlers, port).then();
 
