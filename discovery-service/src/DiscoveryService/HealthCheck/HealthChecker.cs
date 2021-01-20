@@ -32,16 +32,12 @@ namespace DiscoveryService.HealthCheck
             // Get all services registered 
             var servicesRegistered = _serviceRegisteroperations.GetAllServices();
 
-            using(var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            foreach (var service in servicesRegistered.Distinct())
             {
-                foreach (var service in servicesRegistered.Distinct())
-                {
-                    var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name));
-                    _serviceRegisteroperations.SetServiceState(service.Id, isAlive);
-                }
-
-                transaction.Complete();
+                var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name));
+                _serviceRegisteroperations.SetServiceState(service.Id, isAlive);
             }
+
         }
 
         private bool IsServiceUp(Channel channel)

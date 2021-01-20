@@ -36,25 +36,22 @@ namespace DiscoveryService
             var handlersToAdd = message.Handlers.Except(handlers).ToList();
             var handlersToRemove = handlers.Except(message.Handlers).ToList();
 
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+
+            if (handlersToAdd.Any())
             {
-
-                if (handlersToAdd.Any())
-                {
-                    foreach (var handler in handlersToAdd)
-                        await _serviceRegisteroperations.AddHandler(handler, message.Service);
-                }
-
-                if (handlersToRemove.Any())
-                {
-                    foreach (var handler in handlersToRemove)
-                        await _serviceRegisteroperations.RemoveHandler(handler, message.Service);
-                }
-
-                transaction.Complete();
-
-                _logger.LogInformation("Message Handling FINISHED", message);
+                foreach (var handler in handlersToAdd)
+                    await _serviceRegisteroperations.AddHandler(handler, message.Service);
             }
+
+            if (handlersToRemove.Any())
+            {
+                foreach (var handler in handlersToRemove)
+                    await _serviceRegisteroperations.RemoveHandler(handler, message.Service);
+            }
+
+
+            _logger.LogInformation("Message Handling FINISHED", message);
+
         }
 
     }
