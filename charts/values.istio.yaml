@@ -46,7 +46,7 @@ pgsql:
   user: admin
   password: Secr3t
   database: discovery
-  namespace:
+  namespace: infra
 
 fluentd:
   image: msexp/fluentd:k8s
