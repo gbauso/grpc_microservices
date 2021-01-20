@@ -106,9 +106,9 @@ annotations:
 
 {{- define "grpc.pgsql" -}}
 {{- if .Values.pgsql.namespace }}
-{{- printf "Username=%s;Password=%s;Host=%s.%s;Port=%s;DataBase=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.namespace .Values.pgsql.database }}
+{{- printf "Username=%s;Password=%s;Host=%s.%s;Port=%s;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.namespace .Values.pgsql.port .Values.pgsql.database }}
 {{- else }}
-{{- printf "Username=%s;Password=%s;Host=%s;Port=%s;DataBase=%s" .Values.pgsql.User .Values.pgsql.password .Values.pgsql.host .Values.pgsql.database }}
+{{- printf "Username=%s;Password=%s;Host=%s;Port=%s;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.port .Values.pgsql.database }}
 {{- end }}
 {{- end }}
 
