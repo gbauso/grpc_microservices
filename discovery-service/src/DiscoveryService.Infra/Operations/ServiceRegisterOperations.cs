@@ -35,7 +35,7 @@ namespace DiscoveryService.Infra.Operations
 
         public IEnumerable<Service> GetAllServices()
         {
-            return _discoveryDbContext.Services.AsNoTracking().AsEnumerable();
+            return _discoveryDbContext.Services.AsNoTracking().ToList();
         }
 
         public Task<IEnumerable<Service>> GetMethodHandlers(string grpcMethod, bool isAlive = true)
@@ -47,8 +47,9 @@ namespace DiscoveryService.Infra.Operations
             var services = _discoveryDbContext.ServiceMethods
                                     .Where(i => i.GrpcMethodId == method.Id && i.IsAlive == isAlive)
                                     .Select(i => i.Service);
+                                    
 
-            return Task.FromResult(services.AsEnumerable());
+            return Task.FromResult(services.ToList() as IEnumerable<Service>);
         }
 
         public Task<IEnumerable<GrpcMethod>> GetServiceMethods(string serviceName)
@@ -61,7 +62,7 @@ namespace DiscoveryService.Infra.Operations
                                     .Where(i => i.ServiceId == service.Id && i.IsAlive)
                                     .Select(i => i.GrpcMethod);
 
-            return Task.FromResult(services.AsEnumerable());
+            return Task.FromResult(services.ToList() as IEnumerable<GrpcMethod>);
         }
 
         public Task RemoveHandler(string grpcMethod, string handler)
