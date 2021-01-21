@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Discovery;
+using DiscoveryService.Infra.Operations;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
@@ -7,25 +9,25 @@ namespace DiscoveryService.Grpc
 {
     public class DiscoveryGrpc : global::Discovery.DiscoveryService.DiscoveryServiceBase
     {
-        private readonly EtcdClientWrap _etcdClient;
+        private readonly IServiceRegisterOperations _serviceRegisteroperations;
         private readonly ILogger<DiscoveryGrpc> _logger;
 
-        public DiscoveryGrpc(EtcdClientWrap etcdClient, ILogger<DiscoveryGrpc> logger)
+        public DiscoveryGrpc(IServiceRegisterOperations serviceRegister, ILogger<DiscoveryGrpc> logger)
         {
-            _etcdClient = etcdClient;
+            _serviceRegisteroperations = serviceRegister;
             _logger = logger;
         }
         
-        public override Task<DiscoverySearchResponse> GetServiceHandlers(DiscoverySearchRequest request, ServerCallContext context)
+        public override async Task<DiscoverySearchResponse> GetServiceHandlers(DiscoverySearchRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Request STARTED {request}", request);
             var response = new DiscoverySearchResponse();
-            
-            var services = _etcdClient.GetValue(request.ServiceDefinition)?.Split(';');
-            if(!(services is null)) response.Services.AddRange(services);
+
+            var services = await _serviceRegisteroperations.GetMethodHandlers(request.ServiceDefinition);
+            if(!(services is null)) response.Services.AddRange(services.Select(i => i.Name));
             
             _logger.LogInformation("Request FINISHED {response}", response);
-            return Task.FromResult(response);
+            return response;
         }
     }
 }

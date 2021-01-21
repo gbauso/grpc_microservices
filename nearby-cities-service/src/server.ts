@@ -25,6 +25,7 @@ export class GrpcServer {
     const port = (process.env.PORT || 0) as number;
 
     const cityinformation = ServiceDefinition.getCityInformation();
+    const healthCheck = ServiceDefinition.getStatusPackage();
 
     const grpcServer:any = new Server();
     grpcServer.bind(`${host}:${port}`, ServerCredentials.createInsecure());
@@ -37,6 +38,9 @@ export class GrpcServer {
     const service = this.nearbyCitiesService;
     server.addService(cityinformation.CityService.service,
       { GetCityInformation: service.getCityInformation });
+    
+    server.addService(healthCheck.HealthCheckService.service,
+      { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
 
     this.autoDiscovery.registerAutoDiscovery(grpcServer.handlers, port).then();
 

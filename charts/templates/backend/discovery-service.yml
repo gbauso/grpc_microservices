@@ -61,8 +61,8 @@ spec:
             value: {{ include "grpc.rabbitmq" . }}
           - name: ServiceBus__Password
             value: {{ .Values.rabbitmq.password | quote }}
-          - name: ConnectionStrings__Etcd
-            value: "http://{{ include "grpc.etcd" . }}"
+          - name: ConnectionStrings__DiscoveryDbContext
+            value: {{ include "grpc.pgsql" . }}
           - name: Grpc__Host
             value: "0.0.0.0"
           - name: Grpc__Port

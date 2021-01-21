@@ -6,21 +6,35 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="dotnet-etcd" Version="3.2.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.32.0" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.2.5" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="6.2.5" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.5" />
     <PackageReference Include="prometheus-net" Version="4.1.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
     <PackageReference Include="Serilog.Sinks.Fluentd" Version="0.4.0" />
-    <PackageReference Include="Grpc" Version="2.30.0" />
+	<PackageReference Include="Google.Protobuf" Version="3.11.4" />
+    <PackageReference Include="Grpc" Version="2.33.1" />
     <PackageReference Include="Grpc.Tools" Version="2.30.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiscoveryService.Infra\DiscoveryService.Infra.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="../../contract/discovery.proto" GrpcServices="Server" Link="Contract\discovery.proto" />
+    <Protobuf Include="../../contract/healthcheck.proto" GrpcServices="Client" Link="Contract\healthcheck.proto" />
   </ItemGroup>
 </Project>

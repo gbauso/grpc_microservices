@@ -104,11 +104,11 @@ annotations:
 {{- end }}
 {{- end }}
 
-{{- define "grpc.etcd" -}}
-{{- if .Values.etcd.namespace }}
-{{- printf "%s.%s" .Values.etcd.host .Values.etcd.namespace }}
+{{- define "grpc.pgsql" -}}
+{{- if .Values.pgsql.namespace }}
+{{- printf "Username=%s;Password=%s;Host=%s.%s;Port=%.0f;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.namespace .Values.pgsql.port .Values.pgsql.database }}
 {{- else }}
-{{- .Values.etcd.host }}
+{{- printf "Username=%s;Password=%s;Host=%s;Port=%.0f;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.port .Values.pgsql.database }}
 {{- end }}
 {{- end }}
 

@@ -17,7 +17,7 @@ namespace DiscoveryService.Grpc
         public Server GetServer()
         {
             var configuration = _configuration.Value;
-            
+
             return new Server
             {
                 Services = { global::Discovery.DiscoveryService.BindService(_service) },

@@ -1,83 +1,58 @@
-﻿using dotnet_etcd;
-using MassTransit;
-using System;
-using System.Collections.Generic;
+﻿using MassTransit;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using DiscoveryService.Extensions;
 using Microsoft.Extensions.Logging;
+using DiscoveryService.Infra.Operations;
+using System.Transactions;
 
 namespace DiscoveryService
 {
     public class DiscoveryConsumer : IConsumer<Discovery>
     {
-        private readonly EtcdClientWrap _EtcdClient;
+        private readonly IServiceRegisterOperations _serviceRegisteroperations;
         private readonly ILogger<DiscoveryConsumer> _logger;
 
-        public DiscoveryConsumer(EtcdClientWrap etcdClient, ILogger<DiscoveryConsumer> logger)
+        public DiscoveryConsumer(
+            IServiceRegisterOperations serviceRegisteroperations,
+            ILogger<DiscoveryConsumer> logger)
         {
-            _EtcdClient = etcdClient;
+            _serviceRegisteroperations = serviceRegisteroperations;
             _logger = logger;
         }
-
-
 
         public async Task Consume(ConsumeContext<Discovery> context)
         {
             var message = context.Message;
             _logger.LogInformation("Message Handling STARTED {message}", message);
-            
+
+            // Try to find if there's some 
             var handlerKeyValue = message.Handlers
-                                .Select(i => new { Key = i, Value = _EtcdClient.GetValue(i).SplitIfNotEmpty() })
+                                .Select(i => new { Key = i, Value = _serviceRegisteroperations.GetMethodHandlers(i).Result })
                                 .ToList();
 
-            var serviceKeyValue = _EtcdClient.GetValue(message.Service).SplitIfNotEmpty().ToList();
+            var serviceKeyValue = await _serviceRegisteroperations.GetServiceMethods(message.Service);
+            var handlers = serviceKeyValue.Select(i => i.Name);
 
-            var handlersToAdd = message.Handlers.Except(serviceKeyValue).ToList();
-            var handlersToRemove = serviceKeyValue.Except(message.Handlers).ToList();
+            var handlersToAdd = message.Handlers.Except(handlers).ToList();
+            var handlersToRemove = handlers.Except(message.Handlers).ToList();
 
-            if (handlersToAdd.Any() || handlersToRemove.Any())
+
+            if (handlersToAdd.Any())
             {
-                serviceKeyValue.AddRange(handlersToAdd);
-                serviceKeyValue.RemoveAll(i => handlersToRemove.Contains(i));
-
-                var tasks = new List<Task>
-                {
-                    Task.Run(() => _EtcdClient.PutValueAsync(GetKeyValuePair(message.Service, serviceKeyValue)))
-                };
-
-                tasks.AddRange(handlerKeyValue
-                                    .FindAll(i => handlersToAdd.Contains(i.Key))
-                                        .Select(i => Task.Run(() =>
-                                            {
-                                                i.Value.Add(message.Service);
-                                                _EtcdClient.PutValueAsync(GetKeyValuePair(i.Key, i.Value));
-                                            }
-                                        )
-                                    )
-                               );
-
-                tasks.AddRange(handlerKeyValue
-                                    .FindAll(i => handlersToRemove.Contains(i.Key))
-                                        .Select(i => Task.Run(() =>
-                                            {
-                                                i.Value.Remove(message.Service);
-                                                _EtcdClient.PutValueAsync(GetKeyValuePair(i.Key, i.Value));
-                                            }
-                                        )
-                                    )
-                               );
-
-                await Task.WhenAll(tasks);
-                
-                _logger.LogInformation("Message Handling FINISHED", message);
+                foreach (var handler in handlersToAdd)
+                    await _serviceRegisteroperations.AddHandler(handler, message.Service);
             }
+
+            if (handlersToRemove.Any())
+            {
+                foreach (var handler in handlersToRemove)
+                    await _serviceRegisteroperations.RemoveHandler(handler, message.Service);
+            }
+
+
+            _logger.LogInformation("Message Handling FINISHED", message);
+
         }
 
-        private KeyValuePair<string, string> GetKeyValuePair(string key, ICollection<string> value)
-        {
-            return new KeyValuePair<string, string>(key, string.Join(";", value));
-        }
     }
 }

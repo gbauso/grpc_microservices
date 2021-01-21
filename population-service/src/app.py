@@ -5,8 +5,11 @@ import threading
 
 import grpc
 
-import cityinformation_pb2
-import cityinformation_pb2_grpc
+from services import cityinformation_pb2
+from services import cityinformation_pb2_grpc
+
+from services import healthcheck_pb2
+from services import healthcheck_pb2_grpc
 
 import city
 import inspect
@@ -48,6 +51,10 @@ class CityService(cityinformation_pb2_grpc.CityService):
         cityData = city.City.get_city_opendata(request.city, request.country)
         return cityinformation_pb2.SearchResponse(population=str(cityData['population']))
 
+class HealthCheckService(healthcheck_pb2_grpc.HealthCheckService):
+
+    def GetStatus(self, request, context):
+        return healthcheck_pb2.PingResponse(response=str('pong'))
 
 def serve():
     logger = Logger.getInstance()
@@ -58,6 +65,9 @@ def serve():
     discovery = autodiscovery.AutoDiscovery()
     server = grpc.server(futures.ThreadPoolExecutor(
         max_workers=10), interceptors=(log_interceptor, metric_interceptor,))
+    registerAutoDiscovery(server, CityService(), cityinformation_pb2_grpc, discovery)
+    registerAutoDiscovery(server, HealthCheckService(), healthcheck_pb2_grpc, discovery)
+    
 
     registerAutoDiscovery(server, CityService(),
                           cityinformation_pb2_grpc, discovery)
