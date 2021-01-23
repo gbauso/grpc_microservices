@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Application.GrpcClients;
 using Cityinformation;
+using Grpc.Experiments.GrpcClients;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controller

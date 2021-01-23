@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Google.Protobuf;
 
-namespace Application.GrpcClients
+namespace Grpc.Experiments.GrpcClients
 {
     public interface IGrpcClientList
     {

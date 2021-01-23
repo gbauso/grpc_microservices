@@ -1,6 +1,6 @@
 using System;
 
-namespace Application.Exceptions
+namespace Grpc.Experiments.Exceptions
 {
     public class ChannelNotFoundException : Exception
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Application
+namespace Grpc.Experiments
 {
     public class Operation
     {

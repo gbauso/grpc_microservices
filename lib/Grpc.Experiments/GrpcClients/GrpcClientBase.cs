@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Factory;
+using Grpc.Experiments.Factory;
 using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
+using Grpc.Experiments.Extensions;
 
-namespace Application.GrpcClients
+namespace Grpc.Experiments.GrpcClients
 {
     public abstract class GrpcClientBase : IGrpcClient
     {
@@ -27,14 +28,10 @@ namespace Application.GrpcClients
 
         protected object CallGrpc<Req, Res>(Type clientType, Req request, Channel channel, string service)
         {
-            var client = _clientFactory.GetInstance(clientType, channel);
-            var methods = client.GetType()
-                .GetMethods()
-                .Where(i => i.Name.EndsWith("Async"));
-
-            var method = methods.FirstOrDefault(i =>
-                i.GetParameters().Length == 2 &&
-                (i.ReturnType.FullName?.Contains(typeof(Res).Name) ?? false));
+            var client = _clientFactory.GetInstance(TypeChannelPair.Create(channel, clientType));
+            var method = client.GetType()
+                .GetCallableMethods()
+                .GetMethodByResponse(typeof(Res));
 
             Logger.LogInformation("Calling Channel {Channel} for {Service}", channel.ResolvedTarget, service);
 

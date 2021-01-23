@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Factory;
+using Grpc.Experiments.Factory;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
-namespace Application.GrpcClients
+namespace Grpc.Experiments.GrpcClients
 {
     public class UnaryGrpcClientSingle : GrpcClientBase
     {
@@ -22,11 +22,11 @@ namespace Application.GrpcClients
         public override async Task<TRes> ExecuteAndMerge<TReq, TRes>(TReq request)
         {
             var client = _clientFactory.GetClientInfo(typeof(TRes));
-            var channels = await _channelFactory.GetChannels(client.service);
+            var channels = await _channelFactory.GetChannels(client.ServiceName);
             
-            var execution = channels.Select(ch =>
+            var execution = channels.Select(channel =>
                 {
-                    var call = (AsyncUnaryCall<TRes>) CallGrpc<TReq, TRes>(client.client, request, ch, client.service);
+                    var call = (AsyncUnaryCall<TRes>) CallGrpc<TReq, TRes>(client.ServiceType, request, channel, client.ServiceName);
                     return call.ResponseAsync;
                 }
             );

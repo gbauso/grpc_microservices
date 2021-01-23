@@ -1,11 +1,11 @@
 using Api.Filter;
 using Api.Middleware;
-using Application;
-using Application.DiscoveryClient;
-using Application.Factory;
-using Application.GrpcClients;
-using Application.GrpcClients.Interceptors;
-using Application.Metrics;
+using Grpc.Experiments;
+using Grpc.Experiments.DiscoveryClient;
+using Grpc.Experiments.Factory;
+using Grpc.Experiments.GrpcClients;
+using Grpc.Experiments.GrpcClients.Interceptors;
+using Grpc.Experiments.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

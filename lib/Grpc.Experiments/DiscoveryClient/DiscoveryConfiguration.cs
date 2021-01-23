@@ -1,4 +1,4 @@
-namespace Application.DiscoveryClient
+namespace Grpc.Experiments.DiscoveryClient
 {
     public class DiscoveryConfiguration
     {

@@ -1,4 +1,4 @@
-﻿namespace Application.Metrics
+﻿namespace Grpc.Experiments.Metrics
 {
     public class CallData 
     {
