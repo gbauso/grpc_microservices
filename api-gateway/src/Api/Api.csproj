@@ -16,10 +16,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\lib\Grpc.Experiments\Grpc.Experiments.csproj" />
+		<PackageReference Include="Utils.Grpc" Version="0.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>

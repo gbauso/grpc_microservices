@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Grpc.Experiments;
+using Utils.Grpc;
 
 namespace Api.Middleware
 {

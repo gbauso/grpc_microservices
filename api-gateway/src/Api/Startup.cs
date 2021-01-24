@@ -1,11 +1,5 @@
 using Api.Filter;
 using Api.Middleware;
-using Grpc.Experiments;
-using Grpc.Experiments.DiscoveryClient;
-using Grpc.Experiments.Factory;
-using Grpc.Experiments.GrpcClients;
-using Grpc.Experiments.GrpcClients.Interceptors;
-using Grpc.Experiments.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +8,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Serilog;
+using Utils.Grpc;
+using Utils.Grpc.DiscoveryClient;
+using Utils.Grpc.Factory;
+using Utils.Grpc.GrpcClients;
+using Utils.Grpc.GrpcClients.Interceptors;
+using Utils.Grpc.Metrics;
 
 namespace Api
 {
