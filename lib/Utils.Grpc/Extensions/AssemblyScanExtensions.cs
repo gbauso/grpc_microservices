@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Grpc.Experiments.Extensions
+namespace Utils.Grpc.Extensions
 {
     public static class AssemblyScanExtensions
     {

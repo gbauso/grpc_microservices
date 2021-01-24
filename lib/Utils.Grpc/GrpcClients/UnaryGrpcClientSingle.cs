@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Experiments.Factory;
+using Utils.Grpc.Factory;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
-namespace Grpc.Experiments.GrpcClients
+namespace Utils.Grpc.GrpcClients
 {
     public class UnaryGrpcClientSingle : GrpcClientBase
     {

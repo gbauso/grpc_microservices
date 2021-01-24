@@ -1,7 +1,7 @@
 ﻿using Prometheus;
 using System.Threading.Tasks;
 
-namespace Grpc.Experiments.Metrics
+namespace Utils.Grpc.Metrics
 {
     public class PrometheusMetrics : IMetricsProvider
     {

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Experiments.DiscoveryClient;
-using Grpc.Experiments.Exceptions;
+using Utils.Grpc.DiscoveryClient;
+using Utils.Grpc.Exceptions;
 using Grpc.Core;
-using Grpc.Experiments.Extensions;
+using Utils.Grpc.Extensions;
 using System.Collections.Concurrent;
 
-namespace Grpc.Experiments.Factory
+namespace Utils.Grpc.Factory
 {
     public class ChannelFactory
     {

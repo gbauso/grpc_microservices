@@ -1,7 +1,7 @@
 ﻿using Grpc.Core;
 using System;
 
-namespace Grpc.Experiments.Factory
+namespace Utils.Grpc.Factory
 {
     public class TypeChannelPair
     {

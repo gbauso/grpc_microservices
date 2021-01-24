@@ -1,4 +1,4 @@
-﻿using Grpc.Experiments.Metrics;
+﻿using Utils.Grpc.Metrics;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using System;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Grpc.Experiments.GrpcClients.Interceptors
+namespace Utils.Grpc.GrpcClients.Interceptors
 {
     public class MetricsInterceptor : Interceptor
     {

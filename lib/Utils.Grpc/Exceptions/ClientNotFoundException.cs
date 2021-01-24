@@ -1,6 +1,6 @@
 using System;
 
-namespace Grpc.Experiments.Exceptions
+namespace Utils.Grpc.Exceptions
 {
     public class ClientNotFoundException : Exception
     {

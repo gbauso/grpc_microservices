@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Experiments.GrpcClients.Interceptors;
+using Utils.Grpc.GrpcClients.Interceptors;
 using Discovery;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.Extensions.Options;
 
-namespace Grpc.Experiments.DiscoveryClient
+namespace Utils.Grpc.DiscoveryClient
 {
     public class DiscoveryServiceClient : IDiscoveryServiceClient
     {

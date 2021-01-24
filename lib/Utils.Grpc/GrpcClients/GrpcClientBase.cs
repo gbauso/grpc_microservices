@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Experiments.Factory;
+using Utils.Grpc.Factory;
 using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
-using Grpc.Experiments.Extensions;
+using Utils.Grpc.Extensions;
 
-namespace Grpc.Experiments.GrpcClients
+namespace Utils.Grpc.GrpcClients
 {
     public abstract class GrpcClientBase : IGrpcClient
     {

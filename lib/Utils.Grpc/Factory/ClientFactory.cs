@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Grpc.Experiments.Exceptions;
-using Grpc.Experiments.GrpcClients.Interceptors;
+using Utils.Grpc.Exceptions;
+using Utils.Grpc.GrpcClients.Interceptors;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
-using Grpc.Experiments.Extensions;
+using Utils.Grpc.Extensions;
 using System.Collections.Concurrent;
 
-namespace Grpc.Experiments.Factory
+namespace Utils.Grpc.Factory
 {
     public class ClientFactory
     {

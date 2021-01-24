@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Grpc.Experiments.DiscoveryClient
+namespace Utils.Grpc.DiscoveryClient
 {
     public interface IDiscoveryServiceClient
     {
