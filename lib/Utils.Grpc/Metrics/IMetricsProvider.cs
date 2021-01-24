@@ -2,7 +2,7 @@
 
 namespace Utils.Grpc.Metrics
 {
-    public interface IMetricsProvider
+    internal interface IMetricsProvider
     {
         Task CollectCallMetrics(CallData data);
     }

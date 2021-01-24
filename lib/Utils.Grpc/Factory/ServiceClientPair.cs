@@ -2,7 +2,7 @@
 
 namespace Utils.Grpc.Factory
 {
-    public class ServiceClientPair
+    internal class ServiceClientPair
     {
         public string ServiceName { get; set; }
         public Type ServiceType { get; set; }

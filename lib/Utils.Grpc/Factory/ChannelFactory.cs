@@ -10,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace Utils.Grpc.Factory
 {
-    public class ChannelFactory
+    internal class ChannelFactory
     {
         private readonly IDiscoveryServiceClient _discoveryServiceClient;
         private readonly IDictionary<string, Channel> _instances;

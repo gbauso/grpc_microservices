@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace Utils.Grpc.DiscoveryClient
 {
-    public interface IDiscoveryServiceClient
+    internal interface IDiscoveryServiceClient
     {
         Task<string[]> GetHandlers(string service);
     }

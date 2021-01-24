@@ -3,7 +3,7 @@ using System;
 
 namespace Utils.Grpc.Factory
 {
-    public class TypeChannelPair
+    internal class TypeChannelPair
     {
         public Channel Channel { get; set; }
         public Type ServiceType { get; set; }

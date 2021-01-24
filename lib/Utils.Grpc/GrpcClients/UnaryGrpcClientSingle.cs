@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Utils.Grpc.GrpcClients
 {
-    public class UnaryGrpcClientSingle : GrpcClientBase
+    internal class UnaryGrpcClientSingle : GrpcClientBase
     {
         private readonly ChannelFactory _channelFactory;
 

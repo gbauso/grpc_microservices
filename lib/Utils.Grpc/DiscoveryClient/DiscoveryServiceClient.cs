@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Utils.Grpc.DiscoveryClient
 {
-    public class DiscoveryServiceClient : IDiscoveryServiceClient
+    internal class DiscoveryServiceClient : IDiscoveryServiceClient
     {
         private readonly Channel _discoveryChannel;
         private readonly Interceptor _metricsInterceptor;

@@ -1,6 +1,6 @@
 ﻿namespace Utils.Grpc.Metrics
 {
-    public class CallData 
+    internal class CallData 
     {
         public double Duration { get; set; }
         public string Status { get; set; }

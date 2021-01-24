@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Utils.Grpc.Metrics
 {
-    public class PrometheusMetrics : IMetricsProvider
+    internal class PrometheusMetrics : IMetricsProvider
     {
         private readonly Counter grpcServerStartedTotal;
         private readonly Counter grpcServerHandledTotal;

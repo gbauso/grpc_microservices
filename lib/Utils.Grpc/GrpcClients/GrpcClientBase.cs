@@ -9,7 +9,7 @@ using Utils.Grpc.Extensions;
 
 namespace Utils.Grpc.GrpcClients
 {
-    public abstract class GrpcClientBase : IGrpcClient
+    internal abstract class GrpcClientBase : IGrpcClient
     {
         protected readonly ClientFactory _clientFactory;
         private readonly Operation _operation;

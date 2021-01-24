@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Utils.Grpc.Extensions
 {
-    public static class AssemblyScanExtensions
+    internal static class AssemblyScanExtensions
     {
         public static IEnumerable<Type> GetGrpcClients(this AppDomain appDomain) =>
             appDomain.GetAssemblies()

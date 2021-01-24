@@ -10,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace Utils.Grpc.Factory
 {
-    public class ClientFactory
+    internal class ClientFactory
     {
         private readonly IDictionary<Type, ServiceClientPair> _clients;
         private readonly IDictionary<TypeChannelPair, ClientBase> _instances;

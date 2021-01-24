@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Utils.Grpc.GrpcClients.Interceptors
 {
-    public class MetricsInterceptor : Interceptor
+    internal class MetricsInterceptor : Interceptor
     {
         private readonly IMetricsProvider _metricsProvider;
 
