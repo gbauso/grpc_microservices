@@ -48,7 +48,7 @@ namespace Utils.Grpc.Factory
         #endregion
 
 
-        public async Task<IEnumerable<Channel>> GetChannels(string service)
+        public async virtual Task<IEnumerable<Channel>> GetChannels(string service)
         {
             var handlers = await _discoveryServiceClient.GetHandlers(service);
 
@@ -60,7 +60,10 @@ namespace Utils.Grpc.Factory
             if (_instances.ContainsKey(handler) && _instances.TryGetValue(handler, out Channel channel))
                 return channel;
             else
-                throw new ChannelNotFoundException();
+            {
+                RegisterHandlers(new[] { handler });
+                return GetChannel(handler);
+            }
         }
     }
 }

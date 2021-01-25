@@ -25,7 +25,7 @@ namespace Utils.Grpc.Factory
             Initialize();
         }
 
-        public ServiceClientPair GetClientInfo(Type response)
+        public virtual ServiceClientPair GetClientInfo(Type response)
         {
             if (!_clients.ContainsKey(response) || !_clients.TryGetValue(response, out ServiceClientPair serviceClientPair))
                 throw new ClientNotFoundException();
@@ -33,7 +33,7 @@ namespace Utils.Grpc.Factory
             return serviceClientPair;
         }
 
-        public ClientBase GetInstance(TypeChannelPair pair)
+        public virtual ClientBase GetInstance(TypeChannelPair pair)
         {
             if (_instances.ContainsKey(pair) && _instances.TryGetValue(pair, out ClientBase clientBase))
             {
