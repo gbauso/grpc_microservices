@@ -10,6 +10,11 @@ namespace Utils.Grpc.GrpcClients
     {
         private readonly ChannelFactory _channelFactory;
 
+        public UnaryGrpcClientSingle() : base()
+        {
+            // For Testing Purposes
+        }
+
         public UnaryGrpcClientSingle(ClientFactory clientFactory,
             ChannelFactory channelFactory,
             Operation operation,

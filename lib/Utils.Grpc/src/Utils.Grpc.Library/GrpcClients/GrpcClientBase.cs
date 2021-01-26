@@ -17,6 +17,10 @@ namespace Utils.Grpc.GrpcClients
 
         private const int TIMEOUT = 30;
 
+        protected GrpcClientBase()
+        {
+
+        }
         protected GrpcClientBase(ClientFactory clientFactory,
                                  Operation operation,
                                  ILogger<GrpcClientBase> logger)

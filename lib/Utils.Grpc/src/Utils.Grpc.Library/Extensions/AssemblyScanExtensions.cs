@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Grpc.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,8 +13,13 @@ namespace Utils.Grpc.Extensions
                 .SelectMany(x => x.GetTypes())
                 .Where(i => i.Name.EndsWith("ServiceClient") && !i.Name.Contains("Discovery"));
 
-        public static string GetServiceName(this Type client) => 
+        public static string GetServiceName(this Type client) =>
             client.ReflectedType.GetRuntimeFields().First().GetValue(null).ToString();
+
+        public static MethodType GetMethodType<Req, Res>(this Type client) =>
+            ((Method<Req, Res>)client.ReflectedType
+                            .GetRuntimeFields()
+                            .Last().GetValue(null)).Type;
 
         public static IEnumerable<MethodInfo> GetCallableMethods(this Type client) =>
             client.GetMethods()

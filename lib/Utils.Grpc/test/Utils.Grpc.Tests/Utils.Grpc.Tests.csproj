@@ -28,11 +28,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="../../contract/cityinformation.proto" Link="Protos\cityinformation.proto" GrpcServices="Client" />
+	  <ProjectReference Include="..\..\src\Utils.Grpc.Library\Utils.Grpc.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Utils.Grpc.Library\Utils.Grpc.csproj" />
+		<Protobuf Include="../../contract/cityinformation.proto" Link="Protos\cityinformation.proto" GrpcServices="Client" />
 	</ItemGroup>
 
 </Project>
