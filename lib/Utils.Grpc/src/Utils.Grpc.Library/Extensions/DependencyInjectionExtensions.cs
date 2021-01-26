@@ -23,7 +23,7 @@ namespace Utils.Grpc.Extensions
 
             services.AddScoped<MetricsInterceptor>();
 
-            services.AddScoped<Operation>();
+            services.AddSingleton<Operation>();
 
             services.AddScoped<UnaryGrpcClientSingle>();
 
