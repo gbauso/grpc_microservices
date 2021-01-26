@@ -4,6 +4,7 @@ using Utils.Grpc.DiscoveryClient;
 using Utils.Grpc.Factory;
 using Utils.Grpc.GrpcClients;
 using Utils.Grpc.GrpcClients.Interceptors;
+using Utils.Grpc.Mediator;
 using Utils.Grpc.Metrics;
 
 namespace Utils.Grpc.Extensions
@@ -14,17 +15,19 @@ namespace Utils.Grpc.Extensions
         {
             services.Configure<DiscoveryConfiguration>(configuration.GetSection("DiscoveryService"));
 
-            services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
-            services.AddSingleton<IMetricsProvider, PrometheusMetrics>();
+            services.AddScoped<IDiscoveryServiceClient, DiscoveryServiceClient>();
+            services.AddScoped<IMetricsProvider, PrometheusMetrics>();
 
             services.AddSingleton<ChannelFactory>();
             services.AddSingleton<ClientFactory>();
 
-            services.AddSingleton<MetricsInterceptor>();
+            services.AddScoped<MetricsInterceptor>();
 
-            services.AddSingleton<Operation>();
+            services.AddScoped<Operation>();
 
-            services.AddScoped<IGrpcClient, UnaryGrpcClientSingle>();
+            services.AddScoped<UnaryGrpcClientSingle>();
+
+            services.AddTransient<IGrpcMediator, GrpcMediator>();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Utils.Grpc.Factory;
 using Utils.Grpc.Extensions;
 using System;
-using Grpc.Core.Utils;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Utils.Grpc.GrpcClients;
