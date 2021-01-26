@@ -22,7 +22,7 @@
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Authors>msexp</Authors>
 		<Product>msexp</Product>
-		<Version>0.1.1</Version>
+		<Version>0.1.2</Version>
 	</PropertyGroup>
 
 </Project>
