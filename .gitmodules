@@ -14,5 +14,5 @@
 	path = weather-service/contract
 	url = https://github.com/gbauso/contract
 [submodule "lib/contract"]
-	path = lib/Utils.Grpc/contract
+	path = lib/Utils.Grpc.Mediator/contract
 	url = https://github.com/gbauso/contract
