@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Application.GrpcClients;
 using Cityinformation;
 using Microsoft.AspNetCore.Mvc;
+using Utils.Grpc.Mediator;
 
 namespace Api.Controller
 {
@@ -9,18 +9,18 @@ namespace Api.Controller
     [ApiController]
     public class CityController : ControllerBase
     {
-        private readonly IGrpcClient _client;
+        private readonly IGrpcMediator _mediator;
 
-        public CityController(IGrpcClient client)
+        public CityController(IGrpcMediator mediator)
         {
-            _client = client;
+            _mediator = mediator;
         }
 
         // GET: api/City
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] SearchRequest request)
         {
-            var response = _client.ExecuteAndMerge<SearchRequest, SearchResponse>(request);
+            var response = _mediator.Send<SearchRequest, SearchResponse>(request);
 
             return Ok(await response);
         }

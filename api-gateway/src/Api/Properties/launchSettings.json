@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50900",
-      "sslPort": 44313
+      "applicationUrl": "http://localhost:62998/",
+      "sslPort": 44314
     }
   },
   "$schema": "http://json.schemastore.org/launchsettings.json",
@@ -23,7 +23,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Local"
       },
-      "applicationUrl": "https://localhost:6001;http://localhost:6002"
+      "Grpc.ExperimentsUrl": "https://localhost:6001;http://localhost:6002"
     }
   }
 }

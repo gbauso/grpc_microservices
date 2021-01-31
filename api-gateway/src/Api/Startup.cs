@@ -1,11 +1,5 @@
 using Api.Filter;
 using Api.Middleware;
-using Application;
-using Application.DiscoveryClient;
-using Application.Factory;
-using Application.GrpcClients;
-using Application.GrpcClients.Interceptors;
-using Application.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Serilog;
+using Utils.Grpc.Mediator.Extensions;
 
 namespace Api
 {
@@ -34,19 +29,7 @@ namespace Api
                 cfg.Filters.Add(typeof(ErrorHandlerFilter));
             });
 
-            services.Configure<DiscoveryConfiguration>(Configuration.GetSection("DiscoveryService"));
-            
-            services.AddSingleton<IDiscoveryServiceClient, DiscoveryServiceClient>();
-            services.AddSingleton<IMetricsProvider, PrometheusMetrics>();
-
-            services.AddSingleton<ChannelFactory>();
-            services.AddSingleton<ClientFactory>();
-            
-            services.AddSingleton<MetricsInterceptor>();
-
-            services.AddSingleton<Operation>();
-
-            services.AddScoped<IGrpcClient, UnaryGrpcClientSingle>();
+            services.RegisterGrpcMediator(Configuration);
 
             services.AddLogging(logging =>
             {
