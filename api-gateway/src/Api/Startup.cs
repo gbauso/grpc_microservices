@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Serilog;
-using Utils.Grpc.Extensions;
+using Utils.Grpc.Mediator.Extensions;
 
 namespace Api
 {
