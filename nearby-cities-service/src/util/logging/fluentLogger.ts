@@ -19,24 +19,24 @@ export class FluentLogger implements Logger {
       });
     }
 
-    private log(level: string, message: string, data?: any[]) {
+    private log(level: string, message: string, data?: any) {
       const logContent : LogContent = {
-        data,
+        ...data,
         level,
         m: message,
       };
       this.logger.emit(logContent);
     }
 
-    info(message: string, data?: Array<any>) : void {
+    info(message: string, data?: any) : void {
       this.log('Information', message, data);
     }
 
-    error(message: string, data?: Array<any>) : void {
+    error(message: string, data?: any) : void {
       this.log('Error', message, data);
     }
 
-    debug(message: string, data?: Array<any>) : void {
+    debug(message: string, data?: any) : void {
       this.log('Debug', message, data);
     }
 }
