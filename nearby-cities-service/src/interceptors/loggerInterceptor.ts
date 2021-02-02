@@ -12,7 +12,7 @@ export class LoggerInterceptor implements Interceptor {
       const service = metadata?.service ? metadata.service[0] : 'undefined';
       const rpc = metadata?.rpc ? metadata.rpc[0] : 'undefined';
 
-      this.logger.info(`Request for ${service}.${rpc} STARTED`, metadata);
+      this.logger.info(`Request for /${service}/${rpc} STARTED`, metadata);
 
       try {
         await next();
