@@ -47,7 +47,7 @@ namespace DiscoveryService
             await _busControl.StartAsync(cancellationToken);
             _metricServer.Start();
             _server.Start();
-            _timer = new Timer(_healthChecker.Handle, null, TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2));
+            _timer = new Timer(_healthChecker.Handle, null, TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(5));
             _logger.LogInformation("Discovery Service STARTED");
         }
 
