@@ -29,14 +29,14 @@ export class FluentLogger implements Logger {
     }
 
     info(message: string, data?: any) : void {
-      this.log('Information', message, data);
+      this.log('information', message, data);
     }
 
     error(message: string, data?: any) : void {
-      this.log('Error', message, data);
+      this.log('error', message, data);
     }
 
     debug(message: string, data?: any) : void {
-      this.log('Debug', message, data);
+      this.log('debug', message, data);
     }
 }
