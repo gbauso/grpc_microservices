@@ -16,9 +16,9 @@ export class LoggerInterceptor implements Interceptor {
 
       try {
         await next();
-        this.logger.info(`Request for ${service}.${rpc} FINISHED`, metadata);
+        this.logger.info(`Request for /${service}/${rpc} FINISHED`, metadata);
       } catch (err) {
-        this.logger.error(`Request ${service}.${rpc} FAILED`, err.stack);
+        this.logger.error(`Request /${service}/${rpc} FAILED`, err.stack);
       }
     }
 }
