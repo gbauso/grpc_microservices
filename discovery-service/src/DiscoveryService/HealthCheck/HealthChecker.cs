@@ -52,7 +52,7 @@ namespace DiscoveryService.HealthCheck
                                                  channel.ResolvedTarget,
                                                  operationId);
 
-                var result = client.GetStatus(new Empty(), deadline: DateTime.UtcNow.AddSeconds(10));
+                var result = client.GetStatus(new Empty(), callContext);
                 return result.Response.ToLower() == "pong";
             }
             catch
