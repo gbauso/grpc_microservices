@@ -37,7 +37,7 @@ namespace Utils.Grpc.Mediator.GrpcClients
                 .GetCallableMethods()
                 .GetMethodByResponse(typeof(Res));
 
-            Logger.LogInformation("Calling Channel {Channel} for {Service}", channel.ResolvedTarget, service);
+            Logger.LogInformation("Calling Channel {Channel} for /{Service}/{Method}", channel.ResolvedTarget, service, method.Name);
 
             return method?.Invoke(client, new object[] {request, GetCallContext(service, method.Name, channel.ResolvedTarget) });
         }
