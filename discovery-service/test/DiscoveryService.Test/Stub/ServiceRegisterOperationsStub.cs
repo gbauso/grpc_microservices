@@ -1,18 +1,20 @@
 ﻿using DiscoveryService.Infra.Database;
 using DiscoveryService.Infra.Model;
+using DiscoveryService.Infra.Operations;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscoveryService.Infra.Operations
+namespace DiscoveryService.Test.Stub
 {
-    public class ServiceRegisterOperations : IServiceRegisterOperations
+    public class ServiceRegisterOperationsStub : IServiceRegisterOperations
     {
         private readonly DiscoveryDbContext _discoveryDbContext;
 
-        public ServiceRegisterOperations(DiscoveryDbContext discoveryDbContext)
+        public ServiceRegisterOperationsStub(DiscoveryDbContext discoveryDbContext)
         {
             _discoveryDbContext = discoveryDbContext;
         }
@@ -35,7 +37,6 @@ namespace DiscoveryService.Infra.Operations
 
         public void Dispose()
         {
-            _discoveryDbContext.Dispose();
         }
 
         public IEnumerable<Service> GetAllServices()
@@ -52,7 +53,7 @@ namespace DiscoveryService.Infra.Operations
             var services = _discoveryDbContext.ServiceMethods
                                     .Where(i => i.GrpcMethodId == method.Id && i.IsAlive == isAlive)
                                     .Select(i => i.Service);
-                                    
+
 
             return Task.FromResult(services.ToList() as IEnumerable<Service>);
         }

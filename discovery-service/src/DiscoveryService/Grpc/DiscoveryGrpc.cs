@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Discovery;
@@ -9,10 +10,10 @@ namespace DiscoveryService.Grpc
 {
     public class DiscoveryGrpc : global::Discovery.DiscoveryService.DiscoveryServiceBase
     {
-        private readonly IServiceRegisterOperations _serviceRegisteroperations;
+        private readonly Func<IServiceRegisterOperations> _serviceRegisteroperations;
         private readonly ILogger<DiscoveryGrpc> _logger;
 
-        public DiscoveryGrpc(IServiceRegisterOperations serviceRegister, ILogger<DiscoveryGrpc> logger)
+        public DiscoveryGrpc(Func<IServiceRegisterOperations> serviceRegister, ILogger<DiscoveryGrpc> logger)
         {
             _serviceRegisteroperations = serviceRegister;
             _logger = logger;
@@ -20,14 +21,17 @@ namespace DiscoveryService.Grpc
         
         public override async Task<DiscoverySearchResponse> GetServiceHandlers(DiscoverySearchRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Request STARTED {request}", request);
-            var response = new DiscoverySearchResponse();
+            using(var operations = _serviceRegisteroperations())
+            {
+                _logger.LogInformation("Request STARTED {request}", request);
+                var response = new DiscoverySearchResponse();
 
-            var services = await _serviceRegisteroperations.GetMethodHandlers(request.ServiceDefinition);
-            if(!(services is null)) response.Services.AddRange(services.Select(i => i.Name));
+                var services = await operations.GetMethodHandlers(request.ServiceDefinition);
+                if(!(services is null)) response.Services.AddRange(services.Select(i => i.Name));
             
-            _logger.LogInformation("Request FINISHED {response}", response);
-            return response;
+                _logger.LogInformation("Request FINISHED {response}", response);
+                return response;
+            }
         }
     }
 }

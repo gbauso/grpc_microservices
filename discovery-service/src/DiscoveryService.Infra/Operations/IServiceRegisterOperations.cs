@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DiscoveryService.Infra.Operations
 {
-    public interface IServiceRegisterOperations
+    public interface IServiceRegisterOperations : IDisposable
     {
         IEnumerable<Service> GetAllServices();
         void SetServiceState(Guid serviceId, bool isAlive);

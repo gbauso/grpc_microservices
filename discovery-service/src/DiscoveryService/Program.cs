@@ -27,21 +27,22 @@ namespace DiscoveryService
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddMassTransit(cfg => ServiceBus.ConfigureMassTransit(cfg, hostContext.Configuration));
-                    services.AddSingleton<DiscoveryGrpc>();
-                    services.Configure<GrpcConfiguration>(hostContext.Configuration.GetSection("Grpc"));
-                    services.Configure<MetricsConfiguration>(hostContext.Configuration.GetSection("Metrics"));
+                services.AddMassTransit(cfg => ServiceBus.ConfigureMassTransit(cfg, hostContext.Configuration));
+                services.AddSingleton<DiscoveryGrpc>();
+                services.Configure<GrpcConfiguration>(hostContext.Configuration.GetSection("Grpc"));
+                services.Configure<MetricsConfiguration>(hostContext.Configuration.GetSection("Metrics"));
 
-                    services.AddDbContext<DiscoveryDbContext>(cfg =>
-                    {
-                        cfg.UseNpgsql(hostContext.Configuration.GetSection("ConnectionStrings")["DiscoveryDbContext"],
-                            mssqlOptions =>
-                            {
-                                mssqlOptions.MigrationsAssembly("DiscoveryService.Infra");
-                            });
-                    }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+                services.AddDbContextFactory<DiscoveryDbContext>(cfg =>
+                {
+                    cfg.UseNpgsql(hostContext.Configuration.GetSection("ConnectionStrings")["DiscoveryDbContext"],
+                        mssqlOptions =>
+                        {
+                            mssqlOptions.MigrationsAssembly("DiscoveryService.Infra");
+                        });
+                });
 
-                    services.AddSingleton<IServiceRegisterOperations, ServiceRegisterOperations>();
+                services.AddSingleton<Func<IServiceRegisterOperations>>(
+                    (sp) => () => new ServiceRegisterOperations(sp.GetRequiredService<IDbContextFactory<DiscoveryDbContext>>().CreateDbContext()));
 
                     services.AddSingleton<Func<Channel, HealthCheckServiceClient>>
                             ((Channel channel) => new HealthCheckServiceClient(channel));

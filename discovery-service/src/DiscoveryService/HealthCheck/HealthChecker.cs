@@ -12,13 +12,13 @@ namespace DiscoveryService.HealthCheck
 {
     public class HealthChecker
     {
-        private readonly IServiceRegisterOperations _serviceRegisteroperations;
+        private readonly Func<IServiceRegisterOperations> _serviceRegisteroperations;
         private readonly ChannelFactory _channelFactory;
         private readonly Func<Channel, HealthCheckServiceClient> _serviceClientFactory;
 
 
         public HealthChecker(
-            IServiceRegisterOperations serviceRegisteroperations,
+            Func<IServiceRegisterOperations> serviceRegisteroperations,
             ChannelFactory channelFactory,
             Func<Channel, HealthCheckServiceClient> serviceClientFactory)
         {
@@ -29,15 +29,19 @@ namespace DiscoveryService.HealthCheck
 
         public void Handle(object state)
         {
-            // Get all services registered 
-            var servicesRegistered = _serviceRegisteroperations.GetAllServices();
-            var operationId = Guid.NewGuid();
-
-            foreach (var service in servicesRegistered.Distinct())
+            using(var operations = _serviceRegisteroperations())
             {
-                var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name), operationId);
-                _serviceRegisteroperations.SetServiceState(service.Id, isAlive);
+                // Get all services registered 
+                var servicesRegistered = operations.GetAllServices();
+                var operationId = Guid.NewGuid();
+
+                foreach (var service in servicesRegistered.Distinct())
+                {
+                    var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name), operationId);
+                    operations.SetServiceState(service.Id, isAlive);
+                }
             }
+
 
         }
 
