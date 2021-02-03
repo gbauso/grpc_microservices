@@ -18,7 +18,7 @@ class Logger(object):
         self.logger = sender.FluentSender('population', host=host, port=int(port))
 
     def __log(self, level, message, data):
-        self.logger.emit(None ,{"level": level, "m": message, **data})
+        self.logger.emit(None ,{"Level": level, "m": message, **data})
 
     def error(self, message, data):
         self.__log('error', message, data)

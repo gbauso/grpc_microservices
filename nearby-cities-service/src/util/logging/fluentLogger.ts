@@ -22,7 +22,7 @@ export class FluentLogger implements Logger {
     private log(level: string, message: string, data?: any) {
       const logContent : LogContent = {
         ...data,
-        level,
+        Level: level,
         m: message,
       };
       this.logger.emit(logContent);

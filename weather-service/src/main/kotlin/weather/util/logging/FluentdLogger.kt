@@ -22,7 +22,7 @@ class FluentdLogger : ILogger, KoinComponent {
 
     private fun log(level: String, message: String, data: MutableMap<String, Any>) {
         data.put("m", message)
-        data.put("level", level)
+        data.put("Level", level)
         logger.log("", data)
     }
 }
