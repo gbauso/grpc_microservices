@@ -2,6 +2,7 @@
 using DiscoveryService.HealthCheck;
 using DiscoveryService.Infra.Database;
 using DiscoveryService.Infra.Operations;
+using DiscoveryService.Test.Stub;
 using FluentAssertions;
 using Grpc.Core;
 using Healthcheck;
@@ -18,31 +19,38 @@ namespace DiscoveryService.Test
 {
     public class HealthCheckerTest
     {
-        private readonly IServiceRegisterOperations _operations;
+        private readonly Func<ServiceRegisterOperationsStub> _operations;
         private readonly ChannelFactory _channelFactory;
-        private readonly DiscoveryDbContext _discoveryDbContext;
         private readonly Func<Channel, HealthCheckServiceClient> _serviceClientFactory;
         private bool forceGrpcError = false;
 
         public HealthCheckerTest()
         {
-            _discoveryDbContext = new DiscoveryDbContext(new DbContextOptionsBuilder()
+            var discoveryDbContext = new DiscoveryDbContext(new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options);
 
-            _operations = new ServiceRegisterOperations(_discoveryDbContext);
-            _channelFactory = Mock.Of<ChannelFactory>();
+            var operation = new ServiceRegisterOperationsStub(discoveryDbContext);
+            _operations = () => operation;
+
+            var channelFactoryMock = new Mock<ChannelFactory>();
+            channelFactoryMock
+                .Setup(x => x.GetChannel(It.IsAny<string>()))
+                .Returns(new Channel("abc", ChannelCredentials.Insecure));
+
+            _channelFactory = channelFactoryMock.Object;
 
             var clientMock = new Mock<HealthCheckServiceClient>();
             clientMock.Setup(i => i.GetStatus(It.IsAny<Empty>(),
-                                              null, It.IsAny<DateTime>(), default))
+                                              It.IsAny<CallOptions>()))
                 .Returns(() => forceGrpcError ? throw new Exception() : new PingResponse { Response = "Pong" });
 
             _serviceClientFactory = (Channel ch) => clientMock.Object;
 
-            _operations.AddHandler("svc", "population");
-            _operations.AddHandler("svc", "weather");
+            var preOperation = _operations();
+            preOperation.AddHandler("svc", "population");
+            preOperation.AddHandler("svc", "weather");
         }
 
         [Theory]
@@ -55,7 +63,7 @@ namespace DiscoveryService.Test
 
             healthChecker.Handle(null);
 
-            var services = await _operations.GetMethodHandlers("svc");
+            var services = await _operations().GetMethodHandlers("svc");
 
             services.Select(i => i.Name).Should().NotContain(serviceToCheckIfIsDown);
         }
@@ -70,7 +78,7 @@ namespace DiscoveryService.Test
 
             healthChecker.Handle(null);
 
-            var services = await _operations.GetMethodHandlers("svc");
+            var services = await _operations().GetMethodHandlers("svc");
 
             services.Select(i => i.Name).Should().Contain(serviceToCheckIfIsUp);
         }

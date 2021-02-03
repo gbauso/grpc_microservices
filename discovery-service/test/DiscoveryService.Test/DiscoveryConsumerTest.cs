@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DiscoveryService.Infra.Database;
 using DiscoveryService.Infra.Operations;
+using DiscoveryService.Test.Stub;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,17 +13,16 @@ namespace DiscoveryService.Test
 {
     public class DiscoveryConsumerTest
     {
-        private readonly IServiceRegisterOperations _operations;
-        private readonly DiscoveryDbContext _discoveryDbContext;
+        private readonly Func<ServiceRegisterOperationsStub> _operations;
 
         public DiscoveryConsumerTest()
         {
-            _discoveryDbContext = new DiscoveryDbContext(new DbContextOptionsBuilder()
+            var discoveryDbContext = new DiscoveryDbContext(new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options);
 
-            _operations = new ServiceRegisterOperations(_discoveryDbContext);
+            _operations = () => new ServiceRegisterOperationsStub(discoveryDbContext);
         }
 
         [Theory]
@@ -40,7 +40,7 @@ namespace DiscoveryService.Test
             var consumer = new DiscoveryConsumer(_operations, logger);
             await consumer.Consume(context);
 
-            var methods = await _operations.GetServiceMethods(service);
+            var methods = await _operations().GetServiceMethods(service);
             string.Join(';', methods.Select(i => i.Name)).Should().Be(handlers);
         }
 
@@ -52,7 +52,7 @@ namespace DiscoveryService.Test
                                                                         string handlers,
                                                                         string expected)
         {
-            await _operations.AddHandler("svc1", service);
+            await _operations().AddHandler("svc1", service);
 
             var discovery = new Discovery() {
                 Service = service,
@@ -65,7 +65,7 @@ namespace DiscoveryService.Test
             var consumer = new DiscoveryConsumer(_operations, logger);
             await consumer.Consume(context);
 
-            var methods = await _operations.GetServiceMethods(service);
+            var methods = await _operations().GetServiceMethods(service);
             string.Join(';', methods.Select(i => i.Name)).Should().Be(expected);
         }
     }
