@@ -18,13 +18,13 @@ class Logger(object):
         self.logger = sender.FluentSender('population', host=host, port=int(port))
 
     def __log(self, level, message, data):
-        self.logger.emit(None ,{"Level": level, "m": message, "data": data})
+        self.logger.emit(None ,{"Level": level, "m": message, **data})
 
     def error(self, message, data):
-        self.__log('Error', message, data)
+        self.__log('error', message, data)
 
     def info(self, message, data):
-        self.__log('Information', message, data)
+        self.__log('information', message, data)
     
     def debug(self, message, data):
-        self.__log('Debug', message, data)
+        self.__log('debug', message, data)

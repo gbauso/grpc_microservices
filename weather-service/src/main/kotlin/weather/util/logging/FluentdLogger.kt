@@ -9,20 +9,20 @@ class FluentdLogger : ILogger, KoinComponent {
     val logger: FluentLogger by inject()
 
     override fun debug(message: String, data: MutableMap<String, Any>) {
-        log("Debug", message, data)
+        log("debug", message, data)
     }
 
     override fun info(message: String, data: MutableMap<String, Any>) {
-        log("Information", message, data)
+        log("information", message, data)
     }
 
     override fun error(message: String, data: MutableMap<String, Any>) {
-        log("Error", message, data)
+        log("error", message, data)
     }
 
     private fun log(level: String, message: String, data: MutableMap<String, Any>) {
         data.put("m", message)
-        data.put("level", level)
+        data.put("Level", level)
         logger.log("", data)
     }
 }

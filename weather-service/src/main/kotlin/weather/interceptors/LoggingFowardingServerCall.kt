@@ -10,14 +10,14 @@ class LoggingForwardingServerCall<ReqT, RespT>(delegate: ServerCall<ReqT, RespT>
     override fun close(status: Status?, trailers: Metadata?) {
         val metadata = headers.asMap()
         if(status?.isOk!!) {
-            logger.info(String.format("Request for %s FINISHED", metadata.get("rpc")),
+            logger.info(String.format("Request for /%s/%s FINISHED", metadata.get("service"), metadata.get("rpc")),
                     metadata as MutableMap<String, Any>)
         }
         else {
             var map = HashMap<String, Any>()
             map.put("error", status.cause.toString())
 
-            logger.error(String.format("Request for %s FAILED", metadata.get("rpc")), map)
+            logger.error(String.format("Request for /%s/%s FAILED", metadata.get("service"), metadata.get("rpc")), map)
         }
 
 

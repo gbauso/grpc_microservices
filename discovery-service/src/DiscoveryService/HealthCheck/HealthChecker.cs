@@ -31,28 +31,47 @@ namespace DiscoveryService.HealthCheck
         {
             // Get all services registered 
             var servicesRegistered = _serviceRegisteroperations.GetAllServices();
+            var operationId = Guid.NewGuid();
 
             foreach (var service in servicesRegistered.Distinct())
             {
-                var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name));
+                var isAlive = IsServiceUp(_channelFactory.GetChannel(service.Name), operationId);
                 _serviceRegisteroperations.SetServiceState(service.Id, isAlive);
             }
 
         }
 
-        private bool IsServiceUp(Channel channel)
+        private bool IsServiceUp(Channel channel, Guid operationId)
         {
             var client = _serviceClientFactory(channel);
 
             try
             {
-                var result = client.GetStatus(new Empty(), deadline: DateTime.UtcNow.AddSeconds(10));
+                var callContext = GetCallContext(HealthCheckService.Descriptor.FullName,
+                                                 nameof(client.GetStatus),
+                                                 channel.ResolvedTarget,
+                                                 operationId);
+
+                var result = client.GetStatus(new Empty(), callContext);
                 return result.Response.ToLower() == "pong";
             }
             catch
             {
                 return false;
             }
+        }
+
+        private CallOptions GetCallContext(string service, string methodName, string target, Guid operationId)
+        {
+            var headers = new Metadata
+            {
+                {"service", service},
+                {"rpc", methodName},
+                {"operation_id", operationId.ToString()},
+                {"target", target}
+            };
+
+            return new CallOptions(headers, DateTime.UtcNow.AddSeconds(10));
         }
 
     }

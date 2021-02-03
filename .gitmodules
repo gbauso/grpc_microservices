@@ -13,6 +13,6 @@
 [submodule "weather-service/contract"]
 	path = weather-service/contract
 	url = https://github.com/gbauso/contract
-[submodule "lib/contract"]
+[submodule "lib/Utils.Grpc.Mediator/contract"]
 	path = lib/Utils.Grpc.Mediator/contract
 	url = https://github.com/gbauso/contract
