@@ -30,20 +30,21 @@ namespace DiscoveryService
                       GrpcServerFactory grpcServerFactory,
                       ILogger<Worker> logger,
                       HealthChecker healthChecker,
-                      DiscoveryDbContext discoveryDbContext,
+                      IDbContextFactory<DiscoveryDbContext> discoveryDbContext,
                       IOptions<MetricsConfiguration> metricsConfiguration)
         {
             _busControl = bus;
             _logger = logger;
             _server = grpcServerFactory.GetServer();
             _metricServer = new MetricServer(metricsConfiguration.Value.Port);
-            _discoveryDbContext = discoveryDbContext;
+            _discoveryDbContext = discoveryDbContext.CreateDbContext();
             _healthChecker = healthChecker;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _discoveryDbContext.Database.Migrate();
+            _discoveryDbContext.Dispose();
             await _busControl.StartAsync(cancellationToken);
             _metricServer.Start();
             _server.Start();
