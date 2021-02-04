@@ -6,6 +6,9 @@ using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Utils.Grpc.Mediator.Extensions;
+using Polly.Retry;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Utils.Grpc.Mediator.GrpcClients
 {
@@ -14,6 +17,7 @@ namespace Utils.Grpc.Mediator.GrpcClients
         protected readonly ClientFactory _clientFactory;
         private readonly Operation _operation;
         protected ILogger<GrpcClientBase> Logger;
+        private readonly RetryPolicy _grpcRetryPolicy;
 
         private const int TIMEOUT = 30;
 
@@ -23,11 +27,13 @@ namespace Utils.Grpc.Mediator.GrpcClients
         }
         protected GrpcClientBase(ClientFactory clientFactory,
                                  Operation operation,
+                                 GrpcRetryPolicy grpcRetryPolicy,
                                  ILogger<GrpcClientBase> logger)
         {
             _clientFactory = clientFactory;
             _operation = operation;
             Logger = logger;
+            _grpcRetryPolicy = grpcRetryPolicy.GetRetryPolicy();
         }
 
         protected object CallGrpc<Req, Res>(Type clientType, Req request, Channel channel, string service)
@@ -37,16 +43,19 @@ namespace Utils.Grpc.Mediator.GrpcClients
                 .GetCallableMethods()
                 .GetMethodByResponse(typeof(Res));
 
-            Logger.LogInformation("Calling Channel {Channel} for /{Service}/{Method}", channel.ResolvedTarget, service, method.Name);
+            Logger.LogInformation("Calling Channel {Channel} for //{Service}//{Method}", channel.ResolvedTarget, service, method.Name);
 
-            return method?.Invoke(client, new object[] {request, GetCallContext(service, method.Name, channel.ResolvedTarget) });
+            Func<object> grpcCall = 
+                () => method?.Invoke(client, new object[] { request, GetCallContext(service, method.Name, channel.ResolvedTarget) });
+
+            return _grpcRetryPolicy.Execute(grpcCall);
         }
 
-        protected Res MergeAll<Res>(Res[] responseList) where Res : IMessage<Res>
+        protected Res MergeAll<Res>(IEnumerable<Res> responseList) where Res : IMessage<Res>
         {
             var response = Activator.CreateInstance<Res>();
 
-            foreach (var res in responseList.Where(x => x != null))
+            foreach (var res in responseList)
             {
                 response.MergeFrom(res);
             }
@@ -68,6 +77,6 @@ namespace Utils.Grpc.Mediator.GrpcClients
         }
 
 
-        public abstract Task<Res> ExecuteAndMerge<Req, Res>(Req request) where Res : IMessage<Res>;
+        public abstract Task<GrpcResponse<Res>> ExecuteAndMerge<Req, Res>(Req request) where Res : IMessage<Res>;
     }
 }

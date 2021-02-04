@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf;
+using Grpc.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,12 @@ namespace Utils.Grpc.Mediator.Extensions
 
         public static string GetServiceName(this Type client) =>
             client.ReflectedType.GetRuntimeFields().First().GetValue(null).ToString();
+
+        public static bool HasFullContent<Res>(this Res response) where Res : IMessage<Res> =>
+            response.GetType().GetRuntimeFields()
+                .Any(field => field.Name.EndsWith("_") 
+                    && (field.GetValue(response) == null 
+                        || string.IsNullOrEmpty(field.GetValue(response).ToString())));
 
         public static MethodType GetMethodType<Req, Res>(this Type client) =>
             ((Method<Req, Res>)client.ReflectedType
