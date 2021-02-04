@@ -23,6 +23,8 @@ namespace Utils.Grpc.Mediator.Tests
         private Channel PopulationChannel = new Channel("localhost:12", ChannelCredentials.Insecure);
         private ChannelFactory _channelFactory;
         private ClientFactory _clientFactory;
+        private GrpcRetryPolicy _grpcRetryPolicy;
+        private bool forceGrpcError = false;
 
         public UnaryGrpcClientSingleTest()
         {
@@ -42,12 +44,15 @@ namespace Utils.Grpc.Mediator.Tests
                 .Returns(ServiceClientPair.Create("cityinformation.CityService", typeof(CityServiceClient)));
 
 
-            Func<SearchResponse, CityServiceClient> serviceMock = (response) =>
+            Func<SearchResponse, bool, CityServiceClient> serviceMock = (response, forceError) =>
             {
                 var mock = new Mock<CityServiceClient>();
                 mock
                     .Setup(x => x.GetCityInformationAsync(It.IsAny<SearchRequest>(), It.IsAny<CallOptions>()))
-                    .Returns(new AsyncUnaryCall<SearchResponse>(Task.FromResult(response), null, null, null, null));
+                    .Returns(forceError ? 
+                        throw new Exception()
+                        : new AsyncUnaryCall<SearchResponse>(Task.FromResult(response), null, null, null, null)
+                    );
 
                 return mock.Object;
             };
@@ -55,36 +60,61 @@ namespace Utils.Grpc.Mediator.Tests
 
             clientFactoryMock
                 .Setup(x => x.GetInstance(It.Is<TypeChannelPair>(x => x.Channel.Equals(WeatherChannel))))
-                .Returns(serviceMock(new SearchResponse { Weather = "10" }));
+                .Returns(() => serviceMock(new SearchResponse { Weather = "10" }, false));
 
             clientFactoryMock
                 .Setup(x => x.GetInstance(It.Is<TypeChannelPair>(x => x.Channel.Equals(NearbyCitiesChannel))))
-                .Returns(serviceMock(new SearchResponse { NearbyCities = "Berlin" }));
+                .Returns(() => serviceMock(new SearchResponse { NearbyCities = "Berlin" }, forceGrpcError));
 
             clientFactoryMock
                 .Setup(x => x.GetInstance(It.Is<TypeChannelPair>(x => x.Channel.Equals(PopulationChannel))))
-                .Returns(serviceMock(new SearchResponse { Population = "123122" }));
+                .Returns(() => serviceMock(new SearchResponse { Population = "123122" }, false));
 
             _clientFactory = clientFactoryMock.Object;
+            _grpcRetryPolicy = new GrpcRetryPolicy(Mock.Of<ILogger<GrpcRetryPolicy>>());
         }
 
         [Fact]
-        public async Task UnaryGrpcClientSingle_ExecuteAndMerge_ShouldMergeResponsesInAUniqueObject()
+        public async Task UnaryGrpcClientSingle_ExecuteAndMerge_FullContent_ShouldMergeResponsesInAnUniqueObject()
         {
             var operation = new Operation { OperationId = Guid.NewGuid().ToString() };
 
             var sut = new UnaryGrpcClientSingle(_clientFactory,
                                                 _channelFactory,
                                                 operation,
+                                                _grpcRetryPolicy,
                                                 Mock.Of<ILogger<UnaryGrpcClientSingle>>());
 
             var request = new SearchRequest();
             var result = await sut.ExecuteAndMerge<SearchRequest, SearchResponse>(request);
 
             result.Should().NotBeNull();
-            result.NearbyCities.Should().Be("Berlin");
-            result.Population.Should().Be("123122");
-            result.Weather.Should().Be("10");
+            result.PartialContent.Should().BeFalse();
+            result.Content.NearbyCities.Should().Be("Berlin");
+            result.Content.Population.Should().Be("123122");
+            result.Content.Weather.Should().Be("10");
+        }
+
+        [Fact]
+        public async Task UnaryGrpcClientSingle_ExecuteAndMerge_PartialContent_ShouldMergeAvailableResponsesInAnUniqueObject()
+        {
+            forceGrpcError = true;
+            var operation = new Operation { OperationId = Guid.NewGuid().ToString() };
+
+            var sut = new UnaryGrpcClientSingle(_clientFactory,
+                                                _channelFactory,
+                                                operation,
+                                                _grpcRetryPolicy,
+                                                Mock.Of<ILogger<UnaryGrpcClientSingle>>());
+
+            var request = new SearchRequest();
+            var result = await sut.ExecuteAndMerge<SearchRequest, SearchResponse>(request);
+
+            result.Should().NotBeNull();
+            result.PartialContent.Should().BeTrue();
+            result.Content.NearbyCities.Should().BeNullOrEmpty();
+            result.Content.Population.Should().Be("123122");
+            result.Content.Weather.Should().Be("10");
         }
     }
 }

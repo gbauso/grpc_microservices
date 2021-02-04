@@ -23,6 +23,7 @@ namespace Utils.Grpc.Mediator.Extensions
             services.AddScoped<MetricsInterceptor>();
 
             services.AddSingleton<Operation>();
+            services.AddSingleton<GrpcRetryPolicy>();
 
             services.AddScoped<UnaryGrpcClientSingle>();
 

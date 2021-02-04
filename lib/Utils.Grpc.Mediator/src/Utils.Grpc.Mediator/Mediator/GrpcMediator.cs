@@ -19,7 +19,7 @@ namespace Utils.Grpc.Mediator
             _serviceProvider = serviceProvider;
         }
 
-        public Task<Res> Send<Req, Res>(Req request) where Res : IMessage<Res>
+        public Task<GrpcResponse<Res>> Send<Req, Res>(Req request) where Res : IMessage<Res>
         {
             using(var scope = _serviceProvider.CreateScope())
             {
