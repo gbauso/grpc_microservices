@@ -28,7 +28,7 @@ namespace Utils.Grpc.Mediator.Tests
             var unarySingle = new Mock<UnaryGrpcClientSingle>();
             unarySingle
                 .Setup(x => x.ExecuteAndMerge<SearchRequest, SearchResponse>(It.IsAny<SearchRequest>()))
-                .Returns(Task.FromResult(GrpcResponse<SearchResponse>.CreateResponse(1, 1, new SearchResponse())));
+                .Returns(Task.FromResult(GrpcResponse<SearchResponse>.CreateResponse(new SearchResponse())));
 
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider

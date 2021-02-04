@@ -50,7 +50,7 @@ namespace Utils.Grpc.Mediator.GrpcClients
             var responses = await Task.WhenAll(execution)
                                 .ContinueWith(cw => cw.Result.Where((res) => res != null ));
 
-            return GrpcResponse<TRes>.CreateResponse(channels.Count(), responses.Count(), MergeAll(responses));
+            return GrpcResponse<TRes>.CreateResponse(MergeAll(responses));
         }
 
     }
