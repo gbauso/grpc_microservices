@@ -4,7 +4,7 @@ pool:
 stages:
   - stage: 'Test'
     jobs:
-      - job: 'InstallDependencies'
+      - job: 'SetupAndRun'
         steps:
           - script: |
               curl -fsSL https://testspace-client.s3.amazonaws.com/testspace-linux.tgz | sudo tar -zxvf- -C /usr/local/bin
@@ -14,9 +14,9 @@ stages:
             inputs:
               command: custom
               customCommand: install -g artillery
-      - job: 'RunTests'
-        steps:
+              workingDir: '$(Agent.ToolsDirectory)'
           - script: artillery quick --count 1 --num 1 -k 'https://api-gbauso.cloud.okteto.net/api/City?City=Berlin&Country=de&Lat=52.520008&Lon=13.404954'
             displayName: Run single test aka sanity
           - script: artillery quick --count 10 --num 10 -k 'https://api-gbauso.cloud.okteto.net/api/City?City=Berlin&Country=de&Lat=52.520008&Lon=13.404954'
             displayName: Run small stress scenario
+          
