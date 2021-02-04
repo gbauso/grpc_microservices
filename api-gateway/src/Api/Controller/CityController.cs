@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Cityinformation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Utils.Grpc.Mediator;
 
@@ -20,9 +21,15 @@ namespace Api.Controller
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] SearchRequest request)
         {
-            var response = _mediator.Send<SearchRequest, SearchResponse>(request);
+            var response = await _mediator.Send<SearchRequest, SearchResponse>(request);
 
-            return Ok(await response);
+            if (response.PartialContent)
+            {
+                Response.StatusCode = StatusCodes.Status206PartialContent;
+                return new JsonResult(response.Content);
+            }
+            else
+                return Ok(response.Content);
         }
 
     }

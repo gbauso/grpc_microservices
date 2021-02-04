@@ -16,7 +16,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Utils.Grpc.Mediator" Version="0.1.4" />
+		<PackageReference Include="Utils.Grpc.Mediator" Version="0.1.5" />
 	</ItemGroup>
 
 	<ItemGroup>
