@@ -12,8 +12,8 @@ stages:
             displayName: Install Testspace client
           - task: Npm@1
             inputs:
-              command: install
-              customCommand: -g artillery
+              command: custom
+              customCommand: install -g artillery
       - job: 'RunTests'
         steps:
           - script: artillery quick --count 1 --num 1 -k 'https://api-gbauso.cloud.okteto.net/api/City?City=Berlin&Country=de&Lat=52.520008&Lon=13.404954'
