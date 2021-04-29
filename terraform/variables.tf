@@ -13,3 +13,16 @@ variable "k8s_config_path" {
 variable "k8s_namespace" {
   type = string
 }
+
+variable "aws_key" {
+  type = string
+}
+
+variable "aws_secret" {
+  type = string
+}
+
+variable "aws_region" {
+  type = string
+  default = "us-east-2"
+}

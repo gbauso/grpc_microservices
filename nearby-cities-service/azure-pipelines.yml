@@ -66,6 +66,9 @@ stages:
               charts_path="$(Build.Repository.LocalPath)/charts"
               k8s_config_path="$(KUBECONFIG)"
               k8s_namespace="$(NAMESPACE)"
+              aws_key="${AWS_ACCESS_KEY_ID}"
+              aws_secret="${AWS_SECRET_ACCESS_KEY}"
+              aws_region="${AWS_DEFAULT_REGION}"
             verbose: true
         - task: TerraformInstaller@0
           inputs:
