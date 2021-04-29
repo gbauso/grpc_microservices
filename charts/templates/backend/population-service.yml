@@ -66,6 +66,8 @@ spec:
             value: {{ .Values.rabbitmq.password | quote }}
           - name: SB_PORT
             value: {{ .Values.rabbitmq.port | quote }}
+          - name: SB_SSL
+            value: {{ .Values.rabbitmq.ssl | quote }}
           - name: LOGGER_HOST
             value: {{ include "grpc.fluentd" . }}
           - name: LOGGER_PORT

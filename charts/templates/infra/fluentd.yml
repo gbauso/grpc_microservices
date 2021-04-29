@@ -54,12 +54,58 @@ spec:
             - name: fluentd-volume
               mountPath: /fluentd/etc/
 ---
+{{- if .Values.isOkteto }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  {{- if not .Values.isOkteto }}
   namespace: {{ .Values.fluentd.namespace }}
-  {{ end }}
+  name: fluentd
+data:
+  fluent.conf: |
+    <source>
+      @type forward
+      port 24224
+      bind 0.0.0.0
+    </source>
+    <filter **>
+      @type record_transformer
+      enable_ruby
+      <record>
+        timestamp ${ require 'time'; Time.now.utc.iso8601(3) }
+      </record>
+    </filter>
+    <match *.**>
+      @type copy
+      <store>   
+        @type elasticsearch
+        host {{ .Values.elastic.host | quote }}
+        port {{ .Values.elastic.port }}
+        user {{ .Values.elastic.user | quote }}
+        password {{ .Values.elastic.password | quote }}
+        scheme https
+        ssl_verify true
+        logstash_format true
+        logstash_prefix fluentd
+        logstash_dateformat %Y%m%d
+        include_timestamp true
+        time_key_exclude_timestamp false
+        time_key timestamp
+        time_key_format %Y-%m-%dT%H:%M:%S.%N%z
+        include_tag_key true
+        type_name access_log
+        tag_key @log_name
+        flush_interval 1s
+      </store>
+      <store>
+        @type stdout
+      </store>
+    </match>
+{{ end }}
+{{- if not .Values.isOkteto }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.fluentd.namespace }}
   name: fluentd
 data:
   fluent.conf: |
@@ -97,4 +143,4 @@ data:
         @type stdout
       </store>
     </match>
-        
+{{ end }}

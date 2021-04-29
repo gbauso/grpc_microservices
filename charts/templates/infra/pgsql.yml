@@ -1,9 +1,8 @@
+{{- if not .Values.isOkteto }}
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if not .Values.isOkteto }}
   namespace: {{ .Values.pgsql.namespace }}
-  {{ end }}
   name: {{ .Values.pgsql.host }}
 spec:
   ports:
@@ -55,3 +54,4 @@ spec:
               value: {{ .Values.pgsql.database }}
             - name: POSTGRES_PASSWORD
               value: {{ .Values.pgsql.password }}
+{{ end }}
