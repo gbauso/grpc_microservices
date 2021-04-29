@@ -109,7 +109,7 @@ stages:
             kubernetesServiceEndpoint: $(K8sServiceEndpoint)
             namespace: $(Namespace)
             command: 'set'
-            arguments: 'image deployment/api api=$(Repository):0.0.$(Build.BuildId)'
+            arguments: 'image deployment/weather weather=$(Repository):0.0.$(Build.BuildId)'
             secretType: 'dockerRegistry'
             containerRegistryType: 'Azure Container Registry'
             outputFormat: 'yaml'
