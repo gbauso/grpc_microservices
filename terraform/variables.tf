@@ -1,16 +1,4 @@
-variable "cloudampq_api_key" {
-  type = string
-}
-
-variable "elephantsql_api_key" {
-  type = string
-}
-
-variable "logdna_api_key" {
-  type = string
-}
-
-variable "logdna_ingestion_key" {
+variable "openweather_api_key" {
   type = string
 }
 

@@ -11,22 +11,22 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-  # - stage: 'Build'
-  #   jobs:
-  #     - job: 'BuildDockerImage'
-  #       displayName: 'Build docker image'
-  #       steps:
-  #       - checkout: self
-  #         submodules: true
-  #       - task: Docker@2
-  #         inputs:
-  #           containerRegistry: $(RegistryConnection)
-  #           repository: $(Repository)
-  #           command: 'buildAndPush'
-  #           Dockerfile: '**/api-gateway/Dockerfile'
-  #           tags: |
-  #             0.0.$(Build.BuildId)
-  #             latest
+  - stage: 'Build'
+    jobs:
+      - job: 'BuildDockerImage'
+        displayName: 'Build docker image'
+        steps:
+        - checkout: self
+          submodules: true
+        - task: Docker@2
+          inputs:
+            containerRegistry: $(RegistryConnection)
+            repository: $(Repository)
+            command: 'buildAndPush'
+            Dockerfile: '**/api-gateway/Dockerfile'
+            tags: |
+              0.0.$(Build.BuildId)
+              latest
   - stage: 'TerraformK8s'
     jobs:
       - job: 'Deploy'
@@ -62,10 +62,7 @@ stages:
           inputs:
             filepath: '$(Build.Repository.LocalPath)/terraform/vars.tfvars'
             filecontent: |
-              cloudampq_api_key="$(CLOUDAMQP_API_KEY)"
-              logdna_api_key="$(LOGDNA_SERVICE_KEY)"
-              logdna_ingestion_key="$(LOGDNA_INGESTION_KEY)"
-              elephantsql_api_key="$(ELEPHANTSQL_API_KEY)"
+              openweather_api_key="$(OPENWEATHER_API_KEY)"
               charts_path="$(Build.Repository.LocalPath)/charts"
               k8s_config_path="$(KUBECONFIG)"
               k8s_namespace="$(NAMESPACE)"
@@ -102,14 +99,14 @@ stages:
             workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
             commandOptions: '-input=false -auto-approve tf.plan'
             allowTelemetryCollection: false
-        # - task: Kubernetes@1
-        #   displayName: 'Deploy to k8s'
-        #   inputs:
-        #     connectionType: 'Kubernetes Service Connection'
-        #     kubernetesServiceEndpoint: $(K8sServiceEndpoint)
-        #     namespace: $(Namespace)
-        #     command: 'set'
-        #     arguments: 'image deployment/api api=$(Repository):0.0.$(Build.BuildId)'
-        #     secretType: 'dockerRegistry'
-        #     containerRegistryType: 'Azure Container Registry'
-        #     outputFormat: 'yaml'
+        - task: Kubernetes@1
+          displayName: 'Deploy to k8s'
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'set'
+            arguments: 'image deployment/api api=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'

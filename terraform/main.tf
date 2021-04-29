@@ -4,9 +4,7 @@ terraform {
   }
 }
 
-provider "aws" {
-  region     = "us-east-2"
-}
+provider "aws" { }
 
 provider "random" {}
 provider "helm" {
@@ -17,7 +15,7 @@ provider "helm" {
 
 locals {
   rabbitmq = split(":", aws_mq_broker.rabbitmq.instances[0].endpoints[0])
-} 
+}
 
 resource "helm_release" "grpc" {
   name      = "grpc"
@@ -30,7 +28,7 @@ resource "helm_release" "grpc" {
   }
   set {
     name  = "rabbitmq.host"
-    value = replace(local.rabbitmq[1] , "/", "")
+    value = replace(local.rabbitmq[1], "/", "")
   }
 
   set {
@@ -87,6 +85,11 @@ resource "helm_release" "grpc" {
     value = random_string.es_user.result
   }
 
+  set {
+    name  = "weatherService.openWeatherId"
+    value = var.openweather_api_key
+  }
+
 }
 
 
@@ -106,8 +109,8 @@ resource "random_password" "es_password" {
   length           = 16
   special          = true
   override_special = "_%@"
-  min_upper = 1
-  min_numeric = 1
+  min_upper        = 1
+  min_numeric      = 1
 }
 
 resource "random_string" "mq_user" {
@@ -179,14 +182,14 @@ resource "aws_elasticsearch_domain" "logs" {
   }
 
   domain_endpoint_options {
-    enforce_https = true
+    enforce_https       = true
     tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
   }
   advanced_security_options {
-    enabled = true
+    enabled                        = true
     internal_user_database_enabled = true
     master_user_options {
-      master_user_name = random_string.es_user.result
+      master_user_name     = random_string.es_user.result
       master_user_password = random_password.es_password.result
     }
   }

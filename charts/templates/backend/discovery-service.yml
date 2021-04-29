@@ -49,7 +49,7 @@ spec:
         - containerPort: {{ .Values.metricsPort }}
         resources:
           limits:
-            cpu: "300m"
+            cpu: "500m"
             memory: "400Mi"
           requests:
             cpu: "200m"
@@ -63,6 +63,10 @@ spec:
             value: {{ .Values.rabbitmq.password | quote }}
           - name: ServiceBus__IsSSl
             value: {{ .Values.rabbitmq.ssl | quote }}
+          - name: ServiceBus__Port
+            value: {{ .Values.rabbitmq.port | quote }}
+          - name: ServiceBus__VirtualHost
+            value: {{ .Values.rabbitmq.vhost | quote }}
           - name: ConnectionStrings__DiscoveryDbContext
             value: {{ include "grpc.pgsql" . }}
           - name: Grpc__Host

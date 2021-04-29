@@ -72,6 +72,7 @@ rabbitmq:
   adminPort: 15672
   user: admin
   password: Secr3t
+  vhost: /
   ssl: true
 
 prometheus:
