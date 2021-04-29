@@ -8,8 +8,7 @@ class AutoDiscovery:
         protocol = "amqps" if bool(os.getenv("SB_SSL")) else "amqp"
 
         uri = "{}://{}:{}@{}:{}{}".format(protocol, os.getenv('SB_USER'), os.getenv('SB_PWD'), os.getenv('SB_URL'), os.getenv('SB_PORT'), '/')
-
-        self.connection = pika.BlockingConnection(uri)
+        self.connection = pika.BlockingConnection(pika.URLParameters(uri))
         self.channel = self.connection.channel()
 
     def get_service_name(self, handler):
