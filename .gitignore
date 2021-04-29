@@ -1,7 +1,7 @@
 .vscode
 infra/prometheus/data/*
 .env
-.terraform
+.terraform/*
 backend.hcl*
 *.tfvars
 *.plan

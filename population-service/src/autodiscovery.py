@@ -5,15 +5,11 @@ import os
 class AutoDiscovery:
     def __init__(self):
         self.services = []
-        credentials = pika.PlainCredentials(os.getenv('SB_USER'),
-                                            os.getenv('SB_PWD'))
+        protocol = "amqps" if bool(os.getenv("SB_SSL")) else "amqp"
 
-        parameters = pika.ConnectionParameters(os.getenv('SB_URL'),
-                                            os.getenv('SB_PORT'),
-                                            '/',
-                                            credentials)
+        uri = "{}://{}:{}@{}:{}{}".format(protocol, os.getenv('SB_USER'), os.getenv('SB_PWD'), os.getenv('SB_URL'), os.getenv('SB_PORT'), '/')
 
-        self.connection = pika.BlockingConnection(parameters)
+        self.connection = pika.BlockingConnection(uri)
         self.channel = self.connection.channel()
 
     def get_service_name(self, handler):
