@@ -61,6 +61,8 @@ spec:
             value: {{ include "grpc.rabbitmq" . }}
           - name: ServiceBus__Password
             value: {{ .Values.rabbitmq.password | quote }}
+          - name: ServiceBus__IsSSl
+            value: {{ .Values.rabbitmq.ssl | quote }}
           - name: ConnectionStrings__DiscoveryDbContext
             value: {{ include "grpc.pgsql" . }}
           - name: Grpc__Host

@@ -17,9 +17,9 @@ namespace DiscoveryService
             {
                 var connection = configuration.GetSection("ServiceBus").FromSection<ServiceBusConfiguration>();
 
-                if(connection.IsCloudAmqp)
+                if(connection.IsSsl)
                 {
-                    cfg.Host(connection.Host, connection.Port, connection.Username, h =>
+                    cfg.Host(connection.Host, connection.Port, connection.VirtualHost, h =>
                     {
                         h.Username(connection.Username);
                         h.Password(connection.Password);

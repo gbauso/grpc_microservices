@@ -62,6 +62,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "grpc.initContainers" -}}
+{{- if not .Values.isOkteto }}
 initContainers:
       - name: check-rabbitmq-ready
         image: busybox
@@ -81,6 +82,7 @@ initContainers:
             limits:
               cpu: "50m"
               memory: "100Mi"
+{{- end }}
 {{- end }}
 
 {{- define "grpc.metrics" -}}
@@ -106,9 +108,9 @@ annotations:
 
 {{- define "grpc.pgsql" -}}
 {{- if .Values.pgsql.namespace }}
-{{- printf "Username=%s;Password=%s;Host=%s.%s;Port=%.0f;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.namespace .Values.pgsql.port .Values.pgsql.database }}
+{{- printf "Username=%s;Password=%s;Host=%s.%s;Port=%d;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.namespace .Values.pgsql.port .Values.pgsql.database }}
 {{- else }}
-{{- printf "Username=%s;Password=%s;Host=%s;Port=%.0f;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.port .Values.pgsql.database }}
+{{- printf "Username=%s;Password=%s;Host=%s;Port=%d;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.port .Values.pgsql.database }}
 {{- end }}
 {{- end }}
 

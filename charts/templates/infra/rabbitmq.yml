@@ -36,7 +36,6 @@ spec:
         port:
           number: {{ .Values.rabbitmq.adminPort }}
 ---
-{{ end }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -102,3 +101,4 @@ spec:
               value: {{ .Values.rabbitmq.password | quote }}
             - name: RABBITMQ_VM_MEMORY_HIGH_WATERMARK
               value: "256MiB"
+{{ end }}

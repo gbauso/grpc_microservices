@@ -10,6 +10,7 @@ namespace DiscoveryService
         public ushort Port { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public bool IsCloudAmqp { get; set; }
+        public string VirtualHost { get; set; }
+        public bool IsSsl { get; set; }
     }
 }

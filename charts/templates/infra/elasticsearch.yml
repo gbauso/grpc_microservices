@@ -36,7 +36,6 @@ spec:
         port:
           number: {{ .Values.elastic.kibanaPort }}
 ---
-{{ end }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -93,3 +92,4 @@ spec:
               requests:
                 cpu: "500m"
                 memory: "750Mi"
+{{ end }}

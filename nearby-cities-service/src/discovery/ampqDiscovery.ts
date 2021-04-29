@@ -19,10 +19,12 @@ export class AMPQDiscovery implements AutoDiscovery {
       port: process.env.SB_PORT,
       username: process.env.SB_USER,
       password: process.env.SB_PWD,
+      protocol: process.env.SB_SSL ? "amqps" : "amqp",
+      vhost: process.env.SB_SSL ? `/${process.env.SB_USER}` : ''
     }
 
-    const host = `${credentials.host}:${credentials.port}`;
-    const connectionString = `amqp://${credentials.username}:${credentials.password}@${host}`;
+    const host = `${credentials.host}:${credentials.port}/${credentials.vhost}`;
+    const connectionString = `${credentials.protocol}://${credentials.username}:${credentials.password}@${host}`;
     this.connection = await retry<rabbitmq.Connection>(
       async () => await rabbitmq.connect(connectionString),
       { retries: 3 },

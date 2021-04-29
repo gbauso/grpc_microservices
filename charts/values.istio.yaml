@@ -46,6 +46,7 @@ pgsql:
   user: admin
   password: Secr3t
   database: discovery
+  ssl: false
   namespace: infra
 
 fluentd:
@@ -69,6 +70,7 @@ rabbitmq:
   adminPort: 15672
   user: admin
   password: Secr3t
+  ssl: false
 
 prometheus:
   image: prom/prometheus:v2.23.0

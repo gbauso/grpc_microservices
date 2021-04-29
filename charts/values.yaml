@@ -46,6 +46,7 @@ pgsql:
   user: admin
   password: Secr3t
   database: discovery
+  ssl: true
   namespace:
 
 fluentd:
@@ -59,6 +60,8 @@ elastic:
   host: elasticsearch
   kibanaPort: 80
   port: 9200
+  user:
+  password:
   namespace:
   
 rabbitmq:
@@ -69,6 +72,7 @@ rabbitmq:
   adminPort: 15672
   user: admin
   password: Secr3t
+  ssl: true
 
 prometheus:
   image: prom/prometheus:v2.23.0
