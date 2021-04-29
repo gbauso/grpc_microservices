@@ -22,6 +22,10 @@ class RabbitMQRegister : IRegisterService, KoinComponent {
         factory.password = secrets.getValue("SB_PWD")
         factory.host = secrets.getValue("SB_HOST")
 
+        if(secrets.getValue("SB_SSL").toBoolean()) factory.useSslProtocol()
+
+        factory.connectionTimeout = 30000;
+
         factory.newConnection().use { connection ->
             connection.createChannel().use { channel ->
                 channel.queueDeclare(QUEUE_NAME, true, false, false, null)
