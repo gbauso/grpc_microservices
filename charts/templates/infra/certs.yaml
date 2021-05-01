@@ -1,0 +1,21 @@
+{{- if not .Values.isOkteto }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: selfsigned-cert
+  namespace: cert-manager
+spec:
+  dnsNames:
+    - {{ .Values.domain }}
+  secretName: selfsigned-cert-tls
+  issuerRef:
+    name: selfsigned
+{{ end }}

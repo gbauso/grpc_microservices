@@ -14,6 +14,7 @@ try {
         kubectl apply -f https://github.com/istio/istio/raw/master/samples/addons/grafana.yaml
         kubectl apply -f https://github.com/istio/istio/raw/master/samples/addons/kiali.yaml
     }
+    kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
 }
 catch {
     Write-Output "Error: You don't have Istio or/and Kubectl installed"
