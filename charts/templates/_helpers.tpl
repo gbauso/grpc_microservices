@@ -62,7 +62,6 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "grpc.initContainers" -}}
-{{- if not .Values.isOkteto }}
 initContainers:
       - name: check-rabbitmq-ready
         image: busybox
@@ -82,7 +81,6 @@ initContainers:
             limits:
               cpu: "50m"
               memory: "100Mi"
-{{- end }}
 {{- end }}
 
 {{- define "grpc.metrics" -}}

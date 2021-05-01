@@ -78,7 +78,9 @@ spec:
         app: {{ .Values.apiGateway.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if not .Values.isOkteto }}
       {{ include "grpc.initContainers" . }}
+      {{ end }}
       containers:
       - name: {{ .Values.apiGateway.host }} 
         image: {{ .Values.apiGateway.image }}

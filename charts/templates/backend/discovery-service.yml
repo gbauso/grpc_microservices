@@ -39,7 +39,9 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       initContainers:
+      {{- if not .Values.isOkteto }}
       {{ include "grpc.initContainers" . }}
+      {{ end }}
       containers:
       - name: {{ .Values.discoveryService.host }} 
         image: {{ .Values.discoveryService.image }}

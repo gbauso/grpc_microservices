@@ -38,7 +38,9 @@ spec:
         app: {{ .Values.populationService.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if not .Values.isOkteto }}
       {{ include "grpc.initContainers" . }}
+      {{ end }}
       containers:
       - name: {{ .Values.populationService.host }} 
         image: {{ .Values.populationService.image }}

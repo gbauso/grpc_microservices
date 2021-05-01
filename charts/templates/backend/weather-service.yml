@@ -38,7 +38,9 @@ spec:
         app: {{ .Values.weatherService.host }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if not .Values.isOkteto }}
       {{ include "grpc.initContainers" . }}
+      {{ end }}
       containers:
       - name: {{ .Values.weatherService.host }}
         image: {{ .Values.weatherService.image }}
