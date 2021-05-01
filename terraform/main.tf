@@ -57,6 +57,7 @@ resource "helm_release" "grpc" {
 
   set {
     name  = "pgsql.port"
+    type = "string"
     value = aws_db_instance.sql_discovery.port
   }
 

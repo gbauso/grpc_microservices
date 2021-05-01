@@ -42,7 +42,7 @@ nearbyCitiesService:
 pgsql:
   host: postgres
   image: postgres:12-alpine
-  port: 5432
+  port: "5432"
   user: admin
   password: Secr3t
   database: discovery
