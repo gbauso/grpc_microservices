@@ -16,6 +16,6 @@ type Master struct {
 func (m *Master) RegisterServiceHandlers(ctx context.Context, in *pb.RegisterServiceHandlersRequest, opts ...grpc.CallOption) (*pb.RegisterServiceHandlersResponse, error) {
 	tx, _ := m.db.BeginTx(ctx, nil)
 	for _, handler := range in.Handlers {
-
+		tx.ExecContext(ctx, "INSERT INTO ServiceHandler(Service, Handler) VALUES ()")
 	}
 }
