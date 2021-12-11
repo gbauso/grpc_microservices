@@ -1,8 +1,6 @@
 import { DependencyContainer } from 'tsyringe';
 import { FluentLogger } from '../util/logging/fluentLogger';
-import { AMPQDiscovery } from '../discovery/ampqDiscovery';
 import { Logger } from '../util/logging/logger';
-import { AutoDiscovery } from '../discovery/autodiscovery';
 import { Interceptor } from '../interceptors/interceptor';
 import { LoggerInterceptor } from '../interceptors/loggerInterceptor';
 import { LegacyNearbyCitiesService } from '../service/legacyNearbycitiesService';
@@ -16,10 +14,6 @@ export class Container {
   constructor(container: DependencyContainer) {
     container.register<Logger>('Logger', {
       useClass: process.env.DEBUG ? ConsoleLogger : FluentLogger,
-    });
-
-    container.register<AutoDiscovery>('AutoDiscovery', {
-      useClass: AMPQDiscovery,
     });
 
     container.register<Interceptor>('Interceptor', {

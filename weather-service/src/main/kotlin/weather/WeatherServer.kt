@@ -6,7 +6,6 @@ import org.koin.core.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.inject
 import weather.di.openWeatherModule
-import weather.discovery.IRegisterService
 import weather.interceptors.LoggingInterceptor
 import weather.service.HealthCheckService
 import weather.interceptors.MetricsInterceptor
@@ -23,7 +22,6 @@ class WeatherServer constructor(
 
     val logger: ILogger by inject()
     val metricsProvider: IMetricsProvider by inject()
-    val register: IRegisterService by inject()
     val secrets: ISecretProvider by inject()
     val port = secrets.getValue("PORT").toInt()
 
@@ -38,7 +36,6 @@ class WeatherServer constructor(
     fun start() {
         server.start()
         logger.info("Server started, listening on $port")
-        register.register(server.immutableServices.map { it.serviceDescriptor.name });
         Runtime.getRuntime().addShutdownHook(
                 Thread {
                     logger.info("*** shutting down gRPC server since JVM is shutting down")

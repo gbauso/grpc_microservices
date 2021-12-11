@@ -2,7 +2,6 @@ import { Server, ServerCredentials } from 'grpc';
 import { injectable, inject } from 'tsyringe';
 import { ServiceDefinition } from './service/serviceDefinition';
 import { Logger } from './util/logging/logger';
-import { AutoDiscovery } from './discovery/autodiscovery';
 import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
 import { serverProxy } from '@pionerlabs/grpc-interceptors';
@@ -11,8 +10,6 @@ import { serverProxy } from '@pionerlabs/grpc-interceptors';
 export class GrpcServer {
   constructor(@inject('NearbyCitiesService')
                     private nearbyCitiesService: NearbyCitiesService,
-                @inject('AutoDiscovery')
-                    private autoDiscovery: AutoDiscovery,
                 @inject('Interceptor')
                     private loggerInterceptor: Interceptor,
                 @inject('MetricsInterceptor')
@@ -41,8 +38,6 @@ export class GrpcServer {
     
     server.addService(healthCheck.HealthCheckService.service,
       { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
-
-    this.autoDiscovery.registerAutoDiscovery(grpcServer.handlers, port).then();
 
     server.start();
 
