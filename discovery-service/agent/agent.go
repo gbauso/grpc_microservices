@@ -5,6 +5,7 @@ import (
 	"io"
 
 	discovery "github.com/gbauso/grpc_microservices/discoveryservice/grpc_gen"
+	uuid "github.com/nu7hatch/gouuid"
 	"google.golang.org/grpc"
 	reflection "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
 )
@@ -48,7 +49,15 @@ func (a Agent) Init() error {
 
 func (a Agent) registerService(conn *grpc.ClientConn, reflection *reflection.ServerReflectionResponse) error {
 	client := discovery.NewDiscoveryServiceClient(conn)
-	_, err := client.RegisterServiceHandlers(context.Background(), &discovery.RegisterServiceHandlersRequest{Service: a.serviceName})
+	serviceId, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+
+	_, err = client.
+		RegisterServiceHandlers(context.Background(),
+			&discovery.RegisterServiceHandlersRequest{Service: a.serviceName,
+				ServiceId: serviceId.String()})
 
 	if err != nil {
 		return err
