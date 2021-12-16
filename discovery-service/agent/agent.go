@@ -21,20 +21,20 @@ func NewAgent(serviceUrl string, masterNodeUrl string, serviceName string) *Agen
 }
 
 func (a Agent) Init() error {
-	var opts []grpc.DialOption
-	reflectionConnection, err := grpc.Dial(a.serviceUrl, opts...)
+	reflectionConnection, err := grpc.Dial(a.serviceUrl, grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
 	defer reflectionConnection.Close()
 
-	discoveryConnection, err := grpc.Dial(a.serviceUrl, opts...)
+	discoveryConnection, err := grpc.Dial(a.masterNodeUrl, grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
 	defer discoveryConnection.Close()
 
-	services, err := a.getImplementedServices(reflectionConnection)
+	serviceRequest := &reflection.ServerReflectionRequest{Host: a.serviceUrl, MessageRequest: &reflection.ServerReflectionRequest_ListServices{ListServices: "ls"}}
+	services, err := a.getServerReflection(reflectionConnection, serviceRequest)
 	if err != nil {
 		return err
 	}
@@ -54,10 +54,15 @@ func (a Agent) registerService(conn *grpc.ClientConn, reflection *reflection.Ser
 		return err
 	}
 
+	var handlers []string
+	for _, service := range reflection.GetListServicesResponse().Service {
+		handlers = append(handlers, service.GetName())
+	}
+
 	_, err = client.
 		RegisterServiceHandlers(context.Background(),
-			&discovery.RegisterServiceHandlersRequest{Service: a.serviceName,
-				ServiceId: serviceId.String()})
+			&discovery.RegisterServiceHandlersRequest{Service: a.serviceUrl,
+				ServiceId: serviceId.String(), Handlers: handlers})
 
 	if err != nil {
 		return err
@@ -66,7 +71,7 @@ func (a Agent) registerService(conn *grpc.ClientConn, reflection *reflection.Ser
 	return nil
 }
 
-func (a Agent) getImplementedServices(conn *grpc.ClientConn) (*reflection.ServerReflectionResponse, error) {
+func (a Agent) getServerReflection(conn *grpc.ClientConn, req *reflection.ServerReflectionRequest) (*reflection.ServerReflectionResponse, error) {
 	client := reflection.NewServerReflectionClient(conn)
 	stream, err := client.ServerReflectionInfo(context.Background())
 	if err != nil {
@@ -74,22 +79,24 @@ func (a Agent) getImplementedServices(conn *grpc.ClientConn) (*reflection.Server
 	}
 
 	waitc := make(chan *reflection.ServerReflectionResponse)
+	defer close(waitc)
 
 	go func() {
 		for {
 			response, err := stream.Recv()
-			if err == io.EOF {
+			if err != io.EOF {
 				waitc <- response
-				close(waitc)
+			} else {
 				return
 			}
 		}
 	}()
 
-	if err := stream.Send(&reflection.ServerReflectionRequest{Host: a.serviceUrl}); err != nil {
+	if err := stream.Send(req); err != nil {
 		return nil, err
 	}
 	stream.CloseSend()
+	response := <-waitc
 
-	return <-waitc, nil
+	return response, nil
 }

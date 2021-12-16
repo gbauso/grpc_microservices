@@ -10,6 +10,7 @@ import (
 
 	pb "github.com/gbauso/grpc_microservices/discoveryservice/grpc_gen"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 var (
@@ -27,12 +28,15 @@ func NewMaster(db *sql.DB) *Master {
 
 func (m *Master) RegisterServiceHandlers(ctx context.Context, in *pb.RegisterServiceHandlersRequest) (*pb.RegisterServiceHandlersResponse, error) {
 	tx, _ := m.db.BeginTx(ctx, nil)
-	defer tx.Rollback()
 	for _, handler := range in.Handlers {
-		tx.ExecContext(ctx, "INSERT INTO ServiceMethod(Service, IstanceId, Method, IsAlive) VALUES (?, ?, ?, ?)", in.Service, in.ServiceId, handler, 1)
+		_, err := tx.ExecContext(ctx, "INSERT INTO ServiceHandler(Service, InstanceId, Handler, IsAlive) VALUES (?, ?, ?, ?)", in.Service, in.ServiceId, handler, 1)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
@@ -40,7 +44,7 @@ func (m *Master) RegisterServiceHandlers(ctx context.Context, in *pb.RegisterSer
 }
 
 func (m *Master) GetServiceHandlers(ctx context.Context, in *pb.DiscoverySearchRequest) (*pb.DiscoverySearchResponse, error) {
-	results, err := m.db.Query("SELECT Service FROM ServiceMethod WHERE Method = ? AND IsAlive = 1", in.ServiceDefinition)
+	results, err := m.db.Query("SELECT Service FROM ServiceHandler WHERE Handler = ? AND IsAlive = 1", in.ServiceDefinition)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +76,7 @@ func (m *Master) Init() error {
 	}
 	s := grpc.NewServer()
 	pb.RegisterDiscoveryServiceServer(s, m)
-
+	reflection.Register(s)
 	s.Serve(lis)
 
 	return nil

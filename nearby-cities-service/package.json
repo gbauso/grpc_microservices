@@ -21,26 +21,24 @@
     "nodemon": "^2.0.4",
     "rimraf": "^3.0.2",
     "ts-node": "^8.10.2",
+    "tsyringe": "^4.3.0",
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@echo-health/grpc-prometheus-interceptor": "0.0.5",
-    "@grpc/proto-loader": "^0.5.5",
-    "@influxdata/influxdb-client": "^1.7.1",
-    "@pionerlabs/grpc-interceptors": "^0.2.5",
+    "@grpc/grpc-js": "^1.4.4",
+    "@grpc/proto-loader": "^0.6.7",
+    "@speedymonster/grpc-interceptors": "^0.2.5",
     "@types/request": "^2.48.5",
-    "amqplib": "^0.6.0",
     "async-retry": "^1.3.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fluent-logger": "^3.4.1",
-    "grpc": "^1.24.4",
+    "grpc-node-server-reflection": "^1.0.2",
     "install": "^0.13.0",
     "nearby-cities": "^1.1.0",
     "node-vault": "^0.9.18",
     "prom-client": "^12.0.0",
     "reflect-metadata": "^0.1.13",
-    "ts-enum-util": "^4.0.2",
-    "tsyringe": "^4.3.0"
+    "ts-enum-util": "^4.0.2"
   }
 }

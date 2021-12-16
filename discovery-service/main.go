@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"os"
+	"flag"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -10,11 +10,17 @@ import (
 	"github.com/gbauso/grpc_microservices/discoveryservice/master"
 )
 
-func main() {
-	masterNodeUrl := os.Getenv("MASTER_NODE")
+var (
+	masterNodeUrl = flag.String("master-node", "", "The master node url")
+	serviceUrl    = flag.String("service-url", "", "The service url")
+	service       = flag.String("service", "", "The service name")
+)
 
-	if masterNodeUrl != "" {
-		agentService := agent.NewAgent(os.Getenv("SERVICE_URL"), masterNodeUrl, os.Getenv("SERVICE_NAME"))
+func main() {
+	flag.Parse()
+
+	if *masterNodeUrl != "" {
+		agentService := agent.NewAgent(*serviceUrl, *masterNodeUrl, *service)
 		err := agentService.Init()
 		if err != nil {
 			panic(err)

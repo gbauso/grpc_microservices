@@ -1,7 +1,7 @@
 import { Interceptor } from "./interceptor";
 import { inject, singleton } from 'tsyringe';
 import { MetricsProvider } from "../util/metrics/metricsProvider";
-import { status } from "grpc";
+import { status } from "@grpc/grpc-js";
 import { $enum } from "ts-enum-util";
 
 @singleton()

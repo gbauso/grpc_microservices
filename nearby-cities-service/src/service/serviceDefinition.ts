@@ -1,5 +1,5 @@
 import * as protoLoader from '@grpc/proto-loader';
-import {loadPackageDefinition} from 'grpc';
+import {loadPackageDefinition} from '@grpc/grpc-js';
 import * as path from 'path';
 
 export class ServiceDefinition {

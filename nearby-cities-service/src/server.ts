@@ -1,10 +1,11 @@
-import { Server, ServerCredentials } from 'grpc';
+import { Server, ServerCredentials } from '@grpc/grpc-js';
 import { injectable, inject } from 'tsyringe';
 import { ServiceDefinition } from './service/serviceDefinition';
 import { Logger } from './util/logging/logger';
 import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
-import { serverProxy } from '@pionerlabs/grpc-interceptors';
+import wrapServerWithReflection from 'grpc-node-server-reflection';
+import { serverProxy } from '@speedymonster/grpc-interceptors'
 
 @injectable()
 export class GrpcServer {
@@ -24,24 +25,26 @@ export class GrpcServer {
     const cityinformation = ServiceDefinition.getCityInformation();
     const healthCheck = ServiceDefinition.getStatusPackage();
 
-    const grpcServer:any = new Server();
-    grpcServer.bind(`${host}:${port}`, ServerCredentials.createInsecure());
+    const grpcServer = wrapServerWithReflection(new Server());
+    const service = this.nearbyCitiesService;
+    grpcServer.addService(cityinformation.CityService.service,
+      { GetCityInformation: service.getCityInformation });
+    
+    grpcServer.addService(healthCheck.HealthCheckService.service,
+      { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
 
+    grpcServer.bindAsync(`${host}:${port}`, 
+              ServerCredentials.createInsecure(),
+              () => {
+                server.start()
+
+                this.logger.info(`Server running on ${host}:${port}`,
+                { host, port });
+              },);
 
     const server = serverProxy(grpcServer);
     server.use(this.loggerInterceptor.intercept);
     server.use(this.metricsInterceptor.intercept);
 
-    const service = this.nearbyCitiesService;
-    server.addService(cityinformation.CityService.service,
-      { GetCityInformation: service.getCityInformation });
-    
-    server.addService(healthCheck.HealthCheckService.service,
-      { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
-
-    server.start();
-
-    this.logger.info(`Server running on ${host}:${port}`,
-      { host, port });
   }
 }
