@@ -9,18 +9,19 @@ namespace Utils.Grpc.Extensions
 {
     public static class DependencyInjectionExtensions
     {
-        public static void RegisterGrpcMediator(this IServiceCollection services, IConfiguration configuration)
+        public static void UseChannelFactory(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<DiscoveryConfiguration>(configuration.GetSection("DiscoveryService"));
 
             services.AddScoped<IDiscoveryServiceClient, DiscoveryServiceClient>();
             services.AddScoped<IMetricsProvider, PrometheusMetrics>();
 
-            services.AddSingleton<ChannelFactory>();
+            services.AddSingleton<IChannelFactory, ChannelFactory>();
 
             services.AddScoped<MetricsInterceptor>();
 
             services.AddSingleton<Operation>();
+
         }
     }
 }

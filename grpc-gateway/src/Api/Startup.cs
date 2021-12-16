@@ -1,5 +1,4 @@
-using Api.Filter;
-using Api.Middleware;
+using GrpcComposition.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,9 +7,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Serilog;
-using Utils.Grpc.Mediator.Extensions;
+using Utils.Grpc.Extensions;
 
-namespace Api
+namespace GrpcComposition
 {
     public class Startup
     {
@@ -24,12 +23,7 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(cfg =>
-            {
-                cfg.Filters.Add(typeof(ErrorHandlerFilter));
-            });
-
-            services.RegisterGrpcMediator(Configuration);
+            services.UseChannelFactory(Configuration);
 
             services.AddLogging(logging =>
             {
@@ -41,6 +35,8 @@ namespace Api
 
                 logging.AddSerilog(log);
             });
+
+            services.AddGrpc();
 
             services.AddSwaggerGen(c =>
             {
@@ -59,14 +55,11 @@ namespace Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseHttpMetrics();
             app.UseGrpcMetrics();
 
             new KestrelMetricServer(port: Configuration.GetValue<int>("Metrics:Port")).Start();
 
             app.UseSwagger();
-
-            app.UseMiddleware<ContextMiddleware>();
 
             app.UseSwaggerUI(c =>
             {
@@ -75,7 +68,7 @@ namespace Api
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapGrpcService<CityInformationService>();
             });
 
         }
