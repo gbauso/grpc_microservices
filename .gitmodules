@@ -1,8 +1,8 @@
 [submodule "discovery-service/contract"]
 	path = discovery-service/contract
 	url = https://github.com/gbauso/contract
-[submodule "api-gateway/contract"]
-	path = api-gateway/contract
+[submodule "grpc-gateway/contract"]
+	path = grpc-gateway/contract
 	url = https://github.com/gbauso/contract
 [submodule "nearby-cities-service/contract"]
 	path = nearby-cities-service/contract
