@@ -8,12 +8,7 @@ services:
     ports: 
       - 8081:80
     environment: 
-      - ASPNETCORE_URLS=http://+:80
-      - DiscoveryService__Url=${DISCOVERY_REGISTER_AS}:${DISCOVERY_GRPC_PORT}
-      - Logging__Host=${LOGGER_HOST}
-      - Logging__Port=${LOGGER_PORT}
-      - Logging__Tag=api-gateway
-      - Metrics__Port=${API_METRICS_PORT}
+      - 
     depends_on: 
       - population
       - weather
@@ -49,12 +44,7 @@ services:
     environment: 
       - PORT=${POPULATION_GRPC_PORT}
       - HOST=0.0.0.0
-      - SB_USER=${SERVICE_BUS_USER}
-      - SB_URL=${SERVICE_BUS_HOST}
-      - SB_PWD=${SERVICE_BUS_PASSWORD}
-      - SB_PORT=${SERVICE_BUS_PORT}
       - LOGGER_HOST=${LOGGER_HOST}
-      - REGISTER_AS=${POPULATION_REGISTER_AS}
       - METRICS_PORT=${POPULATION_METRICS_PORT}
     networks:
       - grpc_
@@ -67,12 +57,7 @@ services:
     environment: 
       - PORT=${WEATHER_GRPC_PORT}
       - HOST=0.0.0.0
-      - SB_USER=${SERVICE_BUS_USER}
-      - SB_HOST=${SERVICE_BUS_HOST}
-      - SB_PWD=${SERVICE_BUS_PASSWORD}
-      - SB_PORT=${SERVICE_BUS_PORT}
       - OPENWEATHER_APP_ID=${OPENWEATHER_APP_ID}
-      - REGISTER_AS=${WEATHER_REGISTER_AS}
       - LOGGER_HOST=${LOGGER_HOST}
       - LOGGER_PORT=${LOGGER_PORT}
       - METRICS_PORT=${WEATHER_METRICS_PORT}
@@ -86,13 +71,8 @@ services:
     environment: 
       - PORT=${NEARBY_CITIES_GRPC_PORT}
       - HOST=0.0.0.0
-      - SB_USER=${SERVICE_BUS_USER}
-      - SB_HOST=${SERVICE_BUS_HOST}
-      - SB_PWD=${SERVICE_BUS_PASSWORD}
-      - SB_PORT=${SERVICE_BUS_PORT}
       - LOGGER_HOST=${LOGGER_HOST}
       - LOGGER_PORT=${LOGGER_PORT}
-      - REGISTER_AS=${NEARBY_CITIES_REGISTER_AS}
       - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
     networks:
       - grpc_

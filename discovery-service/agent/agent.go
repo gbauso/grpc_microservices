@@ -3,6 +3,8 @@ package agent
 import (
 	"context"
 	"io"
+	"os"
+	"os/signal"
 
 	discovery "github.com/gbauso/grpc_microservices/discoveryservice/grpc_gen"
 	uuid "github.com/nu7hatch/gouuid"
@@ -14,10 +16,16 @@ type Agent struct {
 	serviceUrl    string
 	serviceName   string
 	masterNodeUrl string
+	serviceId     string
 }
 
-func NewAgent(serviceUrl string, masterNodeUrl string, serviceName string) *Agent {
-	return &Agent{serviceUrl: serviceUrl, masterNodeUrl: masterNodeUrl, serviceName: serviceName}
+func NewAgent(serviceUrl string, masterNodeUrl string, serviceName string) (*Agent, error) {
+	serviceId, err := uuid.NewV4()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Agent{serviceUrl: serviceUrl, masterNodeUrl: masterNodeUrl, serviceName: serviceName, serviceId: serviceId.String()}, nil
 }
 
 func (a Agent) Init() error {
@@ -44,25 +52,44 @@ func (a Agent) Init() error {
 		return err
 	}
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+
+	_, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	a.unRegisterService(discoveryConnection)
+
 	return nil
 }
 
 func (a Agent) registerService(conn *grpc.ClientConn, reflection *reflection.ServerReflectionResponse) error {
 	client := discovery.NewDiscoveryServiceClient(conn)
-	serviceId, err := uuid.NewV4()
-	if err != nil {
-		return err
-	}
 
 	var handlers []string
 	for _, service := range reflection.GetListServicesResponse().Service {
 		handlers = append(handlers, service.GetName())
 	}
 
-	_, err = client.
+	_, err := client.
 		RegisterServiceHandlers(context.Background(),
 			&discovery.RegisterServiceHandlersRequest{Service: a.serviceUrl,
-				ServiceId: serviceId.String(), Handlers: handlers})
+				ServiceId: a.serviceId, Handlers: handlers})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a Agent) unRegisterService(conn *grpc.ClientConn) error {
+	client := discovery.NewDiscoveryServiceClient(conn)
+
+	_, err := client.
+		UnregisterService(context.Background(),
+			&discovery.UnregisterServiceRequest{ServiceId: a.serviceId})
 
 	if err != nil {
 		return err

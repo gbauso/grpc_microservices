@@ -17,13 +17,11 @@ namespace Utils.Grpc.DiscoveryClient
         private readonly int _timeout;
 
         public DiscoveryServiceClient(IOptions<DiscoveryConfiguration> configuration,
-                                      Operation operation,
                                       MetricsInterceptor interceptor)
         {
             _discoveryChannel = new Channel(configuration.Value.Url, ChannelCredentials.Insecure);
             _timeout = configuration.Value.Timeout;
             _metricsInterceptor = interceptor;
-            _operation = operation;
         }
 
         public async Task<string[]> GetHandlers(string service)
@@ -39,7 +37,7 @@ namespace Utils.Grpc.DiscoveryClient
         {
             var headers = new Metadata
             {
-                {"operation_id", _operation.OperationId.ToString()},
+                {"operation_id", Guid.NewGuid().ToString()},
             };
 
             return new CallOptions(headers, DateTime.UtcNow.AddSeconds(_timeout));

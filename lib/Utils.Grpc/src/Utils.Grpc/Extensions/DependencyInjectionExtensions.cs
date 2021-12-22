@@ -16,7 +16,7 @@ namespace Utils.Grpc.Extensions
             services.AddScoped<IDiscoveryServiceClient, DiscoveryServiceClient>();
             services.AddScoped<IMetricsProvider, PrometheusMetrics>();
 
-            services.AddSingleton<IChannelFactory, ChannelFactory>();
+            services.AddScoped<IChannelFactory, ChannelFactory>();
 
             services.AddScoped<MetricsInterceptor>();
 

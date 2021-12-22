@@ -14,7 +14,8 @@ import (
 )
 
 var (
-	port = flag.Int("port", 50058, "The server port")
+	port      = flag.Int("port", 50058, "The server port")
+	txContext = context.Background()
 )
 
 type Master struct {
@@ -27,9 +28,9 @@ func NewMaster(db *sql.DB) *Master {
 }
 
 func (m *Master) RegisterServiceHandlers(ctx context.Context, in *pb.RegisterServiceHandlersRequest) (*pb.RegisterServiceHandlersResponse, error) {
-	tx, _ := m.db.BeginTx(ctx, nil)
+	tx, _ := m.db.BeginTx(txContext, nil)
 	for _, handler := range in.Handlers {
-		_, err := tx.ExecContext(ctx, "INSERT INTO ServiceHandler(Service, InstanceId, Handler, IsAlive) VALUES (?, ?, ?, ?)", in.Service, in.ServiceId, handler, 1)
+		_, err := tx.ExecContext(txContext, "INSERT INTO ServiceHandler(Service, InstanceId, Handler, IsAlive) VALUES (?, ?, ?, ?)", in.Service, in.ServiceId, handler, 1)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +45,7 @@ func (m *Master) RegisterServiceHandlers(ctx context.Context, in *pb.RegisterSer
 }
 
 func (m *Master) GetServiceHandlers(ctx context.Context, in *pb.DiscoverySearchRequest) (*pb.DiscoverySearchResponse, error) {
-	results, err := m.db.Query("SELECT Service FROM ServiceHandler WHERE Handler = ? AND IsAlive = 1", in.ServiceDefinition)
+	results, err := m.db.Query("SELECT DISTINCT Service FROM ServiceHandler WHERE Handler = ? AND IsAlive = 1", in.ServiceDefinition)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +54,7 @@ func (m *Master) GetServiceHandlers(ctx context.Context, in *pb.DiscoverySearchR
 
 	for results.Next() {
 		var service string
-		if err := results.Scan(service); err != nil {
+		if err := results.Scan(&service); err != nil {
 			return &pb.DiscoverySearchResponse{Services: services}, err
 		}
 
@@ -65,12 +66,23 @@ func (m *Master) GetServiceHandlers(ctx context.Context, in *pb.DiscoverySearchR
 }
 
 func (m *Master) UnregisterService(ctx context.Context, in *pb.UnregisterServiceRequest) (*pb.UnregisterServiceResponse, error) {
-	return nil, nil
+	tx, _ := m.db.BeginTx(txContext, nil)
+	_, err := tx.ExecContext(txContext, "UPDATE ServiceHandler SET IsAlive = 0 WHERE InstanceId=?", in.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return &pb.UnregisterServiceResponse{}, nil
 }
 
 func (m *Master) Init() error {
 	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>358883e9-9ed2-4359-a4bc-90df6ec6fcf1</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
+		<PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.41.0" />
+		<PackageReference Include="Serilog.Sinks.Fluentd" Version="0.4.0" />
+		<PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.41.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
+		<PackageReference Include="prometheus-net.AspNetCore.Grpc" Version="4.1.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\lib\Utils.Grpc\src\Utils.Grpc\Utils.Grpc.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Protobuf Include="..\..\contract\cityinformation.proto" GrpcServices="Both">
+	    <Link>Protos\cityinformation.proto</Link>
+	  </Protobuf>
+	</ItemGroup>
+
+</Project>

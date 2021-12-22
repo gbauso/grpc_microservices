@@ -20,8 +20,11 @@ func main() {
 	flag.Parse()
 
 	if *masterNodeUrl != "" {
-		agentService := agent.NewAgent(*serviceUrl, *masterNodeUrl, *service)
-		err := agentService.Init()
+		agentService, err := agent.NewAgent(*serviceUrl, *masterNodeUrl, *service)
+		if err != nil {
+			panic(err)
+		}
+		err = agentService.Init()
 		if err != nil {
 			panic(err)
 		}
