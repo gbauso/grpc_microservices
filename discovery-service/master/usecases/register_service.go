@@ -21,7 +21,7 @@ func (uc *RegisterServiceUseCase) Execute(in *pb.RegisterServiceHandlersRequest)
 		serviceHandlers = append(serviceHandlers, *serviceHandler)
 	}
 
-	err := uc.repo.Insert(serviceHandlers)
+	err := uc.repo.Insert(serviceHandlers...)
 	if err != nil {
 		return nil, err
 	}

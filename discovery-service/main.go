@@ -1,13 +1,9 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent"
-	"github.com/gbauso/grpc_microservices/discoveryservice/master"
 )
 
 var (
@@ -25,16 +21,6 @@ func main() {
 			panic(err)
 		}
 		err = agentService.Init()
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		db, err := sql.Open("sqlite3", "./database/sqlite.db")
-		if err != nil {
-			panic(err)
-		}
-		masterService := master.NewMaster(db)
-		err = masterService.Init()
 		if err != nil {
 			panic(err)
 		}

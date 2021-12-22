@@ -1,11 +1,11 @@
 package entity
 
 type ServiceHandler struct {
-	Id         int
-	Service    string
-	InstanceId string
-	Handler    string
-	IsAlive    bool
+	ServiceMethodId int
+	Service         string
+	InstanceId      string
+	Handler         string
+	IsAlive         bool
 }
 
 func NewServiceHandler(service string, instanceId string, handler string) *ServiceHandler {

@@ -8,21 +8,18 @@ import (
 )
 
 type ServiceHandlerRepository struct {
-	db *sql.DB
+	db  *sql.DB
+	ctx context.Context
 }
 
-var (
-	txContext = context.Background()
-)
-
-func NewServiceHandlerRepository(db *sql.DB) *ServiceHandlerRepository {
-	return &ServiceHandlerRepository{db: db}
+func NewServiceHandlerRepository(db *sql.DB, ctx context.Context) *ServiceHandlerRepository {
+	return &ServiceHandlerRepository{db: db, ctx: ctx}
 }
 
-func (r *ServiceHandlerRepository) Insert(serviceHandlers []entity.ServiceHandler) error {
-	tx, _ := r.db.BeginTx(txContext, nil)
+func (r *ServiceHandlerRepository) Insert(serviceHandlers ...entity.ServiceHandler) error {
+	tx, _ := r.db.BeginTx(r.ctx, nil)
 	for _, serviceHandler := range serviceHandlers {
-		_, err := tx.ExecContext(txContext, "INSERT INTO ServiceHandler(Service, InstanceId, Handler, IsAlive) VALUES (?, ?, ?, ?)", serviceHandler.Service, serviceHandler.InstanceId, serviceHandler.Handler, 1)
+		_, err := tx.ExecContext(r.ctx, "INSERT INTO ServiceHandler(Service, InstanceId, Handler, IsAlive) VALUES (?, ?, ?, ?)", serviceHandler.Service, serviceHandler.InstanceId, serviceHandler.Handler, 1)
 		if err != nil {
 			return err
 		}
@@ -37,11 +34,11 @@ func (r *ServiceHandlerRepository) Insert(serviceHandlers []entity.ServiceHandle
 }
 
 func (r *ServiceHandlerRepository) Update(serviceHandlers ...entity.ServiceHandler) error {
-	tx, _ := r.db.BeginTx(txContext, nil)
+	tx, _ := r.db.BeginTx(r.ctx, nil)
 	for _, serviceHandler := range serviceHandlers {
-		_, err := tx.ExecContext(txContext,
-			"UPDATE ServiceHandler SET Service =?, Handler = ?, InstanceId = ?, IsAlive = ? WHERE Id=?",
-			serviceHandler.Service, serviceHandler.Handler, serviceHandler.InstanceId, serviceHandler.IsAlive, serviceHandler.Id)
+		_, err := tx.ExecContext(r.ctx,
+			"UPDATE ServiceHandler SET Service =?, Handler = ?, InstanceId = ?, IsAlive = ? WHERE ServiceMethodId = ?",
+			serviceHandler.Service, serviceHandler.Handler, serviceHandler.InstanceId, serviceHandler.IsAlive, serviceHandler.ServiceMethodId)
 
 		if err != nil {
 			return err
@@ -58,14 +55,14 @@ func (r *ServiceHandlerRepository) Update(serviceHandlers ...entity.ServiceHandl
 
 func (r *ServiceHandlerRepository) GetByServiceId(serviceId string) ([]entity.ServiceHandler, error) {
 	var serviceHandlers []entity.ServiceHandler
-	results, err := r.db.Query("SELECT * FROM ServiceHandler WHERE ServiceId = ?", serviceId)
+	results, err := r.db.Query("SELECT ServiceMethodId, IsAlive, Handler, InstanceId, Service FROM ServiceHandler WHERE InstanceId = ?", serviceId)
 	if err != nil {
 		return nil, err
 	}
 
 	for results.Next() {
 		var serviceHandler entity.ServiceHandler
-		if err := results.Scan(&serviceHandler); err != nil {
+		if err := results.Scan(&serviceHandler.ServiceMethodId, &serviceHandler.IsAlive, &serviceHandler.Handler, &serviceHandler.InstanceId, &serviceHandler.Service); err != nil {
 			return nil, err
 		}
 

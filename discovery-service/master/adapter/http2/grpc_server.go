@@ -19,13 +19,13 @@ var (
 
 type Server struct {
 	pb.UnimplementedDiscoveryServiceServer
-	registerServiceUseCase   usecases.RegisterServiceUseCase
-	unregisterServiceUseCase usecases.UnregisterServiceUseCase
+	RegisterServiceUseCase   usecases.RegisterServiceUseCase
+	UnregisterServiceUseCase usecases.UnregisterServiceUseCase
 	GetAliveServicesUseCase  usecases.GetAliveServicesUseCase
 }
 
 func (s *Server) RegisterServiceHandlers(ctx context.Context, in *pb.RegisterServiceHandlersRequest) (*pb.RegisterServiceHandlersResponse, error) {
-	return s.registerServiceUseCase.Execute(in)
+	return s.RegisterServiceUseCase.Execute(in)
 }
 
 func (s *Server) GetServiceHandlers(ctx context.Context, in *pb.DiscoverySearchRequest) (*pb.DiscoverySearchResponse, error) {
@@ -33,7 +33,7 @@ func (s *Server) GetServiceHandlers(ctx context.Context, in *pb.DiscoverySearchR
 }
 
 func (s *Server) UnregisterService(ctx context.Context, in *pb.UnregisterServiceRequest) (*pb.UnregisterServiceResponse, error) {
-	return s.unregisterServiceUseCase.Execute(in)
+	return s.UnregisterServiceUseCase.Execute(in)
 }
 
 func (srv *Server) Start() error {
