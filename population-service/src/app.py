@@ -5,14 +5,15 @@ import threading
 
 import grpc
 
+from grpc_health.v1 import health, health_pb2
+from grpc_health.v1 import health_pb2_grpc
+
+from grpc_reflection.v1alpha import reflection
+
 from services import cityinformation_pb2
 from services import cityinformation_pb2_grpc
 
-from services import healthcheck_pb2
-from services import healthcheck_pb2_grpc
-
 import city
-import inspect
 
 import os
 
@@ -50,11 +51,6 @@ class CityService(cityinformation_pb2_grpc.CityService):
         cityData = city.City.get_city_opendata(request.city, request.country)
         return cityinformation_pb2.SearchResponse(population=str(cityData['population']))
 
-class HealthCheckService(healthcheck_pb2_grpc.HealthCheckService):
-
-    def GetStatus(self, request, context):
-        return healthcheck_pb2.PingResponse(response=str('pong'))
-
 def serve():
     logger = Logger.getInstance()
     metrics = Prometheus.getInstance()
@@ -62,10 +58,24 @@ def serve():
     metric_interceptor = metrics_interceptor.MetricsInterceptor(metrics)
 
     server = grpc.server(futures.ThreadPoolExecutor(
-        max_workers=10), interceptors=(log_interceptor, metric_interceptor,))
+        max_workers=10), 
+        interceptors=(log_interceptor,metric_interceptor,)
+        )
 
+    
+    health_servicer = health.HealthServicer()
     cityinformation_pb2_grpc.add_CityServiceServicer_to_server(CityService(), server)
-    healthcheck_pb2_grpc.add_HealthCheckServiceServicer_to_server(HealthCheckService(), server)
+    health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)
+    
+    services = tuple(
+        service.full_name
+        for service in cityinformation_pb2.DESCRIPTOR.services_by_name.values()) + (
+            reflection.SERVICE_NAME, health.SERVICE_NAME)
+    
+    for service in services:
+        health_servicer.set(service, health_pb2.HealthCheckResponse.SERVING)
+    
+    reflection.enable_server_reflection(services, server)
     
     port = os.getenv('PORT')
 

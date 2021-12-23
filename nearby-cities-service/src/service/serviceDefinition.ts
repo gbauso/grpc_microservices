@@ -19,21 +19,4 @@ export class ServiceDefinition {
 
     return loadPackageDefinition(packageDefinition).cityinformation;
   }
-
-  static getStatusPackage(): any {
-    const protoPath = path.join(__dirname,
-        '../../contract/healthcheck.proto');
-
-    const packageDefinition = protoLoader.loadSync(
-        protoPath,
-        {
-          keepCase: true,
-          longs: String,
-          enums: String,
-          defaults: true,
-          oneofs: true,
-        });
-
-    return loadPackageDefinition(packageDefinition).healthcheck;
-  }
 }

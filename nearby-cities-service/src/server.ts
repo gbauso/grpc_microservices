@@ -6,6 +6,9 @@ import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
 import wrapServerWithReflection from 'grpc-node-server-reflection';
 import { serverProxy } from '@speedymonster/grpc-interceptors'
+import { HealthImplementation, service as svc, ServingStatus } from '@zcong/node-grpc-health-check'
+
+
 
 @injectable()
 export class GrpcServer {
@@ -19,21 +22,30 @@ export class GrpcServer {
                     private logger: Logger) {}
 
   start() : void {
-    const host = process.env.HOST;
-    const port = (process.env.PORT || 0) as number;
+    const host = process.env.HOST || "0.0.0.0";
+    const port = (process.env.PORT || 50060) as number;
 
     const cityinformation = ServiceDefinition.getCityInformation();
-    const healthCheck = ServiceDefinition.getStatusPackage();
+
+    const service = this.nearbyCitiesService;
 
     const grpcServer = wrapServerWithReflection(new Server());
-    const service = this.nearbyCitiesService;
-    grpcServer.addService(cityinformation.CityService.service,
+    const server = serverProxy(grpcServer);
+    server.use(this.loggerInterceptor.intercept);
+    server.use(this.metricsInterceptor.intercept);
+
+    server.addService(cityinformation.CityService.service,
       { GetCityInformation: service.getCityInformation });
     
-    grpcServer.addService(healthCheck.HealthCheckService.service,
-      { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
+    const implementations = new HealthImplementation({
+      'cityinformation.CityService': ServingStatus.SERVING,
+      'grpc.health.v1.Health': ServingStatus.SERVING,
+      'grpc.reflection.v1alpha.ServerReflection': ServingStatus.SERVING
+    })
 
-    grpcServer.bindAsync(`${host}:${port}`, 
+    server.addService(svc, implementations);
+    
+    server.bindAsync(`${host}:${port}`, 
               ServerCredentials.createInsecure(),
               () => {
                 server.start()
@@ -41,10 +53,10 @@ export class GrpcServer {
                 this.logger.info(`Server running on ${host}:${port}`,
                 { host, port });
               },);
-
-    const server = serverProxy(grpcServer);
-    server.use(this.loggerInterceptor.intercept);
-    server.use(this.metricsInterceptor.intercept);
+    
+    process.on('exit', (code) => {
+      implementations.shutdown()
+    });
 
   }
 }
