@@ -1,12 +1,7 @@
 package weather.service
 
-import healthcheck.HealthCheckServiceGrpcKt
-import healthcheck.Healthcheck
+import io.grpc.health.v1.HealthGrpc
 
-class HealthCheckService() : HealthCheckServiceGrpcKt.HealthCheckServiceCoroutineImplBase() {
+class HealthCheckService() : HealthGrpc.HealthImplBase() {
 
-    override suspend fun getStatus(request: Healthcheck.Empty) = Healthcheck.PingResponse
-            .newBuilder()
-            .setResponse("Pong")
-            .build()
-    }
+}

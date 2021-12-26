@@ -2,19 +2,18 @@ package weather
 
 import io.grpc.Server
 import io.grpc.ServerBuilder
+import io.grpc.protobuf.services.ProtoReflectionService
 import org.koin.core.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.inject
 import weather.di.openWeatherModule
 import weather.interceptors.LoggingInterceptor
-import weather.service.HealthCheckService
 import weather.interceptors.MetricsInterceptor
+import weather.service.HealthCheckService
 import weather.service.WeatherService
 import weather.util.logging.ILogger
 import weather.util.metrics.IMetricsProvider
 import weather.util.secrets.ISecretProvider
-import java.util.*
-import kotlin.concurrent.schedule
 
 
 class WeatherServer constructor(
@@ -29,6 +28,7 @@ class WeatherServer constructor(
             .forPort(port)
             .addService(WeatherService())
             .addService(HealthCheckService())
+            .addService(ProtoReflectionService.newInstance())
             .intercept(LoggingInterceptor(logger))
             .intercept(MetricsInterceptor(metricsProvider))
             .build()
