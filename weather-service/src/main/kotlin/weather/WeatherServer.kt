@@ -23,11 +23,12 @@ class WeatherServer constructor(
     val metricsProvider: IMetricsProvider by inject()
     val secrets: ISecretProvider by inject()
     val port = secrets.getValue("PORT").toInt()
+    var healhCheckService = HealthCheckService()
 
     val server: Server = ServerBuilder
             .forPort(port)
             .addService(WeatherService())
-            .addService(HealthCheckService())
+            .addService(healhCheckService)
             .addService(ProtoReflectionService.newInstance())
             .intercept(LoggingInterceptor(logger))
             .intercept(MetricsInterceptor(metricsProvider))
@@ -39,6 +40,7 @@ class WeatherServer constructor(
         Runtime.getRuntime().addShutdownHook(
                 Thread {
                     logger.info("*** shutting down gRPC server since JVM is shutting down")
+                    healhCheckService.onExit()
                     this@WeatherServer.stop()
                     logger.info("*** server shut down")
                 }
