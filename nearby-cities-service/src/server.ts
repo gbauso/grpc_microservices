@@ -5,9 +5,8 @@ import { Logger } from './util/logging/logger';
 import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
 import wrapServerWithReflection from 'grpc-node-server-reflection';
-import { serverProxy } from '@speedymonster/grpc-interceptors'
+import {serverProxy} from '@coozzy/node-grpc-interceptors'
 import { HealthImplementation, service as svc, ServingStatus } from '@zcong/node-grpc-health-check'
-
 
 
 @injectable()
