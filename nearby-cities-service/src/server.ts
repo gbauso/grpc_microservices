@@ -29,11 +29,8 @@ export class GrpcServer {
     const service = this.nearbyCitiesService;
 
     const grpcServer = wrapServerWithReflection(new Server());
-    const server = serverProxy(grpcServer);
-    server.use(this.loggerInterceptor.intercept);
-    server.use(this.metricsInterceptor.intercept);
 
-    server.addService(cityinformation.CityService.service,
+    grpcServer.addService(cityinformation.CityService.service,
       { GetCityInformation: service.getCityInformation });
     
     const implementations = new HealthImplementation({
@@ -42,7 +39,11 @@ export class GrpcServer {
       'grpc.reflection.v1alpha.ServerReflection': ServingStatus.SERVING
     })
 
-    server.addService(svc, implementations);
+    grpcServer.addService(svc, implementations);
+
+    const server = serverProxy(grpcServer);
+    server.use(this.loggerInterceptor.intercept);
+    server.use(this.metricsInterceptor.intercept);
     
     server.bindAsync(`${host}:${port}`, 
               ServerCredentials.createInsecure(),
