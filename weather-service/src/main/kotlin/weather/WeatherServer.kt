@@ -39,9 +39,9 @@ class WeatherServer constructor(
         healthStatusManager.setStatus("cityinformation.CityService", HealthCheckResponse.ServingStatus.SERVING)
         healthStatusManager.setStatus("grpc.health.v1.Health", HealthCheckResponse.ServingStatus.SERVING)
         healthStatusManager.setStatus("grpc.reflection.v1alpha.ServerReflection", HealthCheckResponse.ServingStatus.SERVING)
-
+        
         server.start()
-        logger.info("Server started, listening on $port")
+        logger.info("Server started, listening on $port", mutableMapOf("port" to (port as Any)))
         Runtime.getRuntime().addShutdownHook(
                 Thread {
                     logger.info("*** shutting down gRPC server since JVM is shutting down")

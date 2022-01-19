@@ -19,8 +19,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\lib\Utils.Grpc\src\Utils.Grpc\Utils.Grpc.csproj" />
+	  <ProjectReference Include="..\Utils.Grpc\src\Utils.Grpc\Utils.Grpc.csproj" />
 	</ItemGroup>
+
 
 	<ItemGroup>
 	  <Protobuf Include="..\..\contract\cityinformation.proto" GrpcServices="Both">

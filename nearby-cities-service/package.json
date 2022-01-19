@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start:dev": "nodemon --inspect index.js",
-    "start:debug": "export DEBUG=true || set DEBUG=true && nodemon --inspect index.js",
+    "start:debug": "export LOGGER_AGENT=true || set LOGGER_AGENT=true && nodemon --inspect index.js",
     "build": "rimraf ./build && tsc",
     "start": "npm run build && node build/index.js"
   },
@@ -39,6 +39,7 @@
     "node-vault": "^0.9.18",
     "prom-client": "^12.0.0",
     "reflect-metadata": "^0.1.13",
-    "ts-enum-util": "^4.0.2"
+    "ts-enum-util": "^4.0.2",
+    "winston": "^3.4.0"
   }
 }
