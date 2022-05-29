@@ -1,8 +1,13 @@
 version: '3.5'
 
 services:
+
+  # gRPC Gateway
+
   gateway:
-    image: gateway:latest
+    image: msexp/gateway:latest
+    build: 
+      context: ./grpc-gateway
     restart: always
     env_file: .env
     ports: 
@@ -18,7 +23,9 @@ services:
       - fluentd-gateway
       
   fluentd-gateway:
-    image: fluentd-nr:latest
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
     restart: always
     env_file: .env
     environment:
@@ -29,13 +36,19 @@ services:
     volumes:
       - logs:${LOG_PATH}
 
+  # Discovery Service - Master
 
   discovery-master: 
-    image: discovery-master:latest
+    image: msexp/discovery-master:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.master
     restart: always
     env_file: .env
     volumes:
       - logs:${LOG_PATH}
+    ports:
+      -  5000:${DISCOVERY_GRPC_PORT}
     environment:
       - LOG_PATH=${LOG_PATH}/discovery-master.log
       - PORT=${DISCOVERY_GRPC_PORT}
@@ -44,7 +57,9 @@ services:
       - fluentd-discovery-master
 
   fluentd-discovery-master:
-    image: fluentd-nr:latest
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
     restart: always
     env_file: .env
     environment:
@@ -55,74 +70,145 @@ services:
     volumes:
       - logs:${LOG_PATH}
 
+  # Population Service
+
+  population:
+    image: msexp/population:latest
+    build: 
+      context: ./population-service
+    restart: always
+    env_file: .env
+    ports: 
+     - 5011:${POPULATION_GRPC_PORT}
+    environment: 
+      - LOG_PATH=${LOG_PATH}/population.log
+      - PORT=${POPULATION_GRPC_PORT}
+      - HOST=0.0.0.0
+      - METRICS_PORT=${POPULATION_METRICS_PORT}
+    volumes:
+      - logs:${LOG_PATH}
+  
+  discovery-agent-population: 
+    image: msexp/discovery-agent:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.agent
+    env_file: .env
+    environment:
+      - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
+      - SERVICE_NAME=population
+      - SERVICE_URL=population:${POPULATION_GRPC_PORT}
+      - LOG_PATH=${LOG_PATH}/population-discovery.log
+    volumes:
+      - logs:${LOG_PATH}
+  
+  fluentd-population:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=population
+    volumes:
+      - logs:${LOG_PATH}
+
+  # Weather Service
+
+  weather:
+    image: msexp/weather:latest
+    build: 
+      context: ./weather-service
+    restart: always
+    env_file: .env
+    ports: 
+     - 5012:${WEATHER_GRPC_PORT}
+    environment: 
+      - LOG_PATH=${LOG_PATH}/weather.log
+      - PORT=${WEATHER_GRPC_PORT}
+      - OPENWEATHER_APP_ID=${OPENWEATHER_APP_ID}
+      - HOST=0.0.0.0
+      - METRICS_PORT=${WEATHER_METRICS_PORT}
+    volumes:
+      - logs:${LOG_PATH}
+  
+  discovery-agent-weather: 
+    image: msexp/discovery-agent:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.agent
+    env_file: .env
+    environment:
+      - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
+      - SERVICE_NAME=weather
+      - SERVICE_URL=weather:${WEATHER_GRPC_PORT}
+      - LOG_PATH=${LOG_PATH}/weather-discovery.log
+    volumes:
+      - logs:${LOG_PATH}
+  
+  fluentd-weather:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=weather
+    volumes:
+      - logs:${LOG_PATH}
+
+  # Nearby Cities Service
+
+  nearby-cities:
+    image: msexp/nearby-cities:latest
+    build: 
+      context: ./nearby-cities-service
+    restart: always
+    env_file: .env
+    ports: 
+     - 5013:${NEARBY_CITIES_GRPC_PORT}
+    environment: 
+      - LOG_PATH=${LOG_PATH}/nearby-cities.log
+      - PORT=${NEARBY_CITIES_GRPC_PORT}
+      - HOST=0.0.0.0
+      - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
+    volumes:
+      - logs:${LOG_PATH}
+  
+  discovery-agent-nearby-cities: 
+    image: msexp/discovery-agent:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.agent
+    env_file: .env
+    environment:
+      - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
+      - SERVICE_NAME=nearby-cities
+      - SERVICE_URL=nearby-cities:${NEARBY_CITIES_GRPC_PORT}
+      - LOG_PATH=${LOG_PATH}/nearby-cities-discovery.log
+    volumes:
+      - logs:${LOG_PATH}
+  
+  fluentd-nearby-cities:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=nearby-cities
+    volumes:
+      - logs:${LOG_PATH}
 
 volumes:
   logs:
     external: false
-    # networks:
-    #   - grpc_
-#   discovery:
-#     image: msexp/discovery-service:0.0.313
-#     restart: always
-#     env_file: .env
-#     ports: 
-#       - 5010:${DISCOVERY_GRPC_PORT}
-#     environment: 
-#       - ServiceBus__Username=${SERVICE_BUS_USER}
-#       - ServiceBus__Host=${SERVICE_BUS_HOST}
-#       - ServiceBus__Password=${SERVICE_BUS_PASSWORD}
-#       - ConnectionStrings__DiscoveryDbContext=Host=${PG_HOST};Database=${PG_DB};Username=${PG_USER};Password=${PG_PWD}
-#       - Grpc__Host=${DISCOVERY_REGISTER_AS}
-#       - Grpc__Port=${DISCOVERY_GRPC_PORT}
-#       - Logging__Host=${LOGGER_HOST}
-#       - Logging__Port=${LOGGER_PORT}
-#       - Logging__Tag=discovery
-#       - Metrics__Port=${DISCOVERY_METRICS_PORT}
-#     networks:
-#       - grpc_
-#   population:
-#     image: msexp/population-service:0.0.315
-#     restart: always
-#     env_file: .env
-#     ports: 
-#       - 5011:${POPULATION_GRPC_PORT}
-#     environment: 
-#       - PORT=${POPULATION_GRPC_PORT}
-#       - HOST=0.0.0.0
-#       - LOGGER_HOST=${LOGGER_HOST}
-#       - METRICS_PORT=${POPULATION_METRICS_PORT}
-#     networks:
-#       - grpc_
-#   weather:
-#     image: msexp/weather-service:0.0.316
-#     restart: always
-#     env_file: .env
-#     ports: 
-#       - 5012:${WEATHER_GRPC_PORT}
-#     environment: 
-#       - PORT=${WEATHER_GRPC_PORT}
-#       - HOST=0.0.0.0
-#       - OPENWEATHER_APP_ID=${OPENWEATHER_APP_ID}
-#       - LOGGER_HOST=${LOGGER_HOST}
-#       - LOGGER_PORT=${LOGGER_PORT}
-#       - METRICS_PORT=${WEATHER_METRICS_PORT}
-#     networks:
-#       - grpc_
-#   nearby-cities:
-#     image: msexp/nearby-cities-service:0.0.314
-#     env_file: .env
-#     ports: 
-#       - 5013:${NEARBY_CITIES_GRPC_PORT}
-#     environment: 
-#       - PORT=${NEARBY_CITIES_GRPC_PORT}
-#       - HOST=0.0.0.0
-#       - LOGGER_HOST=${LOGGER_HOST}
-#       - LOGGER_PORT=${LOGGER_PORT}
-#       - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
-#     networks:
-#       - grpc_
-# networks:
-#   grpc_:
-#     external: true
-#     name: grpc_
-

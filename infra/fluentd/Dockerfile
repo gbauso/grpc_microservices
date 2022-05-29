@@ -12,6 +12,6 @@ RUN apk add --no-cache --update --virtual .build-deps \
  && rm -rf /home/fluent/.gem/ruby/*/cache/*.gem
 
 COPY conf/fluent.conf /fluentd/etc/
-COPY entrypoint.sh /bin/
 
 USER fluent
+

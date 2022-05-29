@@ -12,6 +12,4 @@ COPY . .
 
 RUN go build ./master/cmd/main.go 
 
-RUN ls -a
-
 CMD ./main --port $PORT --log-path $LOG_PATH --db-path $DB_PATH
