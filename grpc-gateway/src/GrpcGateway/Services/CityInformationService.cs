@@ -8,14 +8,17 @@ namespace GrpcGateway.Services
     public class CityInformationService : CityService.CityServiceBase
     {
         private readonly IChannelFactory _channelFactory;
+        private readonly ILogger<CityInformationService> _logger;
 
-        public CityInformationService(IChannelFactory channelFactory)
+        public CityInformationService(IChannelFactory channelFactory, ILogger<CityInformationService> logger)
         {
             _channelFactory = channelFactory;
+            _logger = logger;
         }
 
         public override async Task<SearchResponse> GetCityInformation(SearchRequest request, ServerCallContext context)
         {
+            _logger.LogInformation("Logging", request);
             var channels = await _channelFactory.GetChannels(CityService.Descriptor.FullName);
 
             var tasks = channels.Select(async channel =>

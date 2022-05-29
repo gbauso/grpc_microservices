@@ -1,0 +1,21 @@
+FROM golang:1.17-bullseye
+
+ENV MASTER_NODE
+ENV SERVICE_NAME
+ENV SERVICE_URL
+ENV LOG_PATH
+
+WORKDIR /app
+
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY *.go ./
+
+RUN go build agent/cmd/main.go -o /agent
+
+CMD [ "/agent", "--master-node", $MASTER_NODE,
+"--service", $SERVICE_NAME,
+"--service-url", $SERVICE_URL
+"--log-path", $LOG_PATH]

@@ -1,16 +1,23 @@
 <configuration scan="true" scanPeriod="30 seconds">
-    <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
     <appender name="jsonFileAppender" class="ch.qos.logback.core.FileAppender">
         <append>true</append>
         <!-- set immediateFlush to false for much higher logging throughput -->
         <immediateFlush>true</immediateFlush>
         <file>${LOG_PATH}</file>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" >
+            <timeZone>UTC</timeZone>
+            <fieldNames>
+                <timestamp>time</timestamp>
+            </fieldNames>
+        </encoder>
     </appender>
     <root level="INFO">
-        <appender-ref ref="jsonConsoleAppender" />
+        <appender-ref ref="consoleAppender" />
         <appender-ref ref="jsonFileAppender" />
     </root>
 </configuration>

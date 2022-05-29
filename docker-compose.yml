@@ -1,0 +1,128 @@
+version: '3.5'
+
+services:
+  gateway:
+    image: gateway:latest
+    restart: always
+    env_file: .env
+    ports: 
+      - 5002:80
+    volumes:
+      - logs:${LOG_PATH}
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+      - Logging__Path=${LOG_PATH}/grpc-gateway.log
+      - DiscoveryService__Url=discovery-master:${DISCOVERY_GRPC_PORT}
+      - DiscoveryService__Timeout=60
+    depends_on: 
+      - fluentd-gateway
+      
+  fluentd-gateway:
+    image: fluentd-nr:latest
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=grpc-gateway
+    volumes:
+      - logs:${LOG_PATH}
+
+
+  discovery-master: 
+    image: discovery-master:latest
+    restart: always
+    env_file: .env
+    volumes:
+      - logs:${LOG_PATH}
+    environment:
+      - LOG_PATH=${LOG_PATH}/discovery-master.log
+      - PORT=${DISCOVERY_GRPC_PORT}
+      - DB_PATH=master/adapter/database/sqlite.db
+    depends_on: 
+      - fluentd-discovery-master
+
+  fluentd-discovery-master:
+    image: fluentd-nr:latest
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=discovery-master
+    volumes:
+      - logs:${LOG_PATH}
+
+
+volumes:
+  logs:
+    external: false
+    # networks:
+    #   - grpc_
+#   discovery:
+#     image: msexp/discovery-service:0.0.313
+#     restart: always
+#     env_file: .env
+#     ports: 
+#       - 5010:${DISCOVERY_GRPC_PORT}
+#     environment: 
+#       - ServiceBus__Username=${SERVICE_BUS_USER}
+#       - ServiceBus__Host=${SERVICE_BUS_HOST}
+#       - ServiceBus__Password=${SERVICE_BUS_PASSWORD}
+#       - ConnectionStrings__DiscoveryDbContext=Host=${PG_HOST};Database=${PG_DB};Username=${PG_USER};Password=${PG_PWD}
+#       - Grpc__Host=${DISCOVERY_REGISTER_AS}
+#       - Grpc__Port=${DISCOVERY_GRPC_PORT}
+#       - Logging__Host=${LOGGER_HOST}
+#       - Logging__Port=${LOGGER_PORT}
+#       - Logging__Tag=discovery
+#       - Metrics__Port=${DISCOVERY_METRICS_PORT}
+#     networks:
+#       - grpc_
+#   population:
+#     image: msexp/population-service:0.0.315
+#     restart: always
+#     env_file: .env
+#     ports: 
+#       - 5011:${POPULATION_GRPC_PORT}
+#     environment: 
+#       - PORT=${POPULATION_GRPC_PORT}
+#       - HOST=0.0.0.0
+#       - LOGGER_HOST=${LOGGER_HOST}
+#       - METRICS_PORT=${POPULATION_METRICS_PORT}
+#     networks:
+#       - grpc_
+#   weather:
+#     image: msexp/weather-service:0.0.316
+#     restart: always
+#     env_file: .env
+#     ports: 
+#       - 5012:${WEATHER_GRPC_PORT}
+#     environment: 
+#       - PORT=${WEATHER_GRPC_PORT}
+#       - HOST=0.0.0.0
+#       - OPENWEATHER_APP_ID=${OPENWEATHER_APP_ID}
+#       - LOGGER_HOST=${LOGGER_HOST}
+#       - LOGGER_PORT=${LOGGER_PORT}
+#       - METRICS_PORT=${WEATHER_METRICS_PORT}
+#     networks:
+#       - grpc_
+#   nearby-cities:
+#     image: msexp/nearby-cities-service:0.0.314
+#     env_file: .env
+#     ports: 
+#       - 5013:${NEARBY_CITIES_GRPC_PORT}
+#     environment: 
+#       - PORT=${NEARBY_CITIES_GRPC_PORT}
+#       - HOST=0.0.0.0
+#       - LOGGER_HOST=${LOGGER_HOST}
+#       - LOGGER_PORT=${LOGGER_PORT}
+#       - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
+#     networks:
+#       - grpc_
+# networks:
+#   grpc_:
+#     external: true
+#     name: grpc_
+

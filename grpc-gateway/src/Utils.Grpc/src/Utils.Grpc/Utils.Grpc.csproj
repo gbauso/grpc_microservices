@@ -14,7 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="../../contract/discovery.proto" Link="Contract\discovery.proto" GrpcServices="Client" />
+		<Protobuf Include="../../../../contract/discovery.proto" Link="Contract\discovery.proto" GrpcServices="Client" />
 	</ItemGroup>
 	
 	<PropertyGroup>

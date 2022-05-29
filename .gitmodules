@@ -13,3 +13,4 @@
 [submodule "grpc-gateway/contract"]
 	path = grpc-gateway/contract
 	url = https://github.com/gbauso/contract
+
