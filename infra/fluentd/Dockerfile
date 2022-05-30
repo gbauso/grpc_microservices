@@ -7,6 +7,7 @@ USER root
 RUN apk add --no-cache --update --virtual .build-deps \
         sudo build-base ruby-dev \
  && sudo fluent-gem install fluent-plugin-newrelic \
+ && sudo fluent-gem install fluent-plugin-http-healthcheck \
  && sudo gem sources --clear-all \
  && apk del .build-deps \
  && rm -rf /home/fluent/.gem/ruby/*/cache/*.gem
