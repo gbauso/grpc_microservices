@@ -38,7 +38,6 @@ spec:
         app: {{ .Values.populationService.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{ include "grpc.initContainers" . }}
       containers:
       - name: {{ .Values.populationService.host }} 
         image: {{ .Values.populationService.image }}
@@ -58,21 +57,5 @@ spec:
             value: "0.0.0.0"
           - name: PORT
             value: {{ .Values.populationService.port | quote }}
-          - name: SB_USER
-            value: {{ .Values.rabbitmq.user | quote }}
-          - name: SB_URL
-            value: {{ include "grpc.rabbitmq" . }}
-          - name: SB_PWD
-            value: {{ .Values.rabbitmq.password | quote }}
-          - name: SB_PORT
-            value: {{ .Values.rabbitmq.port | quote }}
-          - name: SB_SSL
-            value: {{ .Values.rabbitmq.ssl | quote }}
-          - name: LOGGER_HOST
-            value: {{ include "grpc.fluentd" . }}
-          - name: LOGGER_PORT
-            value: {{ .Values.fluentd.port | quote }}
-          - name: METRICS_PORT
-            value: {{ .Values.metricsPort | quote }}
           - name: REGISTER_AS
             value: {{ include "grpc.populationService" . }}

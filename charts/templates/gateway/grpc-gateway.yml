@@ -2,9 +2,9 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: {{ .Values.apiGateway.host }}-gateway
+  name: {{ .Values.grpcGateway.host }}-gateway
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.apiGateway.namespace }}
+  namespace: {{ .Values.grpcGateway.namespace }}
   {{ end }}
 spec:
   selector:
@@ -21,29 +21,29 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.apiGateway.namespace }}
+  namespace: {{ .Values.grpcGateway.namespace }}
   {{ end }}
-  name: {{ .Values.apiGateway.host }}
+  name: {{ .Values.grpcGateway.host }}
 spec:
   hosts:
   - "api.{{ .Values.domain }}"
   gateways:
-  - {{ .Values.apiGateway.host }}-gateway
+  - {{ .Values.grpcGateway.host }}-gateway
   http:
   - route:
     - destination:
-        host: {{ .Values.apiGateway.host }}
+        host: {{ .Values.grpcGateway.host }}
         port:
-          number: {{ .Values.apiGateway.port }}
+          number: {{ .Values.grpcGateway.port }}
 ---
 {{ end }}
 apiVersion: v1
 kind: Service
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.apiGateway.namespace }}
+  namespace: {{ .Values.grpcGateway.namespace }}
   {{ end }}
-  name: {{ .Values.apiGateway.host }} 
+  name: {{ .Values.grpcGateway.host }} 
   {{ if .Values.isOkteto }}
   annotations:
     dev.okteto.com/auto-ingress: "true"
@@ -51,40 +51,39 @@ metadata:
 spec:
   ports:
   - name: http
-    targetPort: {{ .Values.apiGateway.port }} 
-    port: {{ .Values.apiGateway.port }} 
+    targetPort: {{ .Values.grpcGateway.port }} 
+    port: {{ .Values.grpcGateway.port }} 
   {{ include "grpc.metrics" .}}
   selector:
-    app: {{ .Values.apiGateway.host }} 
+    app: {{ .Values.grpcGateway.host }} 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.apiGateway.namespace }}
+  namespace: {{ .Values.grpcGateway.namespace }}
   {{ end }}
-  name: {{ .Values.apiGateway.host }}
+  name: {{ .Values.grpcGateway.host }}
   labels:
-    app.kubernetes.io/component: {{ .Values.apiGateway.host }} 
+    app.kubernetes.io/component: {{ .Values.grpcGateway.host }} 
 spec:
-  replicas: {{ .Values.apiGateway.replicaCount }}
+  replicas: {{ .Values.grpcGateway.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.apiGateway.host }} 
+      app: {{ .Values.grpcGateway.host }} 
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.apiGateway.host }} 
+        app: {{ .Values.grpcGateway.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{ include "grpc.initContainers" . }}
       containers:
-      - name: {{ .Values.apiGateway.host }} 
-        image: {{ .Values.apiGateway.image }}
+      - name: {{ .Values.grpcGateway.host }} 
+        image: {{ .Values.grpcGateway.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.apiGateway.port }}
+        - containerPort: {{ .Values.grpcGateway.port }}
         - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
@@ -95,14 +94,10 @@ spec:
             memory: "200Mi"
         env:
           - name: ASPNETCORE_URLS
-            value: "http://+:{{ .Values.apiGateway.port }}"
+            value: "http://+:{{ .Values.grpcGateway.port }}"
           - name: DiscoveryService__Url
             value: "{{ include "grpc.discoveryService" . }}:{{ .Values.discoveryService.port }}"
-          - name: Logging__Host
-            value: {{ include "grpc.fluentd" . }}
-          - name: Logging__Port
-            value: {{ .Values.fluentd.port | quote }}
           - name: Logging__Tag
-            value: {{ .Values.apiGateway.host | quote }}
+            value: {{ .Values.grpcGateway.host | quote }}
           - name: Metrics__Port
             value: {{ .Values.metricsPort | quote }}

@@ -100,6 +100,8 @@ services:
       - METRICS_PORT=${POPULATION_METRICS_PORT}
     volumes:
       - logs:${LOG_PATH}
+    depends_on:
+      - fluentd-population
     healthcheck:
       test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${POPULATION_GRPC_PORT}"]
       interval: 30s
