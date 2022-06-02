@@ -2,6 +2,7 @@ using GrpcGateway.Services;
 using Serilog;
 using Serilog.Formatting.Json;
 using Utils.Grpc.Extensions;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var serilog = new LoggerConfiguration().
     WriteTo.Console()
-    .WriteTo.File(new JsonFormatter(), builder.Configuration.GetValue<string>("Logging:Path"))
+    .WriteTo.File(new JsonFormatter(), 
+                  string.Format(builder.Configuration.GetValue<string>("Logging:Path"), Guid.NewGuid()))
     .CreateLogger();
 
 // Add services to the container.

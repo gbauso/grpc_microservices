@@ -2,12 +2,12 @@ apiVersion: v1
 kind: Service
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.populationService.namespace }}
+  namespace: {{ .Values.discoveryService.namespace }}
   {{ end }}
   name: {{ .Values.populationService.host }} 
 spec:
   ports:
-  - name: grpc
+  - name: http2
     targetPort: {{ .Values.populationService.port }} 
     port: {{ .Values.populationService.port }} 
   {{ include "grpc.metrics" .}}
@@ -18,16 +18,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.populationService.namespace }}
+  namespace: {{ .Values.populationService.namespace | quote }}
   {{ end }}
-  name: {{ .Values.populationService.host }} 
+  name: {{ .Values.populationService.host }}
   labels:
-    app.kubernetes.io/component: {{ .Values.populationService.host }} 
+    app.kubernetes.io/component: {{ .Values.populationService.host }}
 spec:
   replicas: {{ .Values.populationService.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.populationService.host }} 
+      app: {{ .Values.populationService.host }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
@@ -35,15 +35,59 @@ spec:
       namespace: {{ .Values.populationService.namespace }}
       {{ end }}
       labels:
-        app: {{ .Values.populationService.host }} 
+        app: {{ .Values.populationService.host }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
-      - name: {{ .Values.populationService.host }} 
+      - name: logger
+        image: {{ .Values.fluentd.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: NR_API_KEY
+          value: {{ .Values.newRelic.apiKey | quote }}
+        - name: NR_BASE_URL
+          value: {{ .Values.newRelic.baseUrl | quote }}
+        - name: LOG_PATH
+          value: {{ .Values.fluentd.logPath | quote }}
+        - name: SERVICE
+          value: {{ .Values.populationService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+      - name: discovery-agent
+        image: {{ .Values.discoveryAgent.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: MASTER_NODE
+          value: {{ include "grpc.discoveryService" .}}
+        - name: LOG_PATH
+          value: {{  printf "%s/%s-discovery.log" .Values.fluentd.logPath .Values.populationService.host }}
+        - name: SERVICE_URL
+          value: {{ include "grpc.populationService" .}}
+        - name: SERVICE_NAME
+          value: {{ .Values.populationService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+      - name: {{ .Values.populationService.host }}
         image: {{ .Values.populationService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.populationService.port }}
+        - containerPort: {{ .Values.populationService.port  }}
         - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
@@ -57,5 +101,15 @@ spec:
             value: "0.0.0.0"
           - name: PORT
             value: {{ .Values.populationService.port | quote }}
-          - name: REGISTER_AS
-            value: {{ include "grpc.populationService" . }}
+          - name: METRICS_PORT
+            value: {{ .Values.metricsPort | quote }}
+          - name: LOG_PATH
+            value: {{  printf "%s/%s.log" .Values.fluentd.logPath .Values.populationService.host }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+    volumes:
+    - name: logs
+      hostPath:
+        path: {{ .Values.fluentd.logPath }}
+          

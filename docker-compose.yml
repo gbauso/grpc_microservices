@@ -16,7 +16,7 @@ services:
       - logs:${LOG_PATH}
     environment: 
       - ASPNETCORE_URLS=http://+:80
-      - Logging__Path=${LOG_PATH}/grpc-gateway.log
+      - Logging__Path=${LOG_PATH}/grpc-gateway-{0}.log
       - DiscoveryService__Url=discovery-master:${DISCOVERY_GRPC_PORT}
       - DiscoveryService__Timeout=60
     depends_on:
@@ -60,7 +60,7 @@ services:
     ports:
       -  5000:${DISCOVERY_GRPC_PORT}
     environment:
-      - LOG_PATH=${LOG_PATH}/discovery-master.log
+      - LOG_PATH=${LOG_PATH}/discovery-master-%s.log
       - PORT=${DISCOVERY_GRPC_PORT}
       - DB_PATH=master/adapter/database/sqlite.db
 
@@ -94,7 +94,7 @@ services:
     ports: 
      - 5011:${POPULATION_GRPC_PORT}
     environment: 
-      - LOG_PATH=${LOG_PATH}/population.log
+      - LOG_PATH=${LOG_PATH}/population-{}.log
       - PORT=${POPULATION_GRPC_PORT}
       - HOST=0.0.0.0
       - METRICS_PORT=${POPULATION_METRICS_PORT}
@@ -120,7 +120,7 @@ services:
       - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
       - SERVICE_NAME=population
       - SERVICE_URL=population:${POPULATION_GRPC_PORT}
-      - LOG_PATH=${LOG_PATH}/population-discovery.log
+      - LOG_PATH=${LOG_PATH}/population-discovery-%s.log
     volumes:
       - logs:${LOG_PATH}
   
@@ -179,7 +179,7 @@ services:
       - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
       - SERVICE_NAME=weather
       - SERVICE_URL=weather:${WEATHER_GRPC_PORT}
-      - LOG_PATH=${LOG_PATH}/weather-discovery.log
+      - LOG_PATH=${LOG_PATH}/weather-discovery-%s.log
     depends_on:
       - weather
     volumes:
@@ -215,7 +215,7 @@ services:
     ports: 
      - 5013:${NEARBY_CITIES_GRPC_PORT}
     environment: 
-      - LOG_PATH=${LOG_PATH}/nearby-cities.log
+      - LOG_PATH=${LOG_PATH}/nearby-cities-{id}.log
       - PORT=${NEARBY_CITIES_GRPC_PORT}
       - HOST=0.0.0.0
       - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
@@ -241,7 +241,7 @@ services:
       - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
       - SERVICE_NAME=nearby-cities
       - SERVICE_URL=nearby-cities:${NEARBY_CITIES_GRPC_PORT}
-      - LOG_PATH=${LOG_PATH}/nearby-cities-discovery.log
+      - LOG_PATH=${LOG_PATH}/nearby-cities-discovery-%s.log
     volumes:
       - logs:${LOG_PATH}
   

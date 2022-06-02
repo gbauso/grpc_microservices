@@ -5,7 +5,11 @@ domain: localhost
 
 newRelic: 
   baseUrl: 
-  apiKey:
+  apiKey: 
+
+fluentd:
+  image: msexp/fluentd-nr
+  logPath: /tmp/logs
 
 grpcGateway:
   replicaCount: 2

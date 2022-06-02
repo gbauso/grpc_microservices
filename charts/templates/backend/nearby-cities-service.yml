@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.nearbyCitiesService.namespace }}
+  namespace: {{ .Values.nearbyCitiesService.namespace | quote }}
   {{ end }}
   name: {{ .Values.nearbyCitiesService.host }}
   labels:
@@ -39,11 +39,55 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
+      - name: logger
+        image: {{ .Values.fluentd.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: NR_API_KEY
+          value: {{ .Values.newRelic.apiKey | quote }}
+        - name: NR_BASE_URL
+          value: {{ .Values.newRelic.baseUrl | quote }}
+        - name: LOG_PATH
+          value: {{ .Values.fluentd.logPath | quote }}
+        - name: SERVICE
+          value: {{ .Values.nearbyCitiesService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+      - name: discovery-agent
+        image: {{ .Values.discoveryAgent.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: MASTER_NODE
+          value: {{ include "grpc.discoveryService" .}}
+        - name: LOG_PATH
+          value: {{  printf "%s/%s-discovery.log" .Values.fluentd.logPath .Values.nearbyCitiesService.host }}
+        - name: SERVICE_URL
+          value: {{ include "grpc.nearbyCitiesService" .}}
+        - name: SERVICE_NAME
+          value: {{ .Values.nearbyCitiesService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
       - name: {{ .Values.nearbyCitiesService.host }}
         image: {{ .Values.nearbyCitiesService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.nearbyCitiesService.port }}
+        - containerPort: {{ .Values.nearbyCitiesService.port  }}
         - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
@@ -59,5 +103,13 @@ spec:
             value: {{ .Values.nearbyCitiesService.port | quote }}
           - name: METRICS_PORT
             value: {{ .Values.metricsPort | quote }}
-          - name: REGISTER_AS
-            value: {{ include "grpc.nearbyCitiesService" . }}
+          - name: LOG_PATH
+            value: {{  printf "%s/%s.log" .Values.fluentd.logPath .Values.nearbyCitiesService.host }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+    volumes:
+    - name: logs
+      hostPath:
+        path: {{ .Values.fluentd.logPath }}
+          

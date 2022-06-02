@@ -74,48 +74,6 @@ annotations:
     prometheus.io/port: 3000
 {{- end }}
 
-{{ - define "grpc.sideCar" --}}
-{{- $serviceName := index . 0 }}
-- name: logger
-	image: {{ .Values.fluentd.image }}
-	imagePullPolicy: {{ .Values.pullPolicy }}
-	resources:
-  	limits:
-    	cpu: "300m"
-    	memory: "400Mi"
-  	requests:
-    	cpu: "200m"
-    	memory: "200Mi"
-	env:
-  	- name: NR_API_KEY
-    	value: {{ .Values.newRelic.apiKey | quote }}
-  	- name: NR_BASE_URL
-    	value: {{ .Values.newRelic.baseURL | quote }}
-		- name: LOG_PATH
-    	value: {{ .Values.fluentd.logPath | quote }}
-  	- name: SERVICE
-    	value: {{ $serviceName | quote }}
-- name: discovery-agent
-	image: {{ .Values.discoveryAgent.image }}
-	imagePullPolicy: {{ .Values.pullPolicy }}
-	resources:
-  	limits:
-    	cpu: "300m"
-    	memory: "400Mi"
-  	requests:
-    	cpu: "200m"
-    	memory: "200Mi"
-	env:
-  	- name: MASTER_NODE
-    	value: {{ include "grpc.discoveryService" }}
-  	- name: NR_BASE_URL
-    	value: {{ .Values.newRelic.baseURL | quote }}
-		- name: LOG_PATH
-    	value: {{ .Values.fluentd.logPath | quote }}
-  	- name: SERVICE
-    	value: {{ $service | quote }}
-{{- end }}
-
 {{- define "grpc.weatherService" -}}
 {{- if .Values.weatherService.namespace }}
 {{- printf "%s.%s" .Values.weatherService.host .Values.weatherService.namespace }}

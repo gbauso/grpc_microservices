@@ -1,5 +1,6 @@
 import { singleton } from 'tsyringe';
 import { transports, createLogger, format} from 'winston';
+import { Guid } from "typescript-guid";
 
 import { Logger } from './logger';
 
@@ -8,11 +9,14 @@ export class MixedLogger implements Logger {
  private logger: Logger | undefined;
 
   constructor() {
+    const fileName = (process.env.LOGGER_PATH || '/tmp/nearby-cities-{id}.log')
+                        .replace("{id}", Guid.create().toString())
+
     this.logger = createLogger({
       format: format.combine(format.timestamp({alias: 'time'}), format.json()),
       transports: [
         new transports.Console(),
-        new transports.File({ filename: process.env.LOGGER_PATH || '/tmp/nearby-cities.log' })
+        new transports.File({ filename: fileName })
       ]
     });
   }

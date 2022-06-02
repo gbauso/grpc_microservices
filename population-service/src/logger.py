@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 import logging
 import os
 import json
+import uuid
 
 
 class Logger(object):
@@ -18,8 +19,10 @@ class Logger(object):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
+        fileName = os.getenv('LOG_PATH', '/tmp/population-{}.log').format(str(uuid.uuid4()))
+        
         loggingStreamHandler = logging.StreamHandler()
-        loggingStreamHandler = logging.FileHandler(os.getenv('LOG_PATH', '/tmp/population.log'),mode='a')
+        loggingStreamHandler = logging.FileHandler(fileName,mode='a')
         loggingStreamHandler.setFormatter(JSONFormatter())
         self.logger.addHandler(loggingStreamHandler)
 

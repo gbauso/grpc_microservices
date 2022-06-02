@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"os"
 
@@ -19,14 +20,16 @@ var (
 	masterNodeUrl = flag.String("master-node", "", "The master node url")
 	serviceUrl    = flag.String("service-url", "", "The service url")
 	service       = flag.String("service", "", "The service name")
-	logPath       = flag.String("log-path", "/tmp/discovery_agent.log", "Log path")
+	logPath       = flag.String("log-path", "/tmp/discovery_agent-%.log", "Log path")
 )
 
 func main() {
 	log := logger.New()
+	id, _ := uuid.NewV4()
 	log.SetFormatter(&logger.JSONFormatter{})
 	flag.Parse()
-	f, err := os.OpenFile(*logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	fileName := fmt.Sprintf(*logPath, id)
+	f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Errorf("error opening file: %v", err)
 		panic(err)
@@ -52,7 +55,6 @@ func main() {
 	}
 	defer masterConn.Close()
 
-	id, _ := uuid.NewV4()
 	svc := entity.NewService(*serviceUrl, *service, id.String())
 
 	discoveryClient := client.NewDiscoveryClient(masterConn)

@@ -2,12 +2,12 @@ apiVersion: v1
 kind: Service
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.weatherService.namespace }}
+  namespace: {{ .Values.discoveryService.namespace }}
   {{ end }}
   name: {{ .Values.weatherService.host }} 
 spec:
   ports:
-  - name: grpc
+  - name: http2
     targetPort: {{ .Values.weatherService.port }} 
     port: {{ .Values.weatherService.port }} 
   {{ include "grpc.metrics" .}}
@@ -18,9 +18,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   {{- if not .Values.isOkteto }}
-  namespace: {{ .Values.weatherService.namespace }}
+  namespace: {{ .Values.weatherService.namespace | quote }}
   {{ end }}
-  name: weather       
+  name: {{ .Values.weatherService.host }}
   labels:
     app.kubernetes.io/component: {{ .Values.weatherService.host }}
 spec:
@@ -39,11 +39,55 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
+      - name: logger
+        image: {{ .Values.fluentd.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: NR_API_KEY
+          value: {{ .Values.newRelic.apiKey | quote }}
+        - name: NR_BASE_URL
+          value: {{ .Values.newRelic.baseUrl | quote }}
+        - name: LOG_PATH
+          value: {{ .Values.fluentd.logPath | quote }}
+        - name: SERVICE
+          value: {{ .Values.weatherService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+      - name: discovery-agent
+        image: {{ .Values.discoveryAgent.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: MASTER_NODE
+          value: {{ include "grpc.discoveryService" .}}
+        - name: LOG_PATH
+          value: {{  printf "%s/%s-discovery.log" .Values.fluentd.logPath .Values.weatherService.host }}
+        - name: SERVICE_URL
+          value: {{ include "grpc.weatherService" .}}
+        - name: SERVICE_NAME
+          value: {{ .Values.weatherService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
       - name: {{ .Values.weatherService.host }}
         image: {{ .Values.weatherService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.weatherService.port }}
+        - containerPort: {{ .Values.weatherService.port  }}
         - containerPort: {{ .Values.metricsPort }} 
         resources:
           limits:
@@ -59,7 +103,14 @@ spec:
             value: {{ .Values.weatherService.port | quote }}
           - name: METRICS_PORT
             value: {{ .Values.metricsPort | quote }}
-          - name: REGISTER_AS
-            value: {{ include "grpc.weatherService" . }}
+          - name: LOG_PATH
+            value: {{  printf "%s/%s.log" .Values.fluentd.logPath .Values.weatherService.host }}
           - name: OPENWEATHER_APP_ID
             value: {{ .Values.weatherService.openWeatherId | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+    volumes:
+    - name: logs
+      hostPath:
+        path: {{ .Values.fluentd.logPath }}
