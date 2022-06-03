@@ -79,6 +79,28 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
+      - name: logger
+        image: {{ .Values.fluentd.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: NR_API_KEY
+          value: {{ .Values.newRelic.apiKey | quote }}
+        - name: NR_BASE_URL
+          value: {{ .Values.newRelic.baseUrl | quote }}
+        - name: LOG_PATH
+          value: {{ .Values.fluentd.logPath | quote }}
+        - name: SERVICE
+          value: {{ .Values.grpcGateway.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
       - name: {{ .Values.grpcGateway.host }} 
         image: {{ .Values.grpcGateway.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
@@ -97,7 +119,14 @@ spec:
             value: "http://+:{{ .Values.grpcGateway.port }}"
           - name: DiscoveryService__Url
             value: "{{ include "grpc.discoveryService" . }}:{{ .Values.discoveryService.port }}"
-          - name: Logging__Tag
-            value: {{ .Values.grpcGateway.host | quote }}
           - name: Metrics__Port
             value: {{ .Values.metricsPort | quote }}
+          - name: Logging__Path
+            value: {{  printf "%s/%s-{0}.log" .Values.fluentd.logPath .Values.grpcGateway.host }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+    volumes:
+    - name: logs
+      hostPath:
+        path: {{ .Values.fluentd.logPath }}

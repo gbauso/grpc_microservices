@@ -53,4 +53,23 @@ spec:
             cpu: "200m"
             memory: "200Mi"
         env:
-          - name: 
+          - name: HOST
+            value: "0.0.0.0"
+          - name: PORT
+            value: {{ .Values.discoveryService.port | quote }}
+          - name: LOG_PATH
+            value: {{  printf "%s/%s-%s.log" .Values.fluentd.logPath .Values.discoveryService.host "%s" }}
+          - name: DB_PATH
+            value: /app/master/adapter/database/sqlite.db
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+          - name: db
+            mountPath: /app/master/adapter/database
+    volumes:
+    - name: database
+      hostPath:
+        path: /app/master/adapter/database
+    - name: logs
+      hostPath:
+        path: {{ .Values.fluentd.logPath }}

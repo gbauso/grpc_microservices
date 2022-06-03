@@ -75,7 +75,7 @@ spec:
         - name: MASTER_NODE
           value: {{ include "grpc.discoveryService" .}}
         - name: LOG_PATH
-          value: {{  printf "%s/%s-discovery.log" .Values.fluentd.logPath .Values.populationService.host }}
+          value: {{  printf "%s/%s-discovery-%s.log" .Values.fluentd.logPath .Values.populationService.host "%s" }}
         - name: SERVICE_URL
           value: {{ include "grpc.populationService" .}}
         - name: SERVICE_NAME
@@ -104,7 +104,7 @@ spec:
           - name: METRICS_PORT
             value: {{ .Values.metricsPort | quote }}
           - name: LOG_PATH
-            value: {{  printf "%s/%s.log" .Values.fluentd.logPath .Values.populationService.host }}
+            value: {{  printf "%s/%s-{}.log" .Values.fluentd.logPath .Values.populationService.host }}
         volumeMounts:
           - name: logs
             mountPath: {{ .Values.fluentd.logPath }}

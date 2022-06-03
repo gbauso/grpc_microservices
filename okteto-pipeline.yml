@@ -1,2 +1,2 @@
 deploy:
-  - helm upgrade --install grpc charts --set weatherService.openWeatherId=${OPENWEATHER_ID}
+  - helm upgrade --install grpc charts --set weatherService.openWeatherId=${OPENWEATHER_ID} --set newRelic.apiKey=${NR_API_KEY} --set newRelic.baseUrl=${NR_BASE_URL}
