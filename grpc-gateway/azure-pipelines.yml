@@ -5,7 +5,7 @@ trigger:
     - master
   paths: 
     include:
-    - api-gateway/*
+    - grpc-gateway/*
 
 pool:
   vmImage: 'ubuntu-latest'
