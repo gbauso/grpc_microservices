@@ -1,4 +1,15 @@
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pv-claim
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.discoveryService.host }} 
@@ -68,8 +79,8 @@ spec:
             mountPath: /app/master/adapter/database
       volumes:
       - name: database
-        hostPath:
-          path: /app/master/adapter/database
+        persistentVolumeClaim:
+            claimName: db-pv-claimlogs
       - name: logs
-        hostPath:
-          path: {{ .Values.fluentd.logPath }}
+        persistentVolumeClaim:
+            claimName: logs-pv-claimlogs

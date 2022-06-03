@@ -110,6 +110,6 @@ spec:
             mountPath: {{ .Values.fluentd.logPath }}
       volumes:
       - name: logs
-        hostPath:
-          path: {{ .Values.fluentd.logPath }}
+        persistentVolumeClaim:
+            claimName: logs-pv-claimlogs
           
