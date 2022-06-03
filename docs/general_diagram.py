@@ -1,36 +1,43 @@
-from diagrams import Cluster, Diagram
+from turtle import width
+from diagrams import Cluster, Diagram, Edge
 from diagrams.programming.language import Go, Csharp, Python, NodeJS, Kotlin
 from diagrams.onprem.aggregator import Fluentd
 from diagrams.onprem.monitoring import Prometheus
 from diagrams.generic.database import SQL
 from diagrams.saas.alerting import Newrelic
+from diagrams.onprem.client import Client
+import types
 
-with Diagram("Service", show=True):
-    gateway = Csharp("GRPC Gateway") 
-    discovery_master = Go("Discovery Master")
-    sqllite = SQL("Sqlite")
+graph_attr = {
+    "bgcolor": "transparent"
+}
+
+with Diagram("Service", show=True, direction= "TB", graph_attr=graph_attr):
+    
     new_relic = Newrelic("Logging")
-    
-    with Cluster("Population Service"):
-        population = Python("Population")
-        Prometheus("Metrics") >> population
-        new_relic << Fluentd("Log Ingestion") >> population
-        discovery_master << Go("Discovery Agent") >> population
 
-    with Cluster("Nearby Cities Service"):
-        nearby_cities = NodeJS("Nearby Cities")
-        Prometheus("Metrics") >> nearby_cities
-        new_relic << Fluentd("Log Ingestion") >> nearby_cities
-        discovery_master << Go("Discovery Agent") >> nearby_cities
+    with Cluster("Discovery Master"):
+        discovery_master = Go("Discovery Master")
+        sqllite = SQL("Sqlite")
+        discovery_master >> sqllite >> discovery_master
+        new_relic << Edge(color="darkgreen", style="dashed") << Fluentd("Log Ingestion") >> Edge(color="darkgreen") >> discovery_master
 
-    with Cluster("Weather Service"):
-        weather = Kotlin("Weather")
-        Prometheus("Metrics") >> weather
-        new_relic << Fluentd("Log Ingestion") >> weather
-        discovery_master << Go("Discovery Agent") >> weather
-    
+    with Cluster("Gateway"):
+        gateway = Csharp("GRPC Gateway") 
+        Prometheus("Metrics") >> gateway
+        new_relic << Edge(color="darkgreen", style="dashed") << Fluentd("Log Ingestion") >> Edge(color="darkgreen") >> gateway
+        gateway >> Edge(color="red", style="bold") >> discovery_master
+
+
     with Cluster("Backend"):
-        [weather, nearby_cities, population] << gateway
+        services = [types.SimpleNamespace(name = 'Population', language = Python), 
+                    types.SimpleNamespace(name = 'Nearby Cities', language = NodeJS), 
+                    types.SimpleNamespace(name = 'Weather', language = Kotlin)]
 
-    gateway >> discovery_master >> gateway 
-    discovery_master >> sqllite >> discovery_master
+        for svc in services:
+            with Cluster("{} Service".format(svc.name)):
+                service = svc.language("Grpc Server")        
+                Prometheus("Metrics") >> service
+                new_relic << Edge(color="darkgreen", style="dashed") << Fluentd("Log Ingestion") >> Edge(color="darkgreen") >> service
+                discovery_master << Edge(color="purple", style="dashed") << Go("Discovery Agent") >> Edge(color="purple") >> service
+                service << Edge(color="red", style="dashed") << gateway
