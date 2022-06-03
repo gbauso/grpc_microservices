@@ -9,7 +9,7 @@ newRelic:
 
 fluentd:
   image: msexp/fluentd-nr
-  logPath: /tmp/logs
+  logPath: /dev/logs
 
 grpcGateway:
   replicaCount: 2
