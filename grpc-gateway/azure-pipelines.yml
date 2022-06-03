@@ -23,7 +23,7 @@ stages:
             containerRegistry: $(RegistryConnection)
             repository: $(Repository)
             command: 'buildAndPush'
-            Dockerfile: '**/api-gateway/Dockerfile'
+            Dockerfile: '**/grpc-gateway/Dockerfile'
             tags: |
               0.0.$(Build.BuildId)
               latest
