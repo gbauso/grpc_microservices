@@ -5,7 +5,7 @@ trigger:
     - master
   paths: 
     include:
-    - api-gateway/*
+    - nearby-cities-service/*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -14,16 +14,30 @@ stages:
   - stage: 'Build'
     jobs:
       - job: 'BuildDockerImage'
-        displayName: 'Build docker image'
+        displayName: 'Build master docker image'
         steps:
         - checkout: self
           submodules: true
         - task: Docker@2
           inputs:
             containerRegistry: $(RegistryConnection)
-            repository: $(Repository)
+            repository: $(Repository)-master
             command: 'buildAndPush'
-            Dockerfile: '**/api-gateway/Dockerfile'
+            Dockerfile: '**/discovery-service/Dockerfile.master'
+            tags: |
+              0.0.$(Build.BuildId)
+              latest
+      - job: 'BuildDockerImage'
+        displayName: 'Build agent docker image'
+        steps:
+        - checkout: self
+          submodules: true
+        - task: Docker@2
+          inputs:
+            containerRegistry: $(RegistryConnection)
+            repository: $(Repository)-agent
+            command: 'buildAndPush'
+            Dockerfile: '**/discovery-service/Dockerfile.agent'
             tags: |
               0.0.$(Build.BuildId)
               latest
@@ -109,7 +123,7 @@ stages:
   #           kubernetesServiceEndpoint: $(K8sServiceEndpoint)
   #           namespace: $(Namespace)
   #           command: 'set'
-  #           arguments: 'image deployment/api api=$(Repository):0.0.$(Build.BuildId)'
+  #           arguments: 'image deployment/nearby-cities nearby-cities=$(Repository):0.0.$(Build.BuildId)'
   #           secretType: 'dockerRegistry'
   #           containerRegistryType: 'Azure Container Registry'
   #           outputFormat: 'yaml'
