@@ -23,7 +23,7 @@ discoveryService:
   host: discovery
   port: 5650
   namespace:
-  image: msexp/discovery-service
+  image: msexp/discovery-service-master
 
 discoveryAgent:
   image: msexp/discovery-service-agent
