@@ -13,7 +13,7 @@ pool:
 stages:
   - stage: 'Build'
     jobs:
-      - job: 'BuildDockerImage'
+      - job: 'BuildMasterDockerImage'
         displayName: 'Build master docker image'
         steps:
         - checkout: self
@@ -27,7 +27,7 @@ stages:
             tags: |
               0.0.$(Build.BuildId)
               latest
-      - job: 'BuildDockerImage'
+      - job: 'BuildAgentDockerImage'
         displayName: 'Build agent docker image'
         steps:
         - checkout: self
