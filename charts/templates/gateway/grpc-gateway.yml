@@ -126,7 +126,7 @@ spec:
         volumeMounts:
           - name: logs
             mountPath: {{ .Values.fluentd.logPath }}
-    volumes:
-    - name: logs
-      hostPath:
-        path: {{ .Values.fluentd.logPath }}
+      volumes:
+      - name: logs
+        hostPath:
+          path: {{ .Values.fluentd.logPath }}

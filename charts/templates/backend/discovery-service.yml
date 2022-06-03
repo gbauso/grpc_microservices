@@ -66,10 +66,10 @@ spec:
             mountPath: {{ .Values.fluentd.logPath }}
           - name: db
             mountPath: /app/master/adapter/database
-    volumes:
-    - name: database
-      hostPath:
-        path: /app/master/adapter/database
-    - name: logs
-      hostPath:
-        path: {{ .Values.fluentd.logPath }}
+      volumes:
+      - name: database
+        hostPath:
+          path: /app/master/adapter/database
+      - name: logs
+        hostPath:
+          path: {{ .Values.fluentd.logPath }}
