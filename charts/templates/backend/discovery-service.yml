@@ -4,7 +4,7 @@ metadata:
   name: db-pv-claim
 spec:
   accessModes:
-  - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
@@ -78,9 +78,9 @@ spec:
           - name: db
             mountPath: /app/master/adapter/database
       volumes:
-      - name: database
+      - name: db
         persistentVolumeClaim:
-            claimName: db-pv-claimlogs
+            claimName: db-pv-claim
       - name: logs
         persistentVolumeClaim:
-            claimName: logs-pv-claimlogs
+            claimName: logs-pv-claim

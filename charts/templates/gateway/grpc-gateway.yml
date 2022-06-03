@@ -129,4 +129,4 @@ spec:
       volumes:
       - name: logs
         persistentVolumeClaim:
-            claimName: logs-pv-claimlogs
+            claimName: logs-pv-claim
