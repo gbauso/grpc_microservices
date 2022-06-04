@@ -71,12 +71,12 @@ spec:
           - name: LOG_PATH
             value: {{  printf "%s/%s-%s.log" .Values.fluentd.logPath .Values.discoveryService.host "%s" }}
           - name: DB_PATH
-            value: /app/master/adapter/database/sqlite.db
+            value: /tmp/database/sqlite.db
         volumeMounts:
           - name: logs
             mountPath: {{ .Values.fluentd.logPath }}
           - name: db
-            mountPath: /app/master/adapter/database
+            mountPath: /tmp/database
       volumes:
       - name: db
         persistentVolumeClaim:
