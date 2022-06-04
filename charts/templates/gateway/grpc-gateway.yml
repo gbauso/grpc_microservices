@@ -50,7 +50,7 @@ metadata:
   {{ end }}
 spec:
   ports:
-  - name: http
+  - name: http2
     targetPort: {{ .Values.grpcGateway.port }} 
     port: {{ .Values.grpcGateway.port }} 
   {{ include "grpc.metrics" .}}
