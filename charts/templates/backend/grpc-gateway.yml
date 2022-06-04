@@ -76,6 +76,8 @@ spec:
             value: "http://+:{{ .Values.grpcGateway.port }}"
           - name: DiscoveryService__Url
             value: "{{ include "grpc.discoveryService" . }}:{{ .Values.discoveryService.port }}"
+          - name: DiscoveryService__Timeout
+            value: 60
           - name: Metrics__Port
             value: {{ .Values.metricsPort | quote }}
           - name: Logging__Path
