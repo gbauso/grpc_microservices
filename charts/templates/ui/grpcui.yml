@@ -91,4 +91,4 @@ spec:
             memory: "200Mi"
         env:
           - name: GRPCUI_SERVER
-            value: {{ include "grpc.gateway"}}
+            value: {{ include "grpc.gateway" .}}
