@@ -12,7 +12,7 @@ fluentd:
   logPath: /dev/logs
 
 grpcUi:
-  host: grpcUi
+  host: grpc-ui
   port: 8080
   namespace: 
   image: wongnai/grpcui
