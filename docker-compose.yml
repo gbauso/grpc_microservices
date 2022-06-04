@@ -62,7 +62,7 @@ services:
     environment:
       - LOG_PATH=${LOG_PATH}/discovery-master-%s.log
       - PORT=${DISCOVERY_GRPC_PORT}
-      - DB_PATH=master/adapter/database/sqlite.db
+      - DB_PATH=/tmp/sqlite.db
 
   fluentd-discovery-master:
     image: msexp/fluentd-nr:latest

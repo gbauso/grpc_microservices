@@ -41,89 +41,121 @@ stages:
             tags: |
               0.0.$(Build.BuildId)
               latest
-  # - stage: 'TerraformK8s'
-  #   jobs:
-  #     - job: 'Deploy'
-  #       variables:
-  #         - group: 'Terraform'
-  #       displayName: 'Provision Infrastructure and Deploy'
-  #       steps: 
-  #       - task: Kubernetes@1
-  #         displayName: 'Login k8s'
-  #         inputs:
-  #           connectionType: 'Kubernetes Service Connection'
-  #           kubernetesServiceEndpoint: $(K8sServiceEndpoint)
-  #           namespace: $(Namespace)
-  #           command: 'login'
-  #       - task: file-creator@6
-  #         displayName: 'Create backend config file'
-  #         inputs:
-  #           filepath: '$(Build.Repository.LocalPath)/terraform/backend.hcl.json'
-  #           filecontent: |
-  #             {
-  #               "workspaces": [
-  #                 {
-  #                   "name": "$(TERRAFORM_WORKSPACE)"
-  #                 }
-  #               ],
-  #               "hostname": "app.terraform.io",
-  #               "token": "$(TERRAFORM_TOKEN)",
-  #               "organization": "$(TERRAFORM_ORG)"
-  #             }
-  #           verbose: true
-  #       - task: file-creator@6
-  #         displayName: 'Create var file'
-  #         inputs:
-  #           filepath: '$(Build.Repository.LocalPath)/terraform/vars.tfvars'
-  #           filecontent: |
-  #             openweather_api_key="$(OPENWEATHER_API_KEY)"
-  #             charts_path="$(Build.Repository.LocalPath)/charts"
-  #             k8s_config_path="$(KUBECONFIG)"
-  #             k8s_namespace="$(NAMESPACE)"
-  #             aws_key="$(AWS_ACCESS_KEY_ID)"
-  #             aws_secret="$(AWS_SECRET_ACCESS_KEY)"
-  #             aws_region="$(AWS_DEFAULT_REGION)"
-  #           verbose: true
-  #       - task: TerraformInstaller@0
-  #         inputs:
-  #           terraformVersion: '0.13.6'
-  #       - task: TerraformCLI@0
-  #         displayName: 'Init'
-  #         inputs:
-  #           command: 'init'
-  #           workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-  #           commandOptions: '-backend-config=$(System.DefaultWorkingDirectory)/terraform/backend.hcl.json'
-  #           backendType: 'selfConfigured'
-  #           allowTelemetryCollection: false
-  #       - task: TerraformCLI@0
-  #         displayName: 'Plan'
-  #         inputs:
-  #           command: 'plan'
-  #           workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-  #           commandOptions: '-out=tf.plan -var-file=$(Build.Repository.LocalPath)/terraform/vars.tfvars'
-  #           allowTelemetryCollection: false
-  #           publishPlanResults: 'tf'
-  #       - task: TerraformCLI@0
-  #         displayName: 'Validate'
-  #         inputs:
-  #           command: 'validate'
-  #           workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-  #           allowTelemetryCollection: false
-  #       - task: TerraformCLI@0
-  #         displayName: 'Apply'
-  #         inputs:
-  #           command: 'apply'
-  #           workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-  #           commandOptions: '-input=false -auto-approve tf.plan'
-  #           allowTelemetryCollection: false
-  #       - task: Kubernetes@1
-  #         displayName: 'Deploy to k8s'
-  #         inputs:
-  #           connectionType: 'Kubernetes Service Connection'
-  #           kubernetesServiceEndpoint: $(K8sServiceEndpoint)
-  #           namespace: $(Namespace)
-  #           command: 'set'
-  #           arguments: 'image deployment/nearby-cities nearby-cities=$(Repository):0.0.$(Build.BuildId)'
-  #           secretType: 'dockerRegistry'
-  #           containerRegistryType: 'Azure Container Registry'
-  #           outputFormat: 'yaml'
+  - stage: 'TerraformK8s'
+    jobs:
+      - job: 'Deploy'
+        variables:
+          - group: 'Terraform'
+        displayName: 'Provision Infrastructure and Deploy'
+        steps: 
+        - task: Kubernetes@1
+          displayName: 'Login k8s'
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'login'
+        - task: file-creator@6
+          displayName: 'Create backend config file'
+          inputs:
+            filepath: '$(Build.Repository.LocalPath)/terraform/backend.hcl.json'
+            filecontent: |
+              {
+                "workspaces": [
+                  {
+                    "name": "$(TERRAFORM_WORKSPACE)"
+                  }
+                ],
+                "hostname": "app.terraform.io",
+                "token": "$(TERRAFORM_TOKEN)",
+                "organization": "$(TERRAFORM_ORG)"
+              }
+            verbose: true
+        - task: file-creator@6
+          displayName: 'Create var file'
+          inputs:
+            filepath: '$(Build.Repository.LocalPath)/terraform/vars.tfvars'
+            filecontent: |
+              openweather_api_key="$(OPENWEATHER_API_KEY)"
+              charts_path="$(Build.Repository.LocalPath)/charts"
+              k8s_config_path="$(KUBECONFIG)"
+              k8s_namespace="$(NAMESPACE)"
+              new_relic_api_key="$(NR_API_KEY)"
+              new_relic_base_url="$(NR_BASE_URL)"
+            verbose: true
+        - task: TerraformInstaller@0
+          inputs:
+            terraformVersion: '0.13.6'
+        - task: TerraformCLI@0
+          displayName: 'Init'
+          inputs:
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            commandOptions: '-backend-config=$(System.DefaultWorkingDirectory)/terraform/backend.hcl.json'
+            backendType: 'selfConfigured'
+            allowTelemetryCollection: false
+        - task: TerraformCLI@0
+          displayName: 'Plan'
+          inputs:
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            commandOptions: '-out=tf.plan -var-file=$(Build.Repository.LocalPath)/terraform/vars.tfvars'
+            allowTelemetryCollection: false
+            publishPlanResults: 'tf'
+        - task: TerraformCLI@0
+          displayName: 'Validate'
+          inputs:
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            allowTelemetryCollection: false
+        - task: TerraformCLI@0
+          displayName: 'Apply'
+          inputs:
+            command: 'apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            commandOptions: '-input=false -auto-approve tf.plan'
+            allowTelemetryCollection: false
+        - task: Kubernetes@1
+          displayName: 'Deploy to k8s'
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'set'
+            arguments: 'image deployment/discovery discovery=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'
+        - task: Kubernetes@1
+          displayName: 'Deploy to k8s'
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'set'
+            arguments: 'image deployment/nearby-cities discovery-agent=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'
+        - task: Kubernetes@1
+          displayName: 'Deploy to k8s'
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'set'
+            arguments: 'image deployment/population discovery-agent=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'
+        - task: Kubernetes@1
+          displayName: 'Deploy to k8s'
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: $(K8sServiceEndpoint)
+            namespace: $(Namespace)
+            command: 'set'
+            arguments: 'image deployment/weather discovery-agent=$(Repository):0.0.$(Build.BuildId)'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            outputFormat: 'yaml'

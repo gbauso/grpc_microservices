@@ -47,7 +47,6 @@ metadata:
   {{ if .Values.isOkteto }}
   annotations:
     dev.okteto.com/auto-ingress: "true"
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
   {{ end }}
 spec:
   ports:

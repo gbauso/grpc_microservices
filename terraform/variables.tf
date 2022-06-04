@@ -14,15 +14,10 @@ variable "k8s_namespace" {
   type = string
 }
 
-variable "aws_key" {
+variable "new_relic_api_key" {
   type = string
 }
 
-variable "aws_secret" {
+variable "new_relic_base_url" {
   type = string
-}
-
-variable "aws_region" {
-  type = string
-  default = "us-east-2"
 }
