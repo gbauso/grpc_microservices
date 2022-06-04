@@ -15,7 +15,7 @@ grpcUi:
   host: grpc-ui
   port: 8080
   namespace: 
-  image: wongnai/grpcui
+  image: wongnai/grpcui:latest
 
 grpcGateway:
   replicaCount: 2
