@@ -12,4 +12,5 @@ COPY . .
 
 RUN go build ./master/cmd/main.go 
 
-CMD ./main --port $PORT --log-path $LOG_PATH --db-path $DB_PATH
+CMD cp -n ./master/adapter/database/sqlite.db $DB_PATH \
+    && ./main --port $PORT --log-path $LOG_PATH --db-path $DB_PATH
