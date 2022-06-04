@@ -77,6 +77,7 @@ spec:
         app: {{ .Values.grpcUi.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      containers:
       - name: {{ .Values.grpcUi.host }} 
         image: {{ .Values.grpcUi.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
@@ -91,4 +92,4 @@ spec:
             memory: "200Mi"
         env:
           - name: GRPCUI_SERVER
-            value: {{ include "grpc.gateway" .}}
+            value: {{ include "grpc.gateway" .}}:{{ .Values.grpcGateway.port }} 
