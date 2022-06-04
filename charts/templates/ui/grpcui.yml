@@ -92,4 +92,4 @@ spec:
             memory: "200Mi"
         env:
           - name: GRPCUI_SERVER
-            value: {{ include "grpc.discoveryService" .}}:{{ .Values.discoveryService.port }} 
+            value: {{ include "grpc.gateway" .}}:{{ .Values.grpcGateway.port }} 
