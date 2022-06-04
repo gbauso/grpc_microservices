@@ -2,6 +2,15 @@ version: '3.5'
 
 services:
 
+  # UI
+
+  ui:
+    image: wongnai/grpcui
+    ports:
+      - 8080:8080
+    environment: 
+      - GRPCUI_SERVER=gateway:80
+
   # gRPC Gateway
 
   gateway:

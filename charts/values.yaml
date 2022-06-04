@@ -11,11 +11,17 @@ fluentd:
   image: msexp/fluentd-nr
   logPath: /dev/logs
 
+grpcUi:
+  host: grpcUi
+  port: 8080
+  namespace: 
+  image: wongnai/grpcui
+
 grpcGateway:
   replicaCount: 2
   host: grpc-gateway
   port: 5600
-  namespace: gateway
+  namespace: 
   image: msexp/grpc-gateway
 
 discoveryService:
