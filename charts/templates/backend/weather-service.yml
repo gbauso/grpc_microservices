@@ -110,6 +110,14 @@ spec:
         volumeMounts:
           - name: logs
             mountPath: {{ .Values.fluentd.logPath }}
+        readinessProbe:
+          exec:
+            command: ["/grpc_health_probe", {{ printf "-addr=:%v" .Values.weatherService.port | quote }}]
+          initialDelaySeconds: 5
+        livenessProbe:
+          exec:
+            command: ["/grpc_health_probe", {{ printf "-addr=:%v" .Values.weatherService.port | quote }}]
+          initialDelaySeconds: 10
       volumes:
       - name: logs
         persistentVolumeClaim:
