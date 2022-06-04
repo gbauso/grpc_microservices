@@ -1,9 +1,6 @@
 [submodule "discovery-service/contract"]
 	path = discovery-service/contract
 	url = https://github.com/gbauso/contract
-[submodule "api-gateway/contract"]
-	path = api-gateway/contract
-	url = https://github.com/gbauso/contract
 [submodule "nearby-cities-service/contract"]
 	path = nearby-cities-service/contract
 	url = https://github.com/gbauso/contract
@@ -13,6 +10,7 @@
 [submodule "weather-service/contract"]
 	path = weather-service/contract
 	url = https://github.com/gbauso/contract
-[submodule "lib/Utils.Grpc.Mediator/contract"]
-	path = lib/Utils.Grpc.Mediator/contract
+[submodule "grpc-gateway/contract"]
+	path = grpc-gateway/contract
 	url = https://github.com/gbauso/contract
+

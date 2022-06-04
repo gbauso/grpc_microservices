@@ -1,0 +1,132 @@
+{{- if not .Values.isOkteto }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ .Values.grpcGateway.host }}-gateway
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.grpcGateway.namespace }}
+  {{ end }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "api.{{ .Values.domain }}"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.grpcGateway.namespace }}
+  {{ end }}
+  name: {{ .Values.grpcGateway.host }}
+spec:
+  hosts:
+  - "api.{{ .Values.domain }}"
+  gateways:
+  - {{ .Values.grpcGateway.host }}-gateway
+  http:
+  - route:
+    - destination:
+        host: {{ .Values.grpcGateway.host }}
+        port:
+          number: {{ .Values.grpcGateway.port }}
+---
+{{ end }}
+apiVersion: v1
+kind: Service
+metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.grpcGateway.namespace }}
+  {{ end }}
+  name: {{ .Values.grpcGateway.host }} 
+  {{ if .Values.isOkteto }}
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+  {{ end }}
+spec:
+  ports:
+  - name: http2
+    targetPort: {{ .Values.grpcGateway.port }} 
+    port: {{ .Values.grpcGateway.port }} 
+  {{ include "grpc.metrics" .}}
+  selector:
+    app: {{ .Values.grpcGateway.host }} 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- if not .Values.isOkteto }}
+  namespace: {{ .Values.grpcGateway.namespace }}
+  {{ end }}
+  name: {{ .Values.grpcGateway.host }}
+  labels:
+    app.kubernetes.io/component: {{ .Values.grpcGateway.host }} 
+spec:
+  replicas: {{ .Values.grpcGateway.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.grpcGateway.host }} 
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.grpcGateway.host }} 
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: logger
+        image: {{ .Values.fluentd.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: NR_API_KEY
+          value: {{ .Values.newRelic.apiKey | quote }}
+        - name: NR_BASE_URL
+          value: {{ .Values.newRelic.baseUrl | quote }}
+        - name: LOG_PATH
+          value: {{ .Values.fluentd.logPath | quote }}
+        - name: SERVICE
+          value: {{ .Values.grpcGateway.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+      - name: {{ .Values.grpcGateway.host }} 
+        image: {{ .Values.grpcGateway.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.grpcGateway.port }}
+        - containerPort: {{ .Values.metricsPort }} 
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+          - name: ASPNETCORE_URLS
+            value: "http://+:{{ .Values.grpcGateway.port }}"
+          - name: DiscoveryService__Url
+            value: "{{ include "grpc.discoveryService" . }}:{{ .Values.discoveryService.port }}"
+          - name: Metrics__Port
+            value: {{ .Values.metricsPort | quote }}
+          - name: Logging__Path
+            value: {{  printf "%s/%s-{0}.log" .Values.fluentd.logPath .Values.grpcGateway.host }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+      volumes:
+      - name: logs
+        persistentVolumeClaim:
+            claimName: logs-pv-claim

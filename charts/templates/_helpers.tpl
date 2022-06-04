@@ -61,30 +61,6 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "grpc.initContainers" -}}
-{{- if not .Values.isOkteto }}
-initContainers:
-      - name: check-rabbitmq-ready
-        image: busybox
-        command: [ 'sh', '-c',
-            'until wget http://{{ .Values.rabbitmq.user }}:{{ .Values.rabbitmq.password }}@{{ include "grpc.rabbitmq" . }}:15672/api/aliveness-test/%2F;
-            do echo waiting for rabbitmq; sleep 2; done;' ]
-        resources:
-            limits:
-              cpu: "50m"
-              memory: "100Mi"
-      - name: check-elk-ready
-        image: busybox
-        command: [ 'sh', '-c',
-            'until wget http://{{ include "grpc.elastic" . }}:{{ .Values.elastic.port }};
-            do echo waiting for {{ include "grpc.elastic" . }}; sleep 2; done;' ]
-        resources:
-            limits:
-              cpu: "50m"
-              memory: "100Mi"
-{{- end }}
-{{- end }}
-
 {{- define "grpc.metrics" -}}
 - name: metrics
     targetPort: {{ .Values.metricsPort }} 
@@ -96,38 +72,6 @@ annotations:
     prometheus.io/scrape: true   
     prometheus.io/path: /metrics 
     prometheus.io/port: 3000
-{{- end }}
-
-{{- define "grpc.rabbitmq" -}}
-{{- if .Values.rabbitmq.namespace }}
-{{- printf "%s.%s" .Values.rabbitmq.host .Values.rabbitmq.namespace }}
-{{- else }}
-{{- .Values.rabbitmq.host }}
-{{- end }}
-{{- end }}
-
-{{- define "grpc.pgsql" -}}
-{{- if .Values.pgsql.namespace }}
-{{- printf "Username=%s;Password=%s;Host=%s.%s;Port=%d;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.namespace .Values.pgsql.port .Values.pgsql.database }}
-{{- else }}
-{{- printf "Username=%s;Password=%s;Host=%s;Port=%d;Database=%s" .Values.pgsql.user .Values.pgsql.password .Values.pgsql.host .Values.pgsql.port .Values.pgsql.database }}
-{{- end }}
-{{- end }}
-
-{{- define "grpc.fluentd" -}}
-{{- if .Values.fluentd.namespace }}
-{{- printf "%s.%s" .Values.fluentd.host .Values.fluentd.namespace }}
-{{- else }}
-{{- .Values.fluentd.host }}
-{{- end }}
-{{- end }}
-
-{{- define "grpc.elastic" -}}
-{{- if .Values.elastic.namespace }}
-{{- printf "%s.%s" .Values.elastic.host .Values.elastic.namespace }}
-{{- else }}
-{{- .Values.elastic.host }}
-{{- end }}
 {{- end }}
 
 {{- define "grpc.weatherService" -}}

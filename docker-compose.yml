@@ -1,0 +1,269 @@
+version: '3.5'
+
+services:
+
+  # gRPC Gateway
+
+  gateway:
+    image: msexp/gateway:latest
+    build: 
+      context: ./grpc-gateway
+    restart: always
+    env_file: .env
+    ports: 
+      - 5002:80
+    volumes:
+      - logs:${LOG_PATH}
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+      - Logging__Path=${LOG_PATH}/grpc-gateway-{0}.log
+      - DiscoveryService__Url=discovery-master:${DISCOVERY_GRPC_PORT}
+      - DiscoveryService__Timeout=60
+    depends_on:
+      - fluentd-gateway
+    healthcheck:
+      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:80"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      
+  fluentd-gateway:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=grpc-gateway
+    volumes:
+      - logs:${LOG_PATH}
+    healthcheck:
+      test: curl --fail http://localhost:8888 || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Discovery Service - Master
+
+  discovery-master: 
+    image: msexp/discovery-master:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.master
+    restart: always
+    env_file: .env
+    volumes:
+      - logs:${LOG_PATH}
+    ports:
+      -  5000:${DISCOVERY_GRPC_PORT}
+    environment:
+      - LOG_PATH=${LOG_PATH}/discovery-master-%s.log
+      - PORT=${DISCOVERY_GRPC_PORT}
+      - DB_PATH=/tmp/sqlite.db
+
+  fluentd-discovery-master:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=discovery-master
+    volumes:
+      - logs:${LOG_PATH}
+    healthcheck:
+      test: curl --fail http://localhost:8888 || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Population Service
+
+  population:
+    image: msexp/population:latest
+    build: 
+      context: ./population-service
+    restart: always
+    env_file: .env
+    ports: 
+     - 5011:${POPULATION_GRPC_PORT}
+    environment: 
+      - LOG_PATH=${LOG_PATH}/population-{}.log
+      - PORT=${POPULATION_GRPC_PORT}
+      - HOST=0.0.0.0
+      - METRICS_PORT=${POPULATION_METRICS_PORT}
+    volumes:
+      - logs:${LOG_PATH}
+    depends_on:
+      - fluentd-population
+    healthcheck:
+      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${POPULATION_GRPC_PORT}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+  
+  discovery-agent-population: 
+    image: msexp/discovery-agent:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.agent
+    env_file: .env
+    depends_on:
+      - population
+    environment:
+      - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
+      - SERVICE_NAME=population
+      - SERVICE_URL=population:${POPULATION_GRPC_PORT}
+      - LOG_PATH=${LOG_PATH}/population-discovery-%s.log
+    volumes:
+      - logs:${LOG_PATH}
+  
+  fluentd-population:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=population
+    volumes:
+      - logs:${LOG_PATH}
+    healthcheck:
+      test: curl --fail http://localhost:8888 || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Weather Service
+
+  weather:
+    image: msexp/weather:latest
+    build: 
+      context: ./weather-service
+    restart: always
+    env_file: .env
+    ports: 
+     - 5012:${WEATHER_GRPC_PORT}
+    environment: 
+      - LOG_PATH=${LOG_PATH}/weather.log
+      - PORT=${WEATHER_GRPC_PORT}
+      - OPENWEATHER_APP_ID=${OPENWEATHER_APP_ID}
+      - HOST=0.0.0.0
+      - METRICS_PORT=${WEATHER_METRICS_PORT}
+    volumes:
+      - logs:${LOG_PATH}
+    depends_on:
+      - fluentd-weather
+    healthcheck:
+      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${WEATHER_GRPC_PORT}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+  
+  discovery-agent-weather: 
+    image: msexp/discovery-agent:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.agent
+    env_file: .env
+    environment:
+      - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
+      - SERVICE_NAME=weather
+      - SERVICE_URL=weather:${WEATHER_GRPC_PORT}
+      - LOG_PATH=${LOG_PATH}/weather-discovery-%s.log
+    depends_on:
+      - weather
+    volumes:
+      - logs:${LOG_PATH}
+  
+  fluentd-weather:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=weather
+    volumes:
+      - logs:${LOG_PATH}
+    healthcheck:
+      test: curl --fail http://localhost:8888 || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Nearby Cities Service
+
+  nearby-cities:
+    image: msexp/nearby-cities:latest
+    build: 
+      context: ./nearby-cities-service
+    restart: always
+    env_file: .env
+    ports: 
+     - 5013:${NEARBY_CITIES_GRPC_PORT}
+    environment: 
+      - LOG_PATH=${LOG_PATH}/nearby-cities-{id}.log
+      - PORT=${NEARBY_CITIES_GRPC_PORT}
+      - HOST=0.0.0.0
+      - METRICS_PORT=${NEARBY_CITIES_METRICS_PORT}
+    volumes:
+      - logs:${LOG_PATH}
+    depends_on:
+      - fluentd-nearby-cities
+    healthcheck:
+      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${NEARBY_CITIES_GRPC_PORT}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+  
+  discovery-agent-nearby-cities: 
+    image: msexp/discovery-agent:latest
+    build: 
+      context: ./discovery-service
+      dockerfile: Dockerfile.agent
+    env_file: .env
+    depends_on:
+      - nearby-cities
+    environment:
+      - MASTER_NODE=discovery-master:${DISCOVERY_GRPC_PORT}
+      - SERVICE_NAME=nearby-cities
+      - SERVICE_URL=nearby-cities:${NEARBY_CITIES_GRPC_PORT}
+      - LOG_PATH=${LOG_PATH}/nearby-cities-discovery-%s.log
+    volumes:
+      - logs:${LOG_PATH}
+  
+  fluentd-nearby-cities:
+    image: msexp/fluentd-nr:latest
+    build: 
+      context: ./infra/fluentd
+    restart: always
+    env_file: .env
+    environment:
+      - NR_API_KEY=${NR_API_KEY}
+      - NR_BASE_URL=${NR_BASE_URL}
+      - LOG_PATH=${LOG_PATH}
+      - SERVICE=nearby-cities
+    volumes:
+      - logs:${LOG_PATH}
+    healthcheck:
+      test: curl --fail http://localhost:8888 || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  logs:
+    external: false

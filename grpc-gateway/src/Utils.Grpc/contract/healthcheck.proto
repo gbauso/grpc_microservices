@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package healthcheck;
+
+service HealthCheckService {
+    rpc GetStatus (Empty) returns (PingResponse) {}
+}
+
+message Empty {
+}
+
+message PingResponse {
+    string response = 1;
+}

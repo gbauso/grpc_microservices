@@ -3,12 +3,20 @@ metricsPort: 3000
 pullPolicy: IfNotPresent
 domain: localhost
 
-apiGateway:
+newRelic: 
+  baseUrl: 
+  apiKey: 
+
+fluentd:
+  image: msexp/fluentd-nr
+  logPath: /tmp/logs
+
+grpcGateway:
   replicaCount: 2
-  host: api
+  host: grpc-gateway
   port: 5600
-  namespace: api
-  image: msexp/api-gateway
+  namespace: gateway
+  image: msexp/grpc-gateway
 
 discoveryService:
   replicaCount: 2
@@ -39,40 +47,7 @@ nearbyCitiesService:
   namespace: backend
   image: msexp/nearby-cities-service
 
-pgsql:
-  host: postgres
-  image: postgres:12-alpine
-  port: 5432
-  user: admin
-  password: Secr3t
-  database: discovery
-  ssl: false
-  namespace: infra
-
-fluentd:
-  image: msexp/fluentd:k8s
-  host: fluentd
-  port: 24224
-  namespace: infra
-
-elastic:
-  image: blacktop/elastic-stack
-  host: elasticsearch
-  kibanaPort: 80
-  port: 9200
-  namespace: infra
-  
-rabbitmq:
-  image: rabbitmq:3.8-management-alpine
-  host: rabbitmq
-  port: 5672
-  namespace: infra
-  adminPort: 15672
-  user: admin
-  password: Secr3t
-  ssl: false
-
-prometheus:
+pprometheus:
   image: prom/prometheus:v2.23.0
   host: prom
   port: 9090

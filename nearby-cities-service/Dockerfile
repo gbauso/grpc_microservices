@@ -1,11 +1,11 @@
 # Our first stage, that is the Builder
-FROM node:12-alpine AS build
+FROM node:14-buster-slim AS build
 WORKDIR /app
 COPY . .
 RUN yarn install
 RUN yarn build
 
-FROM node:12-alpine AS runtime
+FROM node:14-buster-slim AS runtime
 WORKDIR /app
 COPY --from=build ./app/build ./dist
 COPY --from=build ./app/contract ./dist/contract

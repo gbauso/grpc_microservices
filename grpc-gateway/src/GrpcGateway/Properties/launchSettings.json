@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "GrpcService1": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5248;https://localhost:7248",
+      "dotnetRunMessages": true
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "launchUrl": "https://localhost:7248",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5248;https://localhost:7248"
+      },
+      "distributionName": "Ubuntu-20.04"
+    }
+  }
+}

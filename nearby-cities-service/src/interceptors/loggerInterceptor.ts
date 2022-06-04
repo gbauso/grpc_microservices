@@ -7,7 +7,7 @@ export class LoggerInterceptor implements Interceptor {
   constructor(@inject('Logger') private logger: Logger) { }
 
     intercept = async (ctx: any, next: any, error: any) => {
-      const metadata = ctx.call.metadata._internal_repr;
+      const metadata = ctx.call.metadata.internalRepr;
 
       const service = metadata?.service ? metadata.service[0] : 'undefined';
       const rpc = metadata?.rpc ? metadata.rpc[0] : 'undefined';
@@ -17,8 +17,8 @@ export class LoggerInterceptor implements Interceptor {
       try {
         await next();
         this.logger.info(`Request for /${service}/${rpc} FINISHED`, metadata);
-      } catch (err) {
-        this.logger.error(`Request /${service}/${rpc} FAILED`, err.stack);
+      } catch {
+        this.logger.error(`Request /${service}/${rpc} FAILED`, error);
       }
     }
 }

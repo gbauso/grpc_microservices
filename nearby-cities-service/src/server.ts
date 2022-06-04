@@ -1,18 +1,18 @@
-import { Server, ServerCredentials } from 'grpc';
+import { Server, ServerCredentials } from '@grpc/grpc-js';
 import { injectable, inject } from 'tsyringe';
 import { ServiceDefinition } from './service/serviceDefinition';
 import { Logger } from './util/logging/logger';
-import { AutoDiscovery } from './discovery/autodiscovery';
 import { Interceptor } from './interceptors/interceptor';
 import { NearbyCitiesService } from './service/nearbycitiesService';
-import { serverProxy } from '@pionerlabs/grpc-interceptors';
+import wrapServerWithReflection from 'grpc-node-server-reflection';
+import {serverProxy} from '@coozzy/node-grpc-interceptors'
+import { HealthImplementation, service as svc, ServingStatus } from '@zcong/node-grpc-health-check'
+
 
 @injectable()
 export class GrpcServer {
   constructor(@inject('NearbyCitiesService')
                     private nearbyCitiesService: NearbyCitiesService,
-                @inject('AutoDiscovery')
-                    private autoDiscovery: AutoDiscovery,
                 @inject('Interceptor')
                     private loggerInterceptor: Interceptor,
                 @inject('MetricsInterceptor')
@@ -21,32 +21,42 @@ export class GrpcServer {
                     private logger: Logger) {}
 
   start() : void {
-    const host = process.env.HOST;
-    const port = (process.env.PORT || 0) as number;
+    const host = process.env.HOST || "0.0.0.0";
+    const port = (process.env.PORT || 50060) as number;
 
     const cityinformation = ServiceDefinition.getCityInformation();
-    const healthCheck = ServiceDefinition.getStatusPackage();
 
-    const grpcServer:any = new Server();
-    grpcServer.bind(`${host}:${port}`, ServerCredentials.createInsecure());
+    const service = this.nearbyCitiesService;
 
+    const grpcServer = wrapServerWithReflection(new Server());
+
+    grpcServer.addService(cityinformation.CityService.service,
+      { GetCityInformation: service.getCityInformation });
+    
+    const implementations = new HealthImplementation({
+      'cityinformation.CityService': ServingStatus.SERVING,
+      'grpc.health.v1.Health': ServingStatus.SERVING,
+      'grpc.reflection.v1alpha.ServerReflection': ServingStatus.SERVING
+    })
+
+    grpcServer.addService(svc, implementations);
 
     const server = serverProxy(grpcServer);
     server.use(this.loggerInterceptor.intercept);
     server.use(this.metricsInterceptor.intercept);
-
-    const service = this.nearbyCitiesService;
-    server.addService(cityinformation.CityService.service,
-      { GetCityInformation: service.getCityInformation });
     
-    server.addService(healthCheck.HealthCheckService.service,
-      { GetStatus: (call: any, callback: any) => { callback(null, { response: "pong"}) } });
+    server.bindAsync(`${host}:${port}`, 
+              ServerCredentials.createInsecure(),
+              () => {
+                server.start()
 
-    this.autoDiscovery.registerAutoDiscovery(grpcServer.handlers, port).then();
+                this.logger.info(`Server running on ${host}:${port}`,
+                { host, port });
+              },);
+    
+    process.on('exit', (code) => {
+      implementations.shutdown()
+    });
 
-    server.start();
-
-    this.logger.info(`Server running on ${host}:${port}`,
-      { host, port });
   }
 }

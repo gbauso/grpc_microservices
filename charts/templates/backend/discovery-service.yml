@@ -1,4 +1,15 @@
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.discoveryService.host }} 
@@ -38,8 +49,6 @@ spec:
         app: {{ .Values.discoveryService.host }} 
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      initContainers:
-      {{ include "grpc.initContainers" . }}
       containers:
       - name: {{ .Values.discoveryService.host }} 
         image: {{ .Values.discoveryService.image }}
@@ -55,29 +64,23 @@ spec:
             cpu: "200m"
             memory: "200Mi"
         env:
-          - name: ServiceBus__Username
-            value: {{ .Values.rabbitmq.user | quote }}
-          - name: ServiceBus__Host
-            value: {{ include "grpc.rabbitmq" . }}
-          - name: ServiceBus__Password
-            value: {{ .Values.rabbitmq.password | quote }}
-          - name: ServiceBus__IsSSl
-            value: {{ .Values.rabbitmq.ssl | quote }}
-          - name: ServiceBus__Port
-            value: {{ .Values.rabbitmq.port | quote }}
-          - name: ServiceBus__VirtualHost
-            value: {{ .Values.rabbitmq.vhost | quote }}
-          - name: ConnectionStrings__DiscoveryDbContext
-            value: {{ include "grpc.pgsql" . }}
-          - name: Grpc__Host
+          - name: HOST
             value: "0.0.0.0"
-          - name: Grpc__Port
+          - name: PORT
             value: {{ .Values.discoveryService.port | quote }}
-          - name: Logging__Host
-            value: {{ include "grpc.fluentd" . }}
-          - name: Logging__Port
-            value: {{ .Values.fluentd.port | quote }}
-          - name: Logging__Tag
-            value: "discovery"
-          - name: Metrics__Port
-            value: {{ .Values.metricsPort | quote }}
+          - name: LOG_PATH
+            value: {{  printf "%s/%s-%s.log" .Values.fluentd.logPath .Values.discoveryService.host "%s" }}
+          - name: DB_PATH
+            value: /tmp/database/sqlite.db
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
+          - name: db
+            mountPath: /tmp/database
+      volumes:
+      - name: db
+        persistentVolumeClaim:
+            claimName: db-pv-claim
+      - name: logs
+        persistentVolumeClaim:
+            claimName: logs-pv-claim

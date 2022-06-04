@@ -1,7 +1,7 @@
 import { Interceptor } from "./interceptor";
 import { inject, singleton } from 'tsyringe';
 import { MetricsProvider } from "../util/metrics/metricsProvider";
-import { status } from "grpc";
+import { status } from "@grpc/grpc-js";
 import { $enum } from "ts-enum-util";
 
 @singleton()
@@ -12,7 +12,7 @@ export class MetricsInterceptor implements Interceptor {
     intercept = async (ctx: any, next: any, error: any) => {
         
         const start = Date.now();
-        const metadata = ctx.call.metadata._internal_repr;
+        const metadata = ctx.call.metadata.internalRepr;
 
         const rpc = metadata?.rpc ? metadata.rpc[0] : 'undefined';
 

@@ -68,7 +68,7 @@ data:
           - targets:
               - 'localhost:9090'
               {{- if .Values.isOkteto }}
-              - {{ .Values.apiGateway.host }}:{{ .Values.metricsPort }}
+              - {{ .Values.grpcGateway.host }}:{{ .Values.metricsPort }}
               - {{ .Values.discoveryService.host }}:{{ .Values.metricsPort }}
               - {{ .Values.nearbyCitiesService.host }}:{{ .Values.metricsPort }}
               - {{ .Values.populationService.host }}:{{ .Values.metricsPort }}

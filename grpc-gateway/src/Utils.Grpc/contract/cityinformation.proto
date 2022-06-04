@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package cityinformation;
+
+service CityService {
+    rpc GetCityInformation (SearchRequest) returns (SearchResponse) {}
+}
+
+message SearchRequest {
+  string city = 1;
+  string country = 2;
+  string lat = 3;
+  string lon = 4;
+}
+
+message SearchResponse {
+    string nearbyCities = 1;
+    string population = 2;
+    string weather = 3;
+}
