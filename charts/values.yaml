@@ -14,7 +14,7 @@ fluentd:
 grpcGateway:
   replicaCount: 2
   host: grpc-gateway
-  port: 443
+  port: 80
   namespace: gateway
   image: msexp/grpc-gateway
 
