@@ -77,7 +77,7 @@ spec:
         - name: LOG_PATH
           value: {{  printf "%s/%s-discovery-%s.log" .Values.fluentd.logPath .Values.populationService.host "%s" }}
         - name: SERVICE_URL
-          value: {{ include "grpc.populationService" .}}
+          value: {{ include "grpc.populationService" .}}:{{ .Values.populationService.port }}
         - name: SERVICE_NAME
           value: {{ .Values.populationService.host | quote }}
         volumeMounts:
