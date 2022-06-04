@@ -105,3 +105,11 @@ annotations:
 {{- .Values.nearbyCitiesService.host }}
 {{- end }}
 {{- end }}
+
+{{- define "grpc.gateway" -}}
+{{- if .Values.grpcGateway.namespace }}
+{{- printf "%s.%s" .Values.grpcGateway.host .Values.grpcGateway.namespace }}
+{{- else }}
+{{- .Values.grpcGateway.host }}
+{{- end }}
+{{- end }}
