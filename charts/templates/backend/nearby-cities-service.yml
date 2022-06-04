@@ -73,7 +73,7 @@ spec:
             memory: "200Mi"
         env:
         - name: MASTER_NODE
-          value: {{ include "grpc.discoveryService" .}}
+          value: {{ include "grpc.discoveryService" .}}:{{ .Values.discoveryService.port }}
         - name: LOG_PATH
           value: {{  printf "%s/%s-discovery-%s.log" .Values.fluentd.logPath .Values.nearbyCitiesService.host "%s"}}
         - name: SERVICE_URL
