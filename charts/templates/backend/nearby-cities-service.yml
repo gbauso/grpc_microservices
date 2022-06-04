@@ -83,10 +83,6 @@ spec:
         volumeMounts:
           - name: logs
             mountPath: {{ .Values.fluentd.logPath }}
-        readinessProbe:
-          exec:
-            command: ["/grpc_health_probe", {{ printf "-addr=%s:%v" .Values.nearbyCitiesService.host .Values.nearbyCitiesService.port | quote }}]
-          initialDelaySeconds: 5
       - name: {{ .Values.nearbyCitiesService.host }}
         image: {{ .Values.nearbyCitiesService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
