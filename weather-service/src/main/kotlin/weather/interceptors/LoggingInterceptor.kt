@@ -7,7 +7,7 @@ class LoggingInterceptor(val logger: ILogger) : ServerInterceptor {
 
     override fun <ReqT : Any?, RespT : Any?> interceptCall(call: ServerCall<ReqT, RespT>?, headers: Metadata?, next: ServerCallHandler<ReqT, RespT>?): ServerCall.Listener<ReqT>? {
         val metadata = headers?.asMap()
-        logger.info(String.format("Request for /%s/%s STARTED", metadata?.get("service"), metadata?.get("rpc")),
+        logger.info(String.format("Request for %s STARTED. correlation-id: %s", metadata?.get("rpc"), metadata?.get("correlation-id")),
                 metadata as MutableMap<String, Any>)
 
         return next?.startCall(LoggingForwardingServerCall(call, logger, headers), headers)

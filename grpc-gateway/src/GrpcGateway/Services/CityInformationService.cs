@@ -18,17 +18,42 @@ namespace GrpcGateway.Services
 
         public override async Task<SearchResponse> GetCityInformation(SearchRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Logging", request);
-            var channels = await _channelFactory.GetChannels(CityService.Descriptor.FullName);
+            var serviceName = CityService.Descriptor.FullName;
+            var channels = await _channelFactory.GetChannels(serviceName);
+            var correlationId = Guid.NewGuid().ToString();
+
+            _logger.LogInformation("Request to {method} STARTED with payload: {request}. CorrelationId: {correlationId}", 
+                context.Method, request, correlationId);
 
             var tasks = channels.Select(async channel =>
             {
-                var client = new CityService.CityServiceClient(channel);
+                try
+                {
+                    var client = new CityService.CityServiceClient(channel);
 
-                return await client.GetCityInformationAsync(request).CallWithRetry();
+                    var callOptions = client.GetCallOptions(correlationId, context.Method, channel.ResolvedTarget);
+
+                    _logger.LogInformation("Call to Channel {channel} for {method} STARTED. CorrelationId: {correlationId}", 
+                        channel.ResolvedTarget, context.Method, correlationId);
+                    
+                    return await client.GetCityInformationAsync(request, callOptions).CallWithRetry();
+
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "Call to Channel {channel} for {method} FAILED. CorrelationId: {correlationId}",
+                        channel.ResolvedTarget, context.Method, correlationId);
+                    return new SearchResponse();
+                }
+
             });
 
-            return await tasks.MergeAllResults();
+            var mergedResult = await tasks.MergeAllResults();
+
+            _logger.LogInformation("Request to {Method} FINISHED with payload: {mergedResult}. CorrelationId: {correlationId}",
+                context.Method, mergedResult, correlationId);
+
+            return mergedResult;
         }
     }
 }

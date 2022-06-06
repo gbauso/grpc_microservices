@@ -6,6 +6,7 @@ import (
 
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/domain/entity"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	reflection "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
 )
 
@@ -21,7 +22,9 @@ func (rc *ReflectionClient) GetImplementedServices(svc *entity.Service) ([]strin
 
 	client := reflection.NewServerReflectionClient(rc.conn)
 
-	stream, err := client.ServerReflectionInfo(context.Background())
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "correlation_id", svc.Id)
+
+	stream, err := client.ServerReflectionInfo(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -22,9 +22,11 @@ class Logger(object):
         fileName = os.getenv('LOG_PATH', '/tmp/population-{}.log').format(str(uuid.uuid4()))
         
         loggingStreamHandler = logging.StreamHandler()
-        loggingStreamHandler = logging.FileHandler(fileName,mode='a')
-        loggingStreamHandler.setFormatter(JSONFormatter())
+        loggingFileHandler = logging.FileHandler(fileName,mode='a')
+        loggingFileHandler.setFormatter(JSONFormatter())
+
         self.logger.addHandler(loggingStreamHandler)
+        self.logger.addHandler(loggingFileHandler)
 
     def error(self, message, data):
         self.logger.error(message, data)
