@@ -51,8 +51,7 @@ class CityService(cityinformation_pb2_grpc.CityService):
         cityData = city.City.get_city_opendata(request.city, request.country)
         return cityinformation_pb2.SearchResponse(population=str(cityData['population']))
 
-def serve():
-    logger = Logger.getInstance()
+def serve(logger):
     metrics = Prometheus.getInstance()
     log_interceptor = logging_interceptor.LoggingInterceptor(logger)
     metric_interceptor = metrics_interceptor.MetricsInterceptor(metrics)
@@ -86,5 +85,10 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    load_dotenv()
-    serve()
+    logger = Logger.getInstance()
+    try:
+        load_dotenv()
+        serve(logger)
+    except Exception as e:
+        logger.error("Error during service execution {}".format(e.__cause__), e)
+        raise
