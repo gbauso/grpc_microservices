@@ -8,11 +8,8 @@ from diagrams.saas.alerting import Newrelic
 from diagrams.onprem.client import Client
 import types
 
-graph_attr = {
-    "bgcolor": "transparent",
-}
 
-with Diagram("", show=True, direction= "RL", graph_attr=graph_attr):
+with Diagram("", show=True, direction= "RL"):
     
     new_relic = Newrelic("Logging")
 

@@ -1,0 +1,29 @@
+participant Discovery Agent
+participant Service
+participant Discovery Master
+database:1 SQLite
+
+activate Discovery Agent
+Discovery Agent->Service: gRPC call for ServerReflectionInfo
+activate Service
+Service-->Discovery Agent: Return list of implemented proto files
+deactivate Service
+Discovery Agent->Discovery Master: gRPC call for RegisterService
+activate Discovery Master
+Discovery Master->SQLite: Add implemented service
+Discovery Master-->Discovery Agent: gRPC Status: OK
+deactivate Discovery Master
+Discovery Agent->Service: gRPC call for Health Check for services implemented
+activate Service
+break exception
+Service-->Discovery Agent: gRPC Status: NOT_SERVING
+deactivate Service
+Discovery Agent->Discovery Master: gRPC call for UnregisterService
+activate Discovery Master
+Discovery Master->SQLite: Set IsAlive as False
+Discovery Master-->Discovery Agent: gRPC Status: OK
+deactivate Discovery Master
+Discovery Agent->Discovery Agent: Exit Status 1
+deactivate Discovery Agent
+end
+
