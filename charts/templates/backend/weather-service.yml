@@ -112,5 +112,4 @@ spec:
             mountPath: {{ .Values.fluentd.logPath }}
       volumes:
       - name: logs
-        persistentVolumeClaim:
-            claimName: logs-pv-claim
+        emptyDir: {}

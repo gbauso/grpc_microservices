@@ -33,11 +33,13 @@ In order to prove this concept, a set of tools and languages were chosen:
 
 #### Docker Compose
 
-Before run `docker compose up`, it's necessary creating a `.env` file (copying from `.env.example`) and setting values:
+Before run `docker-compose up`, it's necessary creating a `.env` file (copying from `.env.example`) and setting values:
 
 * NR_BASE_URL -> New Relic logging base URL -> `e.g https://log-api.eu.newrelic.com/log/v1`
 * NR_API_KEY -> New Relic API Key with permissions for logging
 * OPENWEATHER_APP_ID -> Open Weather API KEY (APP ID)
+
+After `run docker compose up` open GRPC-UI on [http(s)://localhost:8080](http://localhost:8080) 
 
 #### Okteto (K8S)
 
@@ -49,11 +51,13 @@ Before deploying to Okteto, you need to create some secrets (`go to Setting -> S
 * NR_API_KEY -> New Relic API Key with permissions for logging
 * OPENWEATHER_ID -> Open Weather API KEY (APP ID)
 
-<!-- #### Kubernetes (With Istio)
+After deploy to okteto open open GRPC-UI on [https://grpc-ui-{yourOktetoUserOrNamespace}.cloud.okteto.net/](https://grpc-ui-{yourOktetoUserOrNamespace}.cloud.okteto.net/)
+
+#### Kubernetes (With Istio)
 
 ##### Requisites
 
-Kubernetes CLI configured, Helm Charts and Istio installed.
+Kubectl configured, Helm Charts and Istio installed.
 
 ###### Windows
 
@@ -75,7 +79,9 @@ You can find a file called `run.sh` and follow the example.
 * OPENWEATHER_ID -> Open Weather API KEY (APP ID)
 * NR_BASE_URL -> New Relic logging base URL -> `e.g https://log-api.eu.newrelic.com/log/v1`
 * NR_API_KEY -> New Relic API Key with permissions for logging
-* INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: 0 or 1 -->
+* INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: 0 or 1
+
+After deploy to k8s open GRPC-UI on [http(s)://ui.{yourDomain}/](http://ui.{yourDomain}/)
 
 ## Development
 
@@ -85,12 +91,12 @@ Start development on this project is simple, fork the project and open it on VSC
 
 ## Todos
 
- - [ ] Finish configuration of Istio
+ - [x] Finish configuration of Istio
  - [ ] Write Unit tests for the services
  - [ ] Unify the logs and improve readability
  - [ ] Move metrics from Prometheus to New Relic
  - [ ] Move from Azure Pipelines to Github Actions
- - [ ] Cover Server Stream, Client Stream and Bidirection on Gateway
+ - [ ] Cover Server Stream, Client Stream and Bidirectional on Gateway
  - [ ] SSL on gRPC servers
 
 

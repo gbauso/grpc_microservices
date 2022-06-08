@@ -12,10 +12,10 @@ fluentd:
   logPath: /tmp/logs
 
 grpcGateway:
-  replicaCount: 2
+  replicaCount: 3
   host: grpc-gateway
   port: 5600
-  namespace: gateway
+  namespace: backend
   image: msexp/grpc-gateway
 
 discoveryService:
@@ -23,7 +23,10 @@ discoveryService:
   host: discovery
   port: 5650
   namespace: backend
-  image: msexp/discovery-service
+  image: msexp/discovery-service-master
+
+discoveryAgent:
+  image: msexp/discovery-service-agent
 
 populationService:
   replicaCount: 3
@@ -47,8 +50,15 @@ nearbyCitiesService:
   namespace: backend
   image: msexp/nearby-cities-service
 
-pprometheus:
+prometheus:
   image: prom/prometheus:v2.23.0
   host: prom
   port: 9090
   namespace: infra
+
+grpcUi:
+  replicaCount: 1
+  host: grpc-ui
+  port: 8080
+  namespace: ui
+  image: wongnai/grpcui:latest
