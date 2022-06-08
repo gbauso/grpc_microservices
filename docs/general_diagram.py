@@ -9,10 +9,10 @@ from diagrams.onprem.client import Client
 import types
 
 graph_attr = {
-    "bgcolor": "transparent"
+    "bgcolor": "transparent",
 }
 
-with Diagram("Service", show=True, direction= "TB", graph_attr=graph_attr):
+with Diagram("", show=True, direction= "RL", graph_attr=graph_attr):
     
     new_relic = Newrelic("Logging")
 
@@ -20,13 +20,12 @@ with Diagram("Service", show=True, direction= "TB", graph_attr=graph_attr):
         discovery_master = Go("Discovery Master")
         sqllite = SQL("Sqlite")
         discovery_master >> sqllite >> discovery_master
-        new_relic << Edge(color="darkgreen", style="dashed") << Fluentd("Log Ingestion") >> Edge(color="darkgreen") >> discovery_master
+        new_relic << Edge(color="darkgreen") << Fluentd("Log Ingestion") >> Edge(color="darkgreen", style="dashed") >> discovery_master
 
     with Cluster("Gateway"):
         gateway = Csharp("GRPC Gateway") 
-        Prometheus("Metrics") >> gateway
-        new_relic << Edge(color="darkgreen", style="dashed") << Fluentd("Log Ingestion") >> Edge(color="darkgreen") >> gateway
-        gateway >> Edge(color="red", style="bold") >> discovery_master
+        new_relic << Edge(color="darkgreen") << Fluentd("Log Ingestion") >> Edge(color="darkgreen", style="dashed") >> gateway
+        gateway >> Edge(color="red", style="dashed") >> discovery_master
 
 
     with Cluster("Backend"):
@@ -36,8 +35,11 @@ with Diagram("Service", show=True, direction= "TB", graph_attr=graph_attr):
 
         for svc in services:
             with Cluster("{} Service".format(svc.name)):
+                logger = Fluentd("Log Ingestion")
+                discovery_agent = Go("Discovery Agent")
                 service = svc.language("Grpc Server")        
                 Prometheus("Metrics") >> service
-                new_relic << Edge(color="darkgreen", style="dashed") << Fluentd("Log Ingestion") >> Edge(color="darkgreen") >> service
-                discovery_master << Edge(color="purple", style="dashed") << Go("Discovery Agent") >> Edge(color="purple") >> service
-                service << Edge(color="red", style="dashed") << gateway
+                new_relic << Edge(color="darkgreen") << logger >> Edge(color="darkgreen", style="dashed") >> service
+                discovery_master << Edge(color="purple", minlen="6") << discovery_agent >> Edge(color="purple", style="dashed") >> service
+                service << Edge(color="red", minlen="5") << gateway
+                logger >> Edge(color="darkgreen", style="dashed") >> discovery_agent
