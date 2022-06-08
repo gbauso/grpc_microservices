@@ -90,7 +90,7 @@ Start development on this project is simple, fork the project and open it on VSC
  - [ ] Unify the logs and improve readability
  - [ ] Move metrics from Prometheus to New Relic
  - [ ] Move from Azure Pipelines to Github Actions
- - [ ] Cover Server Stream, Client Stream and Bidirection on Gateway
+ - [ ] Cover Server Stream, Client Stream and Bidirectional on Gateway
  - [ ] SSL on gRPC servers
 
 
