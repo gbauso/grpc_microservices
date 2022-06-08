@@ -12,6 +12,7 @@ fluentd:
   logPath: /dev/logs
 
 grpcUi:
+  replicaCount: 1
   host: grpc-ui
   port: 8080
   namespace: 

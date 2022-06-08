@@ -1,15 +1,4 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: db-pv-claim
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.discoveryService.host }} 
@@ -50,6 +39,28 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
+      - name: logger
+        image: {{ .Values.fluentd.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "400Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        env:
+        - name: NR_API_KEY
+          value: {{ .Values.newRelic.apiKey | quote }}
+        - name: NR_BASE_URL
+          value: {{ .Values.newRelic.baseUrl | quote }}
+        - name: LOG_PATH
+          value: {{ .Values.fluentd.logPath | quote }}
+        - name: SERVICE
+          value: {{ .Values.discoveryService.host | quote }}
+        volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.fluentd.logPath }}
       - name: {{ .Values.discoveryService.host }} 
         image: {{ .Values.discoveryService.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
@@ -79,8 +90,6 @@ spec:
             mountPath: /tmp/database
       volumes:
       - name: db
-        persistentVolumeClaim:
-            claimName: db-pv-claim
+        emptyDir: {}
       - name: logs
-        persistentVolumeClaim:
-            claimName: logs-pv-claim
+        emptyDir: {}
