@@ -1,0 +1,23 @@
+activate Client
+Client->Gateway: gRPC call for method: {Service}.{Method}
+activate Gateway
+Gateway->Discovery Master:Call Discovery.GetServiceHandlers for {Service}
+activate Discovery Master
+Discovery Master-->Gateway:Return URL of implementations of {Service}
+deactivate Discovery Master
+Gateway->Service A:  gRPC call for method:  {Service}.{Method}
+activate Service A
+Service A-->Gateway: Return piece of the information
+deactivate Service A
+Gateway->Service B:  gRPC call for method: {Service}.{Method}
+activate Service B
+Service B-->Gateway: Return piece of the information
+deactivate Service B
+Gateway->Service Z:  gRPC call for method: {Service}.{Method}
+activate Service Z
+Service Z-->Gateway: Return piece of the information
+deactivate Service Z
+Gateway->Gateway: Merge information
+Gateway-->Client: Retrieve Data
+deactivate Gateway
+deactivate Client
