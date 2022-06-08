@@ -33,9 +33,9 @@ catch {
 }
 
 try {
-    helm upgrade --install -f ./charts/values.istio.yaml grpc charts \
-    --set weatherService.openWeatherId=$open_weather_id \
-    --set newRelic.apiKey=$new_relic_key \
+    helm upgrade --install -f ./charts/values.istio.yaml grpc charts `
+    --set weatherService.openWeatherId=$open_weather_id `
+    --set newRelic.apiKey=$new_relic_key `
     --set newRelic.baseUrl=$new_relic_url
 }
 catch {
