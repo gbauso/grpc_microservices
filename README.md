@@ -39,7 +39,7 @@ Before run `docker-compose up`, it's necessary creating a `.env` file (copying f
 * NR_API_KEY -> New Relic API Key with permissions for logging
 * OPENWEATHER_APP_ID -> Open Weather API KEY (APP ID)
 
-After `run docker compose up` open [GRPC UI](https://localhost:8081) 
+After `run docker compose up` open GRPC-UI on [http(s)://localhost:8080](http(s)://localhost:8080) 
 
 #### Okteto (K8S)
 
@@ -51,7 +51,7 @@ Before deploying to Okteto, you need to create some secrets (`go to Setting -> S
 * NR_API_KEY -> New Relic API Key with permissions for logging
 * OPENWEATHER_ID -> Open Weather API KEY (APP ID)
 
-After deploy to okteto open [https://grpc-ui-{yourOktetoUserOrNamespace}.cloud.okteto.net/](https://grpc-ui-{yourOktetoUserOrNamespace}.cloud.okteto.net/)
+After deploy to okteto open open GRPC-UI on [https://grpc-ui-{yourOktetoUserOrNamespace}.cloud.okteto.net/](https://grpc-ui-{yourOktetoUserOrNamespace}.cloud.okteto.net/)
 
 #### Kubernetes (With Istio)
 
@@ -81,7 +81,7 @@ You can find a file called `run.sh` and follow the example.
 * NR_API_KEY -> New Relic API Key with permissions for logging
 * INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: 0 or 1
 
-After deploy to k8s open [https://ui.{yourDomain}/](https://ui.{yourDomain}/)
+After deploy to k8s open GRPC-UI on [http(s)://ui.{yourDomain}/](http(s)://ui.{yourDomain}/)
 
 ## Development
 
