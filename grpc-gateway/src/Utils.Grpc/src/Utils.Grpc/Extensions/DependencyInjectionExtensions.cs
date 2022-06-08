@@ -20,7 +20,6 @@ namespace Utils.Grpc.Extensions
 
             services.AddScoped<MetricsInterceptor>();
 
-            services.AddSingleton<Operation>();
 
         }
     }

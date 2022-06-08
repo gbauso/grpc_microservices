@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	hc "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/metadata"
 )
 
 type HealthCheckClient struct {
@@ -18,10 +19,10 @@ func NewHealthCheckClient(conn *grpc.ClientConn, log *logrus.Logger) *HealthChec
 	return &HealthCheckClient{conn: conn, log: log}
 }
 
-func (hcClient *HealthCheckClient) WatchService(service string) error {
+func (hcClient *HealthCheckClient) WatchService(service, correlationId string) error {
 	client := hc.NewHealthClient(hcClient.conn)
 
-	ctx := context.Background()
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "correlation_id", correlationId)
 
 	watchClient, err := client.Watch(ctx, &hc.HealthCheckRequest{Service: service})
 	if err != nil {

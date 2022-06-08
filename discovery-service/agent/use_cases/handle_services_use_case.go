@@ -49,7 +49,7 @@ func (uc *HandleServicesUseCase) Execute(service *entity.Service) error {
 	go func() {
 		for _, svc := range service.Services {
 			uc.log.Infof("starting health check on: %s", svc)
-			err := uc.healthCheckClient.WatchService(svc)
+			err := uc.healthCheckClient.WatchService(svc, service.Id)
 			if err != nil {
 				uc.log.Errorf("error when invoke health checking on target service: %v", err)
 				return

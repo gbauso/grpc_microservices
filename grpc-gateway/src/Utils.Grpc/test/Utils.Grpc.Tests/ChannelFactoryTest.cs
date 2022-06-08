@@ -7,6 +7,7 @@ using Utils.Grpc.Factory;
 using Xunit;
 using Utils.Grpc.Extensions;
 using FluentAssertions;
+using Utils.Grpc.Interceptors;
 
 namespace Utils.Grpc.Tests
 {
@@ -14,6 +15,7 @@ namespace Utils.Grpc.Tests
     {
         private bool DiscoveryClientError = false;
         private Mock<IDiscoveryServiceClient> _discoveryServiceClientMock;
+        private Mock<MetricsInterceptor> _metricsInterceptor;
 
         public ChannelFactoryTest()
         {
@@ -27,12 +29,13 @@ namespace Utils.Grpc.Tests
                                     ));
 
             _discoveryServiceClientMock = discoveryClientMock;
+            _metricsInterceptor = new Mock<MetricsInterceptor>();
         }
 
         [Fact]
         public async Task ChannelFactory_Initialize_WhenDiscoveryServiceIsUp_ShoudStoreChannelsInstance()
         {
-            var sut = new ChannelFactory(_discoveryServiceClientMock.Object);
+            var sut = new ChannelFactory(_discoveryServiceClientMock.Object, _metricsInterceptor.Object);
 
             var availableService = AppDomain.CurrentDomain.GetGrpcClients().First().GetServiceName();
 
@@ -44,7 +47,7 @@ namespace Utils.Grpc.Tests
         [Fact]
         public async Task ChannelFactory_Initialize_WhenDiscoveryServiceIsUp_AndChannelNotExists_ShoudCreateANewOne()
         {
-            var sut = new ChannelFactory(_discoveryServiceClientMock.Object);
+            var sut = new ChannelFactory(_discoveryServiceClientMock.Object, _metricsInterceptor.Object);
 
             var availableService = AppDomain.CurrentDomain.GetGrpcClients().First().GetServiceName();
             _discoveryServiceClientMock
@@ -60,7 +63,7 @@ namespace Utils.Grpc.Tests
         public void ChannelFactory_Initialize_WhenDiscoveryServiceIsDown_ShoudThrowAnException()
         {
             DiscoveryClientError = true;
-            Action sut = () => new ChannelFactory(_discoveryServiceClientMock.Object);
+            Action sut = () => new ChannelFactory(_discoveryServiceClientMock.Object, _metricsInterceptor.Object);
 
             sut.Should().Throw<Exception>();
         }

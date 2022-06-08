@@ -7,6 +7,8 @@ using Utils.Grpc.Exceptions;
 using Grpc.Core;
 using Utils.Grpc.Extensions;
 using System.Collections.Concurrent;
+using Utils.Grpc.Interceptors;
+using Grpc.Core.Interceptors;
 
 namespace Utils.Grpc.Factory
 {
@@ -18,11 +20,13 @@ namespace Utils.Grpc.Factory
     {
         private readonly IDiscoveryServiceClient _discoveryServiceClient;
         private readonly IDictionary<string, Channel> _instances;
+        private readonly MetricsInterceptor _metricsInterceptor;
 
-        public ChannelFactory(IDiscoveryServiceClient discoveryServiceClient)
+        public ChannelFactory(IDiscoveryServiceClient discoveryServiceClient, MetricsInterceptor metricsInterceptor)
         {
             _discoveryServiceClient = discoveryServiceClient;
             _instances = new ConcurrentDictionary<string, Channel>();
+            _metricsInterceptor = metricsInterceptor;
             Initialize().Wait();
         }
 
@@ -62,7 +66,10 @@ namespace Utils.Grpc.Factory
         private Channel GetChannel(string handler)
         {
             if (_instances.ContainsKey(handler) && _instances.TryGetValue(handler, out Channel channel))
+            {
+                channel.Intercept(_metricsInterceptor);
                 return channel;
+            }
             else
             {
                 RegisterHandlers(new[] { handler });

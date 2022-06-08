@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcGateway", "src\GrpcGate
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils.Grpc", "src\Utils.Grpc\src\Utils.Grpc\Utils.Grpc.csproj", "{4E2C33D8-278C-467A-8389-BBD4BCFC064C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils.Grpc.Tests", "src\Utils.Grpc\test\Utils.Grpc.Tests\Utils.Grpc.Tests.csproj", "{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{4E2C33D8-278C-467A-8389-BBD4BCFC064C}.Release|x64.Build.0 = Release|Any CPU
 		{4E2C33D8-278C-467A-8389-BBD4BCFC064C}.Release|x86.ActiveCfg = Release|Any CPU
 		{4E2C33D8-278C-467A-8389-BBD4BCFC064C}.Release|x86.Build.0 = Release|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Debug|x64.Build.0 = Debug|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Debug|x86.Build.0 = Debug|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Release|x64.ActiveCfg = Release|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Release|x64.Build.0 = Release|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Release|x86.ActiveCfg = Release|Any CPU
+		{3ABE1BEB-8A7E-40FC-A190-11E09E882E3A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

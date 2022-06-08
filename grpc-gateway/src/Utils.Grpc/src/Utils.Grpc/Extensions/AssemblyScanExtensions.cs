@@ -17,26 +17,6 @@ namespace Utils.Grpc.Extensions
         public static string GetServiceName(this Type client) =>
             client.ReflectedType.GetRuntimeFields().First().GetValue(null).ToString();
 
-        public static bool HasFullContent<Res>(this Res response) where Res : IMessage<Res> =>
-            response.GetType().GetRuntimeFields()
-                .Any(field => field.Name.EndsWith("_") 
-                    && (field.GetValue(response) == null 
-                        || string.IsNullOrEmpty(field.GetValue(response).ToString())));
-
-        public static MethodType GetMethodType<Req, Res>(this Type client) =>
-            ((Method<Req, Res>)client.ReflectedType
-                            .GetRuntimeFields()
-                            .Last().GetValue(null)).Type;
-
-        public static IEnumerable<MethodInfo> GetCallableMethods(this Type client) =>
-            client.GetMethods()
-                    .Where(i => i.Name.EndsWith("Async") && i.GetParameters().Length == 2);
-
-        public static MethodInfo GetMethodByResponse(this IEnumerable<MethodInfo> methods, Type response) =>
-            methods.FirstOrDefault(i =>
-                i.GetParameters().Length == 2 &&
-                (i.ReturnType.FullName?.Contains(response.Name) ?? false));
-
-        public static Type GetResponseType(this MethodInfo method) => method?.ReturnType.GenericTypeArguments[0];
+        
     }
 }
