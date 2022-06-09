@@ -68,7 +68,7 @@ You can find a file called `run.ps1` and follow the example.
 * OPENWEATHER_ID -> Open Weather API KEY (APP ID)
 * NR_BASE_URL -> New Relic logging base URL -> `e.g https://log-api.eu.newrelic.com/log/v1`
 * NR_API_KEY -> New Relic API Key with permissions for logging
-* INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: 0 or 1
+* INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: `0` or `1`
 
 ###### Linux/Mac
 
@@ -79,7 +79,7 @@ You can find a file called `run.sh` and follow the example.
 * OPENWEATHER_ID -> Open Weather API KEY (APP ID)
 * NR_BASE_URL -> New Relic logging base URL -> `e.g https://log-api.eu.newrelic.com/log/v1`
 * NR_API_KEY -> New Relic API Key with permissions for logging
-* INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: 0 or 1
+* INSTALL_ISTIO_ADDONS -> Install Jaeger, Prometheus, Grafana and Kiali -> Values: `true` or `false`
 
 After deploy to k8s open GRPC-UI on [http(s)://ui.{yourDomain}/](http://ui.{yourDomain}/)
 
