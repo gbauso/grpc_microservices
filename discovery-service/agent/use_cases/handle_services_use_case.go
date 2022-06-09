@@ -1,25 +1,22 @@
 package usecases
 
 import (
-	"os"
-	"os/signal"
-
 	"github.com/sirupsen/logrus"
 
-	"github.com/gbauso/grpc_microservices/discoveryservice/agent/adapter/client"
+	"github.com/gbauso/grpc_microservices/discoveryservice/agent/adapter/client/interfaces"
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/domain/entity"
 )
 
 type HandleServicesUseCase struct {
-	reflectionClient  client.ReflectionClient
-	discoveryClient   client.DiscoveryClient
-	healthCheckClient client.HealthCheckClient
+	reflectionClient  interfaces.ReflectionClient
+	discoveryClient   interfaces.DiscoveryClient
+	healthCheckClient interfaces.HealthCheckClient
 	log               *logrus.Logger
 }
 
-func NewHandleServicesUseCase(reflectionClient client.ReflectionClient,
-	discoveryClient client.DiscoveryClient,
-	healthCheckClient client.HealthCheckClient,
+func NewHandleServicesUseCase(reflectionClient interfaces.ReflectionClient,
+	discoveryClient interfaces.DiscoveryClient,
+	healthCheckClient interfaces.HealthCheckClient,
 	log *logrus.Logger) *HandleServicesUseCase {
 
 	return &HandleServicesUseCase{reflectionClient: reflectionClient,
@@ -46,26 +43,23 @@ func (uc *HandleServicesUseCase) Execute(service *entity.Service) error {
 		return err
 	}
 
+	quit := make(chan bool)
+	defer close(quit)
+
 	go func() {
 		for _, svc := range service.Services {
 			uc.log.Infof("starting health check on: %s", svc)
 			err := uc.healthCheckClient.WatchService(svc, service.Id)
 			if err != nil {
-				uc.log.Errorf("error when invoke health checking on target service: %v", err)
-				return
+				uc.log.Errorf("error when invoke health checking on target service %s: %v", svc, err)
 			}
 			uc.log.Infof("finished health check on: %s -> unregistering the service", svc)
 			uc.discoveryClient.UnRegisterService(service)
-			os.Exit(1)
+			quit <- true
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
 	<-quit
-
-	uc.log.Infof("OS exiting sinal received, unregistering the service")
-	uc.discoveryClient.UnRegisterService(service)
 
 	return nil
 }

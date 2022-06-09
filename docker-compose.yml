@@ -71,7 +71,7 @@ services:
     environment:
       - LOG_PATH=${LOG_PATH}/discovery-master-%s.log
       - PORT=${DISCOVERY_GRPC_PORT}
-      - DB_PATH=/tmp/sqlite.db
+      - DB_PATH=/app/master/adapter/database/sqlite.db
 
   fluentd-discovery-master:
     image: msexp/fluentd-nr:latest
@@ -111,11 +111,6 @@ services:
       - logs:${LOG_PATH}
     depends_on:
       - fluentd-population
-    healthcheck:
-      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${POPULATION_GRPC_PORT}"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
   
   discovery-agent-population: 
     image: msexp/discovery-agent:latest
@@ -172,11 +167,6 @@ services:
       - logs:${LOG_PATH}
     depends_on:
       - fluentd-weather
-    healthcheck:
-      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${WEATHER_GRPC_PORT}"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
   
   discovery-agent-weather: 
     image: msexp/discovery-agent:latest
@@ -232,11 +222,6 @@ services:
       - logs:${LOG_PATH}
     depends_on:
       - fluentd-nearby-cities
-    healthcheck:
-      test: ["CMD", "bin/grpc_health_probe-linux-amd64", "-addr=localhost:${NEARBY_CITIES_GRPC_PORT}"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
   
   discovery-agent-nearby-cities: 
     image: msexp/discovery-agent:latest

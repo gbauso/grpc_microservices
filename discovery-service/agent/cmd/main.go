@@ -10,10 +10,14 @@ import (
 
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/adapter/client"
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/adapter/client/interceptors"
+	"github.com/gbauso/grpc_microservices/discoveryservice/agent/adapter/client/interfaces"
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/domain/entity"
 	usecases "github.com/gbauso/grpc_microservices/discoveryservice/agent/use_cases"
+	discovery "github.com/gbauso/grpc_microservices/discoveryservice/grpc_gen"
 	uuid "github.com/nu7hatch/gouuid"
 	"google.golang.org/grpc"
+	hc "google.golang.org/grpc/health/grpc_health_v1"
+	reflection "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
 )
 
 var (
@@ -57,10 +61,14 @@ func main() {
 
 	svc := entity.NewService(*serviceUrl, *service, id.String())
 
-	discoveryClient := client.NewDiscoveryClient(masterConn)
-	healthCheckClient := client.NewHealthCheckClient(serviceConn, log)
-	reflectionClient := client.NewReflectionClient(serviceConn)
+	discoveryGrpcClient := discovery.NewDiscoveryServiceClient(masterConn)
+	healthCheckGrpcClient := hc.NewHealthClient(serviceConn)
+	reflectionGrpcClient := reflection.NewServerReflectionClient(serviceConn)
 
-	useCase := usecases.NewHandleServicesUseCase(*reflectionClient, *discoveryClient, *healthCheckClient, log)
+	var discoveryClient interfaces.DiscoveryClient = client.NewDiscoveryClient(discoveryGrpcClient)
+	var healthCheckClient interfaces.HealthCheckClient = client.NewHealthCheckClient(healthCheckGrpcClient, log)
+	var reflectionClient interfaces.ReflectionClient = client.NewReflectionClient(reflectionGrpcClient)
+
+	useCase := usecases.NewHandleServicesUseCase(reflectionClient, discoveryClient, healthCheckClient, log)
 	useCase.Execute(svc)
 }
