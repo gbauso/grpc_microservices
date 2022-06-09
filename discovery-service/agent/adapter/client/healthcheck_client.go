@@ -27,15 +27,18 @@ func (hcClient *HealthCheckClient) WatchService(service, correlationId string) e
 	}
 
 	waitc := make(chan *hc.HealthCheckResponse)
+	errorStream := make(chan error)
 	defer close(waitc)
+	defer close(errorStream)
 
 	go func() {
 		for {
 			response, err := watchClient.Recv()
-			hcClient.log.Infof("HealthCheck response -> Service: %s -> %#v", service, response)
+			hcClient.log.Infof("HealthCheck response -> Service: %s -> %v", service, response)
 			if (response != nil && response.Status != hc.HealthCheckResponse_SERVING) ||
 				(err != nil && err != io.EOF) {
 				waitc <- response
+				errorStream <- err
 				return
 			}
 		}
@@ -43,5 +46,5 @@ func (hcClient *HealthCheckClient) WatchService(service, correlationId string) e
 
 	<-waitc
 
-	return nil
+	return <-errorStream
 }

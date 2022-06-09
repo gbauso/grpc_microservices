@@ -59,7 +59,7 @@ func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStreamSuccesful_
 			}, nil
 		}
 
-		return nil, errors.New("No message to be received")
+		return nil, errors.New("StreamReceivingError")
 	}
 
 	fake := &FakeServerReflectionClient{SendFn: sendFn, RecvFn: recvFn}
@@ -68,7 +68,7 @@ func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStreamSuccesful_
 	services, err := reflectionClient.GetImplementedServices(svc)
 
 	if services == nil || err != nil {
-		t.Fail()
+		t.Fatal(err)
 	}
 }
 
@@ -86,7 +86,7 @@ func Test_ReflectionClient_GetImplementedServices_FailedStreamSending_ShouldRetu
 	svcs, err := reflectionClient.GetImplementedServices(svc)
 
 	if err == nil || svcs != nil {
-		t.Fail()
+		t.Fatal()
 	}
 }
 
@@ -99,7 +99,7 @@ func Test_ReflectionClient_GetImplementedServices_FailedStreamReceiving_ShouldRe
 	}
 
 	recvFn := func() (*reflection.ServerReflectionResponse, error) {
-		return nil, errors.New("No message to be received")
+		return nil, errors.New("StreamReceivingError")
 	}
 
 	fake := &FakeServerReflectionClient{SendFn: sendFn, RecvFn: recvFn}
@@ -108,6 +108,6 @@ func Test_ReflectionClient_GetImplementedServices_FailedStreamReceiving_ShouldRe
 	svcs, err := reflectionClient.GetImplementedServices(svc)
 
 	if err == nil || svcs != nil {
-		t.Fail()
+		t.Fatal()
 	}
 }
