@@ -21,11 +21,7 @@ func (dc *DiscoveryClient) RegisterService(svc *entity.Service) error {
 			&discovery.RegisterServiceHandlersRequest{Service: svc.Url,
 				ServiceId: svc.Id, Handlers: svc.Services})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (dc *DiscoveryClient) UnRegisterService(svc *entity.Service) error {
@@ -33,9 +29,5 @@ func (dc *DiscoveryClient) UnRegisterService(svc *entity.Service) error {
 		UnregisterService(context.Background(),
 			&discovery.UnregisterServiceRequest{ServiceId: svc.Id})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
