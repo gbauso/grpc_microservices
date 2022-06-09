@@ -27,15 +27,18 @@ func (rc *ReflectionClient) GetImplementedServices(svc *entity.Service) ([]strin
 	}
 
 	waitc := make(chan *reflection.ServerReflectionResponse)
+	streamErrorC := make(chan error)
 	defer close(waitc)
 
 	go func() {
 		for {
 			response, err := stream.Recv()
-			if err != io.EOF {
+			if err != io.EOF && response != nil {
 				waitc <- response
+				streamErrorC <- nil
 			} else {
-				return
+				waitc <- nil
+				streamErrorC <- err
 			}
 		}
 	}()
@@ -46,6 +49,11 @@ func (rc *ReflectionClient) GetImplementedServices(svc *entity.Service) ([]strin
 	}
 	stream.CloseSend()
 	response := <-waitc
+	streamError := <-streamErrorC
+
+	if response == nil {
+		return nil, streamError
+	}
 
 	var services []string
 	for _, service := range response.GetListServicesResponse().Service {

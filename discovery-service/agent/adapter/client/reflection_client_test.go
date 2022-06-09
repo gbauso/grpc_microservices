@@ -40,7 +40,7 @@ func (fake *FakeServerReflectionClient) Recv() (*reflection.ServerReflectionResp
 	return nil, errors.New("FakeServerReflectionClient was not set up with a response - must set fake.RecvFn")
 }
 
-func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStream_ShouldReturnServices(t *testing.T) {
+func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStreamSuccesful_ShouldReturnServices(t *testing.T) {
 	// Arrange
 	svc := entity.NewService("localhost:80", "fake", "id")
 	var requestSent bool = false
@@ -68,6 +68,46 @@ func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStream_ShouldRet
 	services, err := reflectionClient.GetImplementedServices(svc)
 
 	if services == nil || err != nil {
+		t.Fail()
+	}
+}
+
+func Test_ReflectionClient_GetImplementedServices_FailedStreamSending_ShouldReturnError_AndNilServices(t *testing.T) {
+	// Arrange
+	svc := entity.NewService("localhost:80", "fake", "id")
+
+	sendFn := func(request *reflection.ServerReflectionRequest) error {
+		return errors.New("StreamSendingError")
+	}
+
+	fake := &FakeServerReflectionClient{SendFn: sendFn}
+	reflectionClient := NewReflectionClient(fake)
+
+	svcs, err := reflectionClient.GetImplementedServices(svc)
+
+	if err == nil || svcs != nil {
+		t.Fail()
+	}
+}
+
+func Test_ReflectionClient_GetImplementedServices_FailedStreamReceiving_ShouldReturnError_AndNilServices(t *testing.T) {
+	// Arrange
+	svc := entity.NewService("localhost:80", "fake", "id")
+
+	sendFn := func(request *reflection.ServerReflectionRequest) error {
+		return nil
+	}
+
+	recvFn := func() (*reflection.ServerReflectionResponse, error) {
+		return nil, errors.New("No message to be received")
+	}
+
+	fake := &FakeServerReflectionClient{SendFn: sendFn, RecvFn: recvFn}
+	reflectionClient := NewReflectionClient(fake)
+
+	svcs, err := reflectionClient.GetImplementedServices(svc)
+
+	if err == nil || svcs != nil {
 		t.Fail()
 	}
 }
