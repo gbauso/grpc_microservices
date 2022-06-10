@@ -55,7 +55,14 @@ func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStreamSuccesful_
 			return &reflection.ServerReflectionResponse{
 				ValidHost:       "",
 				OriginalRequest: &reflection.ServerReflectionRequest{},
-				MessageResponse: &reflection.ServerReflectionResponse_ListServicesResponse{ListServicesResponse: &reflection.ListServiceResponse{Service: []*reflection.ServiceResponse{&reflection.ServiceResponse{Name: "fake1"}, &reflection.ServiceResponse{Name: "fake2"}}}},
+				MessageResponse: &reflection.ServerReflectionResponse_ListServicesResponse{
+					ListServicesResponse: &reflection.ListServiceResponse{
+						Service: []*reflection.ServiceResponse{
+							{Name: "fake1"},
+							{Name: "fake2"},
+						},
+					},
+				},
 			}, nil
 		}
 

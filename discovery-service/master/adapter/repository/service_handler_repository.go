@@ -21,6 +21,7 @@ func (r *ServiceHandlerRepository) Insert(serviceHandlers ...entity.ServiceHandl
 	for _, serviceHandler := range serviceHandlers {
 		_, err := tx.ExecContext(r.ctx, "INSERT INTO ServiceHandler(Service, InstanceId, Handler, IsAlive) VALUES (?, ?, ?, ?)", serviceHandler.Service, serviceHandler.InstanceId, serviceHandler.Handler, 1)
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 	}
@@ -41,6 +42,7 @@ func (r *ServiceHandlerRepository) Update(serviceHandlers ...entity.ServiceHandl
 			serviceHandler.Service, serviceHandler.Handler, serviceHandler.InstanceId, serviceHandler.IsAlive, serviceHandler.ServiceMethodId)
 
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 	}
@@ -72,8 +74,8 @@ func (r *ServiceHandlerRepository) GetByServiceId(serviceId string) ([]entity.Se
 	return serviceHandlers, nil
 }
 
-func (r *ServiceHandlerRepository) GetAliveServices(service string) ([]string, error) {
-	results, err := r.db.Query("SELECT DISTINCT Service FROM ServiceHandler WHERE Handler = ? AND IsAlive = 1", service)
+func (r *ServiceHandlerRepository) GetAliveServices(handler string) ([]string, error) {
+	results, err := r.db.Query("SELECT DISTINCT Service FROM ServiceHandler WHERE Handler = ? AND IsAlive = 1", handler)
 	if err != nil {
 		return nil, err
 	}
