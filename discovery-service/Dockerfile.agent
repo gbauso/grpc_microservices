@@ -11,7 +11,7 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.4.11 && \
     chmod +x /bin/grpc_health_probe 
 
 COPY . .
-RUN go test -v ./...
+RUN go test ./...
 
 RUN go build ./agent/cmd/main.go 
 

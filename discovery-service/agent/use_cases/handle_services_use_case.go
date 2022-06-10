@@ -56,6 +56,7 @@ func (uc *HandleServicesUseCase) Execute(service *entity.Service) error {
 			uc.log.Infof("finished health check on: %s -> unregistering the service", svc)
 			uc.discoveryClient.UnRegisterService(service)
 			quit <- true
+			return
 		}
 	}()
 
