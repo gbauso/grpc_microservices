@@ -10,34 +10,34 @@ import (
 	reflection "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
 )
 
-type FakeServerReflectionClient struct {
-	SendFn func(*reflection.ServerReflectionRequest) error
-	RecvFn func() (*reflection.ServerReflectionResponse, error)
+type fakeServerReflectionClient struct {
+	sendFn func(*reflection.ServerReflectionRequest) error
+	recvFn func() (*reflection.ServerReflectionResponse, error)
 	grpc.ClientStream
 }
 
-func (fake *FakeServerReflectionClient) ServerReflectionInfo(ctx context.Context, opts ...grpc.CallOption) (reflection.ServerReflection_ServerReflectionInfoClient, error) {
+func (fake *fakeServerReflectionClient) ServerReflectionInfo(ctx context.Context, opts ...grpc.CallOption) (reflection.ServerReflection_ServerReflectionInfoClient, error) {
 	return fake, nil
 }
 
-func (fake *FakeServerReflectionClient) Send(req *reflection.ServerReflectionRequest) error {
-	if fake.SendFn != nil {
-		return fake.SendFn(req)
+func (fake *fakeServerReflectionClient) Send(req *reflection.ServerReflectionRequest) error {
+	if fake.sendFn != nil {
+		return fake.sendFn(req)
 	}
 
-	return errors.New("FakeServerReflectionClient was not set up with a response - must set fake.SendFn")
+	return errors.New("fakeServerReflectionClient was not set up with a response - must set fake.sendFn")
 }
 
-func (fake *FakeServerReflectionClient) CloseSend() error {
+func (fake *fakeServerReflectionClient) CloseSend() error {
 	return nil
 }
 
-func (fake *FakeServerReflectionClient) Recv() (*reflection.ServerReflectionResponse, error) {
-	if fake.SendFn != nil {
-		return fake.RecvFn()
+func (fake *fakeServerReflectionClient) Recv() (*reflection.ServerReflectionResponse, error) {
+	if fake.sendFn != nil {
+		return fake.recvFn()
 	}
 
-	return nil, errors.New("FakeServerReflectionClient was not set up with a response - must set fake.RecvFn")
+	return nil, errors.New("fakeServerReflectionClient was not set up with a response - must set fake.recvFn")
 }
 
 func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStreamSuccesful_ShouldReturnServices(t *testing.T) {
@@ -62,7 +62,7 @@ func Test_ReflectionClient_GetImplementedServices_SendAndReceiveStreamSuccesful_
 		return nil, errors.New("StreamReceivingError")
 	}
 
-	fake := &FakeServerReflectionClient{SendFn: sendFn, RecvFn: recvFn}
+	fake := &fakeServerReflectionClient{sendFn: sendFn, recvFn: recvFn}
 	reflectionClient := NewReflectionClient(fake)
 
 	services, err := reflectionClient.GetImplementedServices(svc)
@@ -80,7 +80,7 @@ func Test_ReflectionClient_GetImplementedServices_FailedStreamSending_ShouldRetu
 		return errors.New("StreamSendingError")
 	}
 
-	fake := &FakeServerReflectionClient{SendFn: sendFn}
+	fake := &fakeServerReflectionClient{sendFn: sendFn}
 	reflectionClient := NewReflectionClient(fake)
 
 	svcs, err := reflectionClient.GetImplementedServices(svc)
@@ -102,7 +102,7 @@ func Test_ReflectionClient_GetImplementedServices_FailedStreamReceiving_ShouldRe
 		return nil, errors.New("StreamReceivingError")
 	}
 
-	fake := &FakeServerReflectionClient{SendFn: sendFn, RecvFn: recvFn}
+	fake := &fakeServerReflectionClient{sendFn: sendFn, recvFn: recvFn}
 	reflectionClient := NewReflectionClient(fake)
 
 	svcs, err := reflectionClient.GetImplementedServices(svc)

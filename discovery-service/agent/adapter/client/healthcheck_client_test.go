@@ -10,12 +10,12 @@ import (
 	hc "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-type FakeHealthCheckClient struct {
-	RecvFn func() (*hc.HealthCheckResponse, error)
+type fakeHealthCheckClient struct {
+	recvFn func() (*hc.HealthCheckResponse, error)
 	grpc.ClientStream
 }
 
-func (fake *FakeHealthCheckClient) Watch(ctx context.Context, in *hc.HealthCheckRequest, opts ...grpc.CallOption) (hc.Health_WatchClient, error) {
+func (fake *fakeHealthCheckClient) Watch(ctx context.Context, in *hc.HealthCheckRequest, opts ...grpc.CallOption) (hc.Health_WatchClient, error) {
 	if in.Service == "error" {
 		return nil, errors.New("StreamSendingError")
 	}
@@ -23,16 +23,16 @@ func (fake *FakeHealthCheckClient) Watch(ctx context.Context, in *hc.HealthCheck
 	return fake, nil
 }
 
-func (fake *FakeHealthCheckClient) Check(ctx context.Context, in *hc.HealthCheckRequest, opts ...grpc.CallOption) (*hc.HealthCheckResponse, error) {
+func (fake *fakeHealthCheckClient) Check(ctx context.Context, in *hc.HealthCheckRequest, opts ...grpc.CallOption) (*hc.HealthCheckResponse, error) {
 	return nil, nil
 }
 
-func (fake *FakeHealthCheckClient) Recv() (*hc.HealthCheckResponse, error) {
-	if fake.RecvFn != nil {
-		return fake.RecvFn()
+func (fake *fakeHealthCheckClient) Recv() (*hc.HealthCheckResponse, error) {
+	if fake.recvFn != nil {
+		return fake.recvFn()
 	}
 
-	return nil, errors.New("FakeHealthCheckClient was not set up with a response - must set fake.RecvFn")
+	return nil, errors.New("fakeHealthCheckClient was not set up with a response - must set fake.recvFn")
 }
 
 func Test_HealthCheckClient_WatchService_SendAndReceiveStreamSuccesfu_ServiceNotServing_ShouldNotReturnError(t *testing.T) {
@@ -41,7 +41,7 @@ func Test_HealthCheckClient_WatchService_SendAndReceiveStreamSuccesfu_ServiceNot
 		return &hc.HealthCheckResponse{Status: hc.HealthCheckResponse_NOT_SERVING}, nil
 	}
 
-	fake := &FakeHealthCheckClient{RecvFn: recvFn}
+	fake := &fakeHealthCheckClient{recvFn: recvFn}
 	healthCheckClient := NewHealthCheckClient(fake, logrus.New())
 
 	// Act
@@ -55,7 +55,7 @@ func Test_HealthCheckClient_WatchService_SendAndReceiveStreamSuccesfu_ServiceNot
 
 func Test_HealthCheckClient_WatchService_FailedStreamSending_ShouldReturnError(t *testing.T) {
 	// Arrange
-	fake := &FakeHealthCheckClient{}
+	fake := &fakeHealthCheckClient{}
 	healthCheckClient := NewHealthCheckClient(fake, logrus.New())
 
 	// Act
@@ -74,7 +74,7 @@ func Test_HealthCheckClient_WatchService_FailedStreamReceiving_ShouldReturnError
 		return nil, errors.New("StreamReceivingError")
 	}
 
-	fake := &FakeHealthCheckClient{RecvFn: recvFn}
+	fake := &fakeHealthCheckClient{recvFn: recvFn}
 	healthCheckClient := NewHealthCheckClient(fake, logrus.New())
 
 	// Act

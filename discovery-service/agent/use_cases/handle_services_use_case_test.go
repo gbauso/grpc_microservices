@@ -8,45 +8,45 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type FakeReflectionClient struct {
-	GetImplementedServicesFn func(svc *entity.Service) ([]string, error)
+type fakeReflectionClient struct {
+	getImplementedServicesFn func(svc *entity.Service) ([]string, error)
 }
 
-func (rc *FakeReflectionClient) GetImplementedServices(svc *entity.Service) ([]string, error) {
-	if rc.GetImplementedServicesFn != nil {
-		return rc.GetImplementedServicesFn(svc)
+func (rc *fakeReflectionClient) GetImplementedServices(svc *entity.Service) ([]string, error) {
+	if rc.getImplementedServicesFn != nil {
+		return rc.getImplementedServicesFn(svc)
 	}
-	return nil, errors.New("FakeReflectionClient was not set up with a response - must set gc.GetImplementedServicesFn")
+	return nil, errors.New("fakeReflectionClient was not set up with a response - must set gc.getImplementedServicesFn")
 }
 
-type FakeHealthCheckClient struct {
+type fakeHealthCheckClient struct {
 	WatchServiceFn func(service, correlationId string) error
 }
 
-func (rc *FakeHealthCheckClient) WatchService(service, correlationId string) error {
+func (rc *fakeHealthCheckClient) WatchService(service, correlationId string) error {
 	if rc.WatchServiceFn != nil {
 		return rc.WatchServiceFn(service, correlationId)
 	}
-	return errors.New("FakeHealthCheckClient was not set up with a response - must set gc.WatchServiceFn")
+	return errors.New("fakeHealthCheckClient was not set up with a response - must set gc.WatchServiceFn")
 }
 
-type FakeDiscoveryClient struct {
+type fakeDiscoveryClient struct {
 	RegisterServiceFn   func(svc *entity.Service) error
 	UnRegisterServiceFn func(svc *entity.Service) error
 }
 
-func (rc *FakeDiscoveryClient) RegisterService(svc *entity.Service) error {
+func (rc *fakeDiscoveryClient) RegisterService(svc *entity.Service) error {
 	if rc.RegisterServiceFn != nil {
 		return rc.RegisterServiceFn(svc)
 	}
-	return errors.New("FakeDiscoveryClient was not set up with a response - must set gc.RegisterServiceFn")
+	return errors.New("fakeDiscoveryClient was not set up with a response - must set gc.RegisterServiceFn")
 }
 
-func (rc *FakeDiscoveryClient) UnRegisterService(svc *entity.Service) error {
+func (rc *fakeDiscoveryClient) UnRegisterService(svc *entity.Service) error {
 	if rc.UnRegisterServiceFn != nil {
 		return rc.UnRegisterServiceFn(svc)
 	}
-	return errors.New("FakeDiscoveryClient was not set up with a response - must set gc.UnRegisterServiceFn")
+	return errors.New("fakeDiscoveryClient was not set up with a response - must set gc.UnRegisterServiceFn")
 }
 
 func Test_HandleServicesUseCase_Execute_WhenHealthCheckReturnsNotServing_ShouldUnregister_AndNotReturnError(t *testing.T) {
@@ -70,9 +70,9 @@ func Test_HandleServicesUseCase_Execute_WhenHealthCheckReturnsNotServing_ShouldU
 		return nil
 	}
 
-	rc := &FakeReflectionClient{GetImplementedServicesFn: implementedServicesFn}
-	hc := &FakeHealthCheckClient{WatchServiceFn: watchServiceFn}
-	dc := &FakeDiscoveryClient{RegisterServiceFn: registerServiceFn, UnRegisterServiceFn: unRegisterServiceFn}
+	rc := &fakeReflectionClient{getImplementedServicesFn: implementedServicesFn}
+	hc := &fakeHealthCheckClient{WatchServiceFn: watchServiceFn}
+	dc := &fakeDiscoveryClient{RegisterServiceFn: registerServiceFn, UnRegisterServiceFn: unRegisterServiceFn}
 
 	// Act
 	useCase := NewHandleServicesUseCase(rc, dc, hc, logrus.New())
@@ -91,9 +91,9 @@ func Test_HandleServicesUseCase_Execute_WhenReflectionClientCallFail_ShouldRetur
 		return nil, errors.New("ReflectionClientError")
 	}
 
-	rc := &FakeReflectionClient{GetImplementedServicesFn: implementedServicesFn}
-	hc := &FakeHealthCheckClient{}
-	dc := &FakeDiscoveryClient{}
+	rc := &fakeReflectionClient{getImplementedServicesFn: implementedServicesFn}
+	hc := &fakeHealthCheckClient{}
+	dc := &fakeDiscoveryClient{}
 
 	// Act
 	useCase := NewHandleServicesUseCase(rc, dc, hc, logrus.New())
@@ -116,9 +116,9 @@ func Test_HandleServicesUseCase_Execute_WhenDiscoveryClientRegisterServiceCallFa
 		return errors.New("DiscoveryClientRegisterServiceError")
 	}
 
-	rc := &FakeReflectionClient{GetImplementedServicesFn: implementedServicesFn}
-	hc := &FakeHealthCheckClient{}
-	dc := &FakeDiscoveryClient{RegisterServiceFn: registerServiceFn}
+	rc := &fakeReflectionClient{getImplementedServicesFn: implementedServicesFn}
+	hc := &fakeHealthCheckClient{}
+	dc := &fakeDiscoveryClient{RegisterServiceFn: registerServiceFn}
 
 	// Act
 	useCase := NewHandleServicesUseCase(rc, dc, hc, logrus.New())
@@ -151,9 +151,9 @@ func Test_HandleServicesUseCase_Execute_WhenHealthCheckWatchCallFail_ShouldUnreg
 		return nil
 	}
 
-	rc := &FakeReflectionClient{GetImplementedServicesFn: implementedServicesFn}
-	hc := &FakeHealthCheckClient{WatchServiceFn: watchServiceFn}
-	dc := &FakeDiscoveryClient{RegisterServiceFn: registerServiceFn, UnRegisterServiceFn: unRegisterServiceFn}
+	rc := &fakeReflectionClient{getImplementedServicesFn: implementedServicesFn}
+	hc := &fakeHealthCheckClient{WatchServiceFn: watchServiceFn}
+	dc := &fakeDiscoveryClient{RegisterServiceFn: registerServiceFn, UnRegisterServiceFn: unRegisterServiceFn}
 
 	// Act
 	useCase := NewHandleServicesUseCase(rc, dc, hc, logrus.New())
