@@ -1,0 +1,24 @@
+name: Discovery Master
+
+on:
+  push:
+    paths:
+      - .github/workflows/discovery-master.yml
+      - discovery-service/**
+      - discovery-service/grpc_gen/**
+jobs:
+  push_to_registry:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v3
+     - name: test_code
+       run: go test -coverpkg=./... -coverprofile=coverage -covermode=atomic ./...
+     - name: send_to_codecov
+       uses: codecov/codecov-action@v2
+       with:
+        files: ./coverage # optional
+        flags: discovery-service # optional
+        name: grpc_microservices # optional
+        verbose: true # optional (default = false) 
+
+
