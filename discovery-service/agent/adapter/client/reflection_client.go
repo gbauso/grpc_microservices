@@ -5,50 +5,55 @@ import (
 	"io"
 
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/domain/entity"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	reflection "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
 )
 
 type ReflectionClient struct {
-	conn *grpc.ClientConn
+	grpc reflection.ServerReflectionClient
 }
 
-func NewReflectionClient(conn *grpc.ClientConn) *ReflectionClient {
-	return &ReflectionClient{conn: conn}
+func NewReflectionClient(grpc reflection.ServerReflectionClient) *ReflectionClient {
+	return &ReflectionClient{grpc: grpc}
 }
 
 func (rc *ReflectionClient) GetImplementedServices(svc *entity.Service) ([]string, error) {
 
-	client := reflection.NewServerReflectionClient(rc.conn)
-
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "correlation_id", svc.Id)
 
-	stream, err := client.ServerReflectionInfo(ctx)
+	stream, err := rc.grpc.ServerReflectionInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	waitc := make(chan *reflection.ServerReflectionResponse)
+	streamErrorC := make(chan error)
 	defer close(waitc)
+	defer close(streamErrorC)
 
 	go func() {
 		for {
 			response, err := stream.Recv()
 			if err != io.EOF {
 				waitc <- response
-			} else {
+				streamErrorC <- err
 				return
 			}
+
 		}
 	}()
 
-	serviceRequest := &reflection.ServerReflectionRequest{Host: rc.conn.Target(), MessageRequest: &reflection.ServerReflectionRequest_ListServices{ListServices: "ls"}}
+	serviceRequest := &reflection.ServerReflectionRequest{Host: svc.Url, MessageRequest: &reflection.ServerReflectionRequest_ListServices{ListServices: "ls"}}
 	if err := stream.Send(serviceRequest); err != nil {
 		return nil, err
 	}
 	stream.CloseSend()
 	response := <-waitc
+	streamError := <-streamErrorC
+
+	if response == nil {
+		return nil, streamError
+	}
 
 	var services []string
 	for _, service := range response.GetListServicesResponse().Service {

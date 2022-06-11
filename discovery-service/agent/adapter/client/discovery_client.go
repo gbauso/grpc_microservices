@@ -5,42 +5,29 @@ import (
 
 	"github.com/gbauso/grpc_microservices/discoveryservice/agent/domain/entity"
 	discovery "github.com/gbauso/grpc_microservices/discoveryservice/grpc_gen"
-	"google.golang.org/grpc"
 )
 
 type DiscoveryClient struct {
-	conn *grpc.ClientConn
+	grpc discovery.DiscoveryServiceClient
 }
 
-func NewDiscoveryClient(conn *grpc.ClientConn) *DiscoveryClient {
-	return &DiscoveryClient{conn: conn}
+func NewDiscoveryClient(grpc discovery.DiscoveryServiceClient) *DiscoveryClient {
+	return &DiscoveryClient{grpc: grpc}
 }
 
 func (dc *DiscoveryClient) RegisterService(svc *entity.Service) error {
-	client := discovery.NewDiscoveryServiceClient(dc.conn)
-
-	_, err := client.
+	_, err := dc.grpc.
 		RegisterServiceHandlers(context.Background(),
 			&discovery.RegisterServiceHandlersRequest{Service: svc.Url,
 				ServiceId: svc.Id, Handlers: svc.Services})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (dc *DiscoveryClient) UnRegisterService(svc *entity.Service) error {
-	client := discovery.NewDiscoveryServiceClient(dc.conn)
-
-	_, err := client.
+	_, err := dc.grpc.
 		UnregisterService(context.Background(),
 			&discovery.UnregisterServiceRequest{ServiceId: svc.Id})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
