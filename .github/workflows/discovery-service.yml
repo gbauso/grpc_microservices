@@ -3,7 +3,7 @@ name: Discovery Master
 on:
   push:
     paths:
-      - .github/workflows/discovery-master.yml
+      - .github/workflows/discovery-service.yml
       - discovery-service/**
       - discovery-service/grpc_gen/**
 jobs:
