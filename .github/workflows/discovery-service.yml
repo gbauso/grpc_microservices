@@ -6,11 +6,17 @@ on:
       - .github/workflows/discovery-service.yml
       - discovery-service/**
       - discovery-service/grpc_gen/**
+defaults:
+ run:
+  working-directory: ./discovery-service      
+
 jobs:
   push_to_registry:
     runs-on: ubuntu-latest
     steps:
      - uses: actions/checkout@v3
+       with:
+        submodules: true
      - name: test_code
        run: go test -coverpkg=./... -coverprofile=coverage -covermode=atomic ./...
      - name: send_to_codecov
