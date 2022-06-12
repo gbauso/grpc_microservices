@@ -21,6 +21,13 @@ jobs:
        with:
         go-version: 1.18.x
      - name: test_code
-       run: go test -v ./...
+       run: go test ./... -cover -coverprofile=coverage.out
+     - name: send_to_codecov
+       uses: codecov/codecov-action@v2
+       with:
+        files: ./coverage # optional
+        flags: discovery-service # optional
+        name: grpc_microservices # optional
+        verbose: true # optional (default = false) 
      
 
