@@ -25,9 +25,11 @@ jobs:
      - name: send_to_codecov
        uses: codecov/codecov-action@v2
        with:
-        files: ./coverage # optional
-        flags: discovery-service # optional
-        name: grpc_microservices # optional
-        verbose: true # optional (default = false) 
+        files: coverage 
+        directory: ./discovery-service 
+        root_dir: ./discovery-service 
+        flags: discovery-service 
+        name: grpc_microservices 
+        verbose: true 
      
 
