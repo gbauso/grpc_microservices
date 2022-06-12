@@ -27,7 +27,7 @@ jobs:
      - name: send_to_codecov
        uses: codecov/codecov-action@v2
        with:
-        files: coverage 
+        files: coverage.out
         directory: ./discovery-service 
         root_dir: ./discovery-service 
         flags: discovery-service 
