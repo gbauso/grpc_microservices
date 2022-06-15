@@ -14,6 +14,10 @@ jobs:
   push_to_registry:
     runs-on: ubuntu-latest
     steps:
+     - name: 'Install GitVersion'
+       uses: gittools/actions/gitversion/setup@v0.9.11
+       with:
+         versionSpec: '5.x'
      - uses: actions/checkout@v3
        with:
         submodules: true
