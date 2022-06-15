@@ -22,8 +22,14 @@ jobs:
         go-version: 1.18.x
      - name: test_code
        run: go test ./... -cover -coverprofile=coverage.out
-     - name: Take a look
-       run: ls
+     - name: determine_version
+       uses: gittools/actions/gitversion/execute@v0.9.11
+       id: gitversion
+       with:
+         useConfigFile: true
+         configFilePath: 'GitVersion.yml'
+     - name: echo_version
+       run: echo ${{ steps.gitversion.outputs.SemVer }}
      - name: send_to_codecov
        uses: codecov/codecov-action@v2
        with:
