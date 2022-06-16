@@ -1,12 +1,12 @@
 name: Discovery Service
 
 on:
-	pull-request:
+  push:
     paths:
       - .github/workflows/discovery-service.yml
       - discovery-service/**
       - discovery-service/grpc_gen/**
-  push:
+	pull-request:
     paths:
       - .github/workflows/discovery-service.yml
       - discovery-service/**
