@@ -24,10 +24,9 @@ branches:
     is-release-branch: false
   pull-request:
     regex: (pull|pull\-requests|pr)[/-]
-    tag: rc
-    increment: Inherit
+    tag: useBranchName
+    increment: Patch
     prevent-increment-of-merged-branch-version: false
-    tag-number-pattern: '[/-](?<number>\d+)[-/]'
     track-merge-target: false
     tracks-release-branches: false
-    is-release-branch: true
+    is-release-branch: false
