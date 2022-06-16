@@ -24,7 +24,7 @@ branches:
     is-release-branch: false
   pull-request:
     regex: (pull|pull\-requests|pr)[/-]
-    tag: useBranchName
+    tag: rc
     increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
