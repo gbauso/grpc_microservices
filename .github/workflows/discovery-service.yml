@@ -1,4 +1,4 @@
-name: Discovery Master
+name: Discovery Service
 
 on:
   push:
