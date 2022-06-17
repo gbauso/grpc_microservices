@@ -71,7 +71,7 @@ jobs:
        if: github.head_ref == 'master'
        uses: docker/build-push-action@v3
        with:
-         context: ./discovery-service
+         context: .
          file: Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-agent:latest
@@ -80,7 +80,7 @@ jobs:
        if: github.ref != 'refs/heads/master'
        uses: docker/build-push-action@v3
        with:
-         context: ./discovery-service
+         context: .
          file: Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
@@ -89,7 +89,7 @@ jobs:
        if: github.ref == 'refs/heads/master'
        uses: docker/build-push-action@v3
        with:
-         context: ./discovery-service
+         context: .
          file: Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-agent:latest
@@ -98,7 +98,7 @@ jobs:
        if: github.ref != 'refs/heads/master'
        uses: docker/build-push-action@v3
        with:
-         context: ./discovery-service
+         context: .
          file: Dockerfile.master
          push: true
          tags: msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
@@ -107,7 +107,7 @@ jobs:
        if: github.ref == 'refs/heads/master'
        uses: docker/build-push-action@v3
        with:
-         context: ./discovery-service
+         context: .
          file: Dockerfile.master
          push: true
          tags: msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-master:latest
