@@ -72,7 +72,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./discovery-service
-         file: Dockerfile.agent
+         file: discovery-service/Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-agent:latest
 
@@ -81,7 +81,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./discovery-service
-         file: Dockerfile.agent
+         file: discovery-service/Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
 
@@ -90,7 +90,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./discovery-service
-         file: Dockerfile.agent
+         file: discovery-service/Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-agent:latest
 
@@ -99,7 +99,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./discovery-service
-         file: Dockerfile.master
+         file: discovery-service/Dockerfile.master
          push: true
          tags: msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
 
@@ -108,6 +108,6 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./discovery-service
-         file: Dockerfile.master
+         file: discovery-service/Dockerfile.master
          push: true
          tags: msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-master:latest
