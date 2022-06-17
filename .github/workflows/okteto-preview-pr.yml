@@ -1,6 +1,6 @@
 on: 
   pull_request:
-    # types: [opened]
+    types: [opened]
 
 
 name: Create Okteto Preview
@@ -8,6 +8,7 @@ name: Create Okteto Preview
 jobs:
 
   devflow:
+    environment: prod
     runs-on: ubuntu-latest
     steps:
     - name: 'Install GitVersion'

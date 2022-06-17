@@ -18,6 +18,7 @@ defaults:
 
 jobs:
   push_to_registry:
+    environment: prod
     runs-on: ubuntu-latest
     steps:
      - name: 'Install GitVersion'
