@@ -78,13 +78,13 @@ jobs:
         if [$REF == 'refs/heads/master']
         then
           echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
-          echo "::set-output name=agent_tag::AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
+          echo "::set-output name=agent_tag::$AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
         else
           echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
-          echo "::set-output name=agent_tag::AGENT_MAIN_TAG"
+          echo "::set-output name=agent_tag::$AGENT_MAIN_TAG"
         fi
         echo "::set-output name=master_main_tag::$MASTER_MAIN_TAG"
-        echo "::set-output name=agent_main_tag::AGENT_MAIN_TAG"
+        echo "::set-output name=agent_main_tag::$AGENT_MAIN_TAG"
        env:
          REF: ${{ github.ref }}
 
