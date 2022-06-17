@@ -39,8 +39,6 @@ jobs:
        with:
          useConfigFile: true
          configFilePath: 'GitVersion.yml'
-     - name: echo_version
-       run: echo ${{ steps.gitversion.outputs.SemVer }}
      - name: send_to_codecov
        uses: codecov/codecov-action@v2
        with:
