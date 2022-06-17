@@ -72,7 +72,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./discovery-service
-         file: discovery-service/Dockerfile.agent
+         file: Dockerfile.agent
          push: true
          tags: msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-agent:latest
 
