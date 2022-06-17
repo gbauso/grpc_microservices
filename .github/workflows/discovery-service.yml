@@ -21,6 +21,7 @@ jobs:
     environment: prod
     runs-on: ubuntu-latest
     steps:
+
      - uses: actions/checkout@v3
        with:
         submodules: true
@@ -111,10 +112,22 @@ jobs:
          file: discovery-service/Dockerfile.master
          push: true
          tags: msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-master:latest
+      
+     - name: Get K8S namespace
+       id: k8s_namespace
+       run: |
+        if [$REF == 'refs/heads/master']
+        then
+          echo "::set-output name=namespace::gbauso"
+        else
+          echo "::set-output name=namespace::${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso"
+        fi
+       env:
+         REF: ${{ github.ref }}
 
      - uses: actions-hub/kubectl@master
-       name: see pods
+       name: Update Discovery Master K8S
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: get pods -n=${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso
+         args: set image deployment/discovery discovery=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }} -n=${{ steps.k8s_namespace.outputs.namespace }}
