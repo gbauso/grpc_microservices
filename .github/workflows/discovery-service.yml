@@ -73,14 +73,18 @@ jobs:
      - name: Get Docker Tags
        id: docker_tags
        run: |
+        MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
+        AGENT_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
         if [$REF == 'refs/heads/master']
         then
-          echo "::set-output name=master_tag::msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-master:latest"
-          echo "::set-output name=agent_tag::msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }},msexp/discovery-service-agent:latest"
+          echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
+          echo "::set-output name=agent_tag::AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
         else
-          echo "::set-output name=master_tag::msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}"
-          echo "::set-output name=agent_tag::msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}"
+          echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
+          echo "::set-output name=agent_tag::AGENT_MAIN_TAG"
         fi
+        echo "::set-output name=master_main_tag::$MASTER_MAIN_TAG"
+        echo "::set-output name=agent_main_tag::AGENT_MAIN_TAG"
        env:
          REF: ${{ github.ref }}
 
@@ -120,25 +124,25 @@ jobs:
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/discovery discovery=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/discovery discovery=${{ steps.docker_tags.outputs.master_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
 
      - uses: actions-hub/kubectl@master
        name: Update Discovery Agent Weather
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/weather discovery-agent=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/weather discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
 
      - uses: actions-hub/kubectl@master
        name: Update Discovery Agent Nearby Cities
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/nearby-cities discovery-agent=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/nearby-cities discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
       
      - uses: actions-hub/kubectl@master
        name: Update Discovery Agent Population
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/population discovery-agent=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/population discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
