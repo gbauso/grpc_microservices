@@ -1,0 +1,37 @@
+on: 
+  pull_request:
+    types: [opened]
+
+
+name: Create Okteto Preview
+
+jobs:
+
+  devflow:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Install GitVersion'
+      uses: gittools/actions/gitversion/setup@v0.9.11
+      with:
+        versionSpec: '5.x'
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+        fetch-depth: 0
+    - uses: okteto/context@latest
+      with:
+        token: ${{ secrets.OKTETO_TOKEN }}
+
+    - name: determine_version
+      uses: gittools/actions/gitversion/execute@v0.9.11
+      id: gitversion
+      with:
+        useConfigFile: true
+        configFilePath: 'GitVersion.yml'
+
+    - name: "Deploy the preview environment"
+      uses: okteto/deploy-preview@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        name: gbauso-${{ steps.gitversion.outputs.PreReleaseLabelWithDash }}
