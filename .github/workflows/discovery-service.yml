@@ -74,7 +74,7 @@ jobs:
        id: docker_tags
        run: |
         MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
-        AGENT_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
+        AGENT_MAIN_TAG=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
         if [$REF == 'refs/heads/master']
         then
           echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
