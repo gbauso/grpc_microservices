@@ -124,25 +124,25 @@ jobs:
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/discovery discovery=${{ steps.docker_tags.outputs.master_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/discovery discovery=${{ steps.docker_tags.outputs.master_main_tag }} -n=${{ steps.k8s_namespace.outputs.namespace }}
 
      - uses: actions-hub/kubectl@master
        name: Update Discovery Agent Weather
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/weather discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/weather discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }} -n=${{ steps.k8s_namespace.outputs.namespace }}
 
      - uses: actions-hub/kubectl@master
        name: Update Discovery Agent Nearby Cities
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/nearby-cities discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/nearby-cities discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }} -n=${{ steps.k8s_namespace.outputs.namespace }}
       
      - uses: actions-hub/kubectl@master
        name: Update Discovery Agent Population
        env:
          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
        with:
-         args: set image deployment/population discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }}} -n=${{ steps.k8s_namespace.outputs.namespace }}
+         args: set image deployment/population discovery-agent=${{ steps.docker_tags.outputs.agent_main_tag }} -n=${{ steps.k8s_namespace.outputs.namespace }}
