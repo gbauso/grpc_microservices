@@ -31,6 +31,11 @@ func (rc *ReflectionClient) GetImplementedServices(svc *entity.Service) ([]strin
 	defer close(waitc)
 	defer close(streamErrorC)
 
+	serviceRequest := &reflection.ServerReflectionRequest{Host: svc.Url, MessageRequest: &reflection.ServerReflectionRequest_ListServices{ListServices: "ls"}}
+	if err := stream.Send(serviceRequest); err != nil {
+		return nil, err
+	}
+
 	go func() {
 		for {
 			response, err := stream.Recv()
@@ -43,10 +48,6 @@ func (rc *ReflectionClient) GetImplementedServices(svc *entity.Service) ([]strin
 		}
 	}()
 
-	serviceRequest := &reflection.ServerReflectionRequest{Host: svc.Url, MessageRequest: &reflection.ServerReflectionRequest_ListServices{ListServices: "ls"}}
-	if err := stream.Send(serviceRequest); err != nil {
-		return nil, err
-	}
 	stream.CloseSend()
 	response := <-waitc
 	streamError := <-streamErrorC

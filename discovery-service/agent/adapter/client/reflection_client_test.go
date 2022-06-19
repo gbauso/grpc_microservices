@@ -83,11 +83,15 @@ func Test_ReflectionClient_GetImplementedServices_FailedStreamSending_ShouldRetu
 	// Arrange
 	svc := entity.NewService("localhost:80", "fake", "id")
 
+	recvFn := func() (*reflection.ServerReflectionResponse, error) {
+		return nil, errors.New("StreamReceivingError")
+	}
+
 	sendFn := func(request *reflection.ServerReflectionRequest) error {
 		return errors.New("StreamSendingError")
 	}
 
-	fake := &fakeServerReflectionClient{sendFn: sendFn}
+	fake := &fakeServerReflectionClient{sendFn: sendFn, recvFn: recvFn}
 	reflectionClient := NewReflectionClient(fake)
 
 	svcs, err := reflectionClient.GetImplementedServices(svc)
