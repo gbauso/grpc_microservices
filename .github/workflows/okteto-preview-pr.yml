@@ -3,7 +3,7 @@ on:
     types: [opened, reopened, closed]
 
 
-name: Create Okteto Preview
+name: Okteto Preview
 
 jobs:
 
@@ -15,6 +15,10 @@ jobs:
       uses: gittools/actions/gitversion/setup@v0.9.11
       with:
         versionSpec: '5.x'
+    - uses: jwalton/gh-find-current-pr@v1
+      id: findPr
+      with:
+        state: all
     - uses: actions/checkout@v3
       with:
         submodules: true
@@ -36,10 +40,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: ${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso
+        name: rc-${{ steps.findPr.outputs.pr }}-gbauso
 
     - name: "Destroy the preview environment"
       if: github.event.action == 'closed' 
       uses: okteto/destroy-preview@latest
       with:
-        name: ${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso
+        name: rc-${{ steps.findPr.outputs.pr }}-gbauso
