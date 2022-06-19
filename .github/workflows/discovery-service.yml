@@ -77,24 +77,23 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
      
-     - name: Get Docker Tags
+     - name: Get Docker Tags Master
+       if: github.ref == 'refs/heads/master'
        id: docker_tags
        run: |
         MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
         AGENT_MAIN_TAG=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
-        echo $REF
-        if [$REF == 'refs/heads/master']
-        then
-          echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
-          echo "::set-output name=agent_tag::$AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
-        else
-          echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
-          echo "::set-output name=agent_tag::$AGENT_MAIN_TAG"
-        fi
-        echo "::set-output name=master_main_tag::$MASTER_MAIN_TAG"
-        echo "::set-output name=agent_main_tag::$AGENT_MAIN_TAG"
-       env:
-         REF: ${{ github.ref }}
+        echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
+        echo "::set-output name=agent_tag::$AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
+
+     - name: Get Docker Tags PR
+       if: github.ref != 'refs/heads/master'
+       id: docker_tags
+       run: |
+        MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
+        AGENT_MAIN_TAG=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
+        echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
+        echo "::set-output name=agent_tag::$AGENT_MAIN_TAG
 
      - name: Build and push agent 
        uses: docker/build-push-action@v3
@@ -115,19 +114,18 @@ jobs:
      
      # K8S
 
-     - name: Get K8S namespace
+     - name: Get K8S namespace master
        id: k8s_namespace
+       if: github.ref == 'refs/heads/master'
        run: |
-        echo $REF
-        if [$REF == 'refs/heads/master']
-        then
           echo "::set-output name=namespace::gbauso"
-        else
+
+     - name: Get K8S namespace PR
+       id: k8s_namespace
+       if: github.ref != 'refs/heads/master'
+       run: |
           echo "::set-output name=namespace::${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso"
-        fi
-       env:
-         REF: ${{ github.ref }}   
-      
+        
      - uses: actions-hub/kubectl@master
        name: Update Discovery Master K8S
        env:
