@@ -1,0 +1,109 @@
+name: Nearby Cities Service
+
+on:
+  push:
+    paths:
+      - .github/workflows/nearby-cities-service.yml
+      - nearby-cities-service/**
+    branches: ['master']
+  pull_request:
+    paths:
+      - .github/workflows/nearby-cities-service.yml
+      - nearby-cities-service/**
+defaults:
+ run:
+  working-directory: ./nearby-cities-service      
+
+jobs:
+  build_deploy:
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+
+     - uses: actions/checkout@v3
+       with:
+        submodules: true
+        fetch-depth: 0
+
+     - name: 'Install GitVersion'
+       uses: gittools/actions/gitversion/setup@v0.9.11
+       with:
+         versionSpec: '5.x'
+
+     - uses: jwalton/gh-find-current-pr@v1
+       id: findPr
+       with:
+        state: all
+
+     - name: determine_version
+       uses: gittools/actions/gitversion/execute@v0.9.11
+       id: gitversion
+       with:
+         useConfigFile: true
+         configFilePath: 'GitVersion.yml'
+
+     - name: Bump version and push tag
+       if: github.ref == 'refs/heads/master'
+       uses: anothrNick/github-tag-action@1.36.0
+       env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CUSTOM_TAG: ${{ steps.gitversion.outputs.SemVer }}
+
+     # Docker
+
+     - name: Set up QEMU
+       uses: docker/setup-qemu-action@v2
+
+     - name: Set up Docker Buildx
+       uses: docker/setup-buildx-action@v2
+
+     - name: Login to DockerHub
+       uses: docker/login-action@v2
+       with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+     
+     - name: Get Docker Tags
+       id: docker_tags
+       run: |
+        MAIN_TAG=msexp/nearby-cities-service:${{ steps.gitversion.outputs.SemVer }}
+
+        if [ "$REF" == "pull_request" ];
+        then
+          echo "::set-output name=tag::$MAIN_TAG"
+        else
+          echo "::set-output name=tag::$MAIN_TAG,msexp/nearby-cities-service:latest"
+        fi
+
+        echo "::set-output name=main_tag::$MAIN_TAG"
+       env:
+         REF: ${{ github.event_name }}  
+
+     - name: Build and push image 
+       uses: docker/build-push-action@v3
+       with:
+         context: ./nearby-cities-service
+         file: nearby-cities-service/Dockerfile
+         push: true
+         tags: ${{ steps.docker_tags.outputs.tag }}
+     
+     # K8S
+
+     - name: Get K8S namespace
+       id: k8s_namespace
+       run: |
+        if [ "$REF" == "pull_request" ];
+        then
+          echo "::set-output name=namespace::rc-${{ steps.findPr.outputs.pr }}-gbauso"
+        else
+          echo "::set-output name=namespace::gbauso"
+        fi
+       env:
+         REF: ${{ github.event_name }}   
+      
+     - uses: actions-hub/kubectl@master
+       name: Update Discovery Master K8S
+       env:
+         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+       with:
+         args: set image deployment/nearby-cities nearby-cities=${{ steps.docker_tags.outputs.main_tag }} -n=${{ steps.k8s_namespace.outputs.namespace }}

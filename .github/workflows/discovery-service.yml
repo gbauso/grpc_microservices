@@ -17,7 +17,7 @@ defaults:
   working-directory: ./discovery-service      
 
 jobs:
-  push_to_registry:
+  build_deploy:
     environment: prod
     runs-on: ubuntu-latest
     steps:
@@ -31,6 +31,11 @@ jobs:
        uses: gittools/actions/gitversion/setup@v0.9.11
        with:
          versionSpec: '5.x'
+
+     - uses: jwalton/gh-find-current-pr@v1
+       id: findPr
+       with:
+        state: all
 
      - name: determine_version
        uses: gittools/actions/gitversion/execute@v0.9.11
@@ -121,7 +126,7 @@ jobs:
        run: |
         if [ "$REF" == "pull_request" ];
         then
-          echo "::set-output name=namespace::${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso"
+          echo "::set-output name=namespace::rc-${{ steps.findPr.outputs.pr }}-gbauso"
         else
           echo "::set-output name=namespace::gbauso"
         fi
