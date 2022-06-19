@@ -17,7 +17,7 @@ branches:
   master:
     regex: master
     tag: ''
-    increment: Minor
+    increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
     tracks-release-branches: false
