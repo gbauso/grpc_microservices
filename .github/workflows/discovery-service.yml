@@ -83,7 +83,7 @@ jobs:
         MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
         AGENT_MAIN_TAG=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
 
-        if [[ '${{ github.event_name }}' == 'pull_request']]
+        if [ '$REF' == 'pull_request']
         then
           echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
           echo "::set-output name=agent_tag::$AGENT_MAIN_TAG"
@@ -91,9 +91,11 @@ jobs:
           echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
           echo "::set-output name=agent_tag::$AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
         fi
-        
+
         echo "::set-output name=master_main_tag::$MASTER_MAIN_TAG"
         echo "::set-output name=agent_main_tag::$AGENT_MAIN_TAG"
+       env:
+         REF: ${{ github.event_name }}  
 
      - name: Build and push agent 
        uses: docker/build-push-action@v3
@@ -117,7 +119,7 @@ jobs:
      - name: Get K8S namespace
        id: k8s_namespace
        run: |
-        if [[ '${{ github.event_name }}' == 'pull_request']]
+        if [ '$REF' == 'pull_request']
         then
           echo "::set-output name=namespace::${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso"
         else
