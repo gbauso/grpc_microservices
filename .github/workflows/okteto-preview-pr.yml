@@ -1,6 +1,6 @@
 on: 
   pull_request:
-    types: [opened]
+    types: [opened, reopened, closed]
 
 
 name: Create Okteto Preview
@@ -31,8 +31,15 @@ jobs:
         configFilePath: 'GitVersion.yml'
 
     - name: "Deploy the preview environment"
+      if: github.event.action == "opened" || github.event.action == "reopened"
       uses: okteto/deploy-preview@latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        name: ${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso
+
+    - name: "Destroy the preview environment"
+      if: github.event.action == "closed" 
+      uses: okteto/destroy-preview@latest
       with:
         name: ${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso
