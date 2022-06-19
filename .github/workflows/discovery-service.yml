@@ -77,23 +77,21 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
      
-     - name: Get Docker Tags Master
-       if: github.ref == 'refs/heads/master'
+     - name: Get Docker Tags
        id: docker_tags
        run: |
         MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
         AGENT_MAIN_TAG=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
-        echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
-        echo "::set-output name=agent_tag::$AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
-
-     - name: Get Docker Tags PR
-       if: github.ref != 'refs/heads/master'
-       id: docker_tags
-       run: |
-        MASTER_MAIN_TAG=msexp/discovery-service-master:${{ steps.gitversion.outputs.SemVer }}
-        AGENT_MAIN_TAG=msexp/discovery-service-agent:${{ steps.gitversion.outputs.SemVer }}
-        echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
-        echo "::set-output name=agent_tag::$AGENT_MAIN_TAG
+        if [ '${{ github.event_name }}' == 'pull_request'];
+        then
+          echo "::set-output name=master_tag::$MASTER_MAIN_TAG"
+          echo "::set-output name=agent_tag::$AGENT_MAIN_TAG"
+        else
+          echo "::set-output name=master_tag::$MASTER_MAIN_TAG,msexp/discovery-service-master:latest"
+          echo "::set-output name=agent_tag::$AGENT_MAIN_TAG,msexp/discovery-service-agent:latest"
+        fi
+        echo "::set-output name=master_main_tag::$MASTER_MAIN_TAG"
+        echo "::set-output name=agent_main_tag::$AGENT_MAIN_TAG"
 
      - name: Build and push agent 
        uses: docker/build-push-action@v3
@@ -114,18 +112,18 @@ jobs:
      
      # K8S
 
-     - name: Get K8S namespace master
+     - name: Get K8S namespace
        id: k8s_namespace
-       if: github.ref == 'refs/heads/master'
        run: |
-          echo "::set-output name=namespace::gbauso"
-
-     - name: Get K8S namespace PR
-       id: k8s_namespace
-       if: github.ref != 'refs/heads/master'
-       run: |
+        if [ '${{ github.event_name }}' == 'pull_request'];
+        then
           echo "::set-output name=namespace::${{ steps.gitversion.outputs.PreReleaseLabel }}-gbauso"
-        
+        else
+          echo "::set-output name=namespace::gbauso"
+        fi
+       env:
+         REF: ${{ github.event_name }}   
+      
      - uses: actions-hub/kubectl@master
        name: Update Discovery Master K8S
        env:
