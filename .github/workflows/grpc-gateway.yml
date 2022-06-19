@@ -83,7 +83,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./grpc-gateway
-         file: grpc-gateway/Dockerfile.master
+         file: grpc-gateway/Dockerfile
          push: true
          tags: ${{ steps.docker_tags.outputs.tag }}
      

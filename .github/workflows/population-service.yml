@@ -83,7 +83,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./population-service
-         file: population-service/Dockerfile.master
+         file: population-service/Dockerfile
          push: true
          tags: ${{ steps.docker_tags.outputs.tag }}
      

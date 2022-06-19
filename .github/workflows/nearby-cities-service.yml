@@ -83,7 +83,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./nearby-cities-service
-         file: nearby-cities-service/Dockerfile.master
+         file: nearby-cities-service/Dockerfile
          push: true
          tags: ${{ steps.docker_tags.outputs.tag }}
      

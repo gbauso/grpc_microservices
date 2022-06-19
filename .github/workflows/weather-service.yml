@@ -83,7 +83,7 @@ jobs:
        uses: docker/build-push-action@v3
        with:
          context: ./weather-service
-         file: weather-service/Dockerfile.master
+         file: weather-service/Dockerfile
          push: true
          tags: ${{ steps.docker_tags.outputs.tag }}
      
