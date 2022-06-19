@@ -1,0 +1,36 @@
+name: Tag Management
+
+on:
+  push:
+    branches: ['master']
+  
+jobs:
+  tag_management:
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+
+     - uses: actions/checkout@v3
+       with:
+        submodules: true
+        fetch-depth: 0
+
+     - name: 'Install GitVersion'
+       uses: gittools/actions/gitversion/setup@v0.9.11
+       with:
+         versionSpec: '5.x'
+
+     - name: determine_version
+       uses: gittools/actions/gitversion/execute@v0.9.11
+       id: gitversion
+       with:
+         useConfigFile: true
+         configFilePath: 'GitVersion.yml'
+
+     - name: Bump version and push tag
+       uses: anothrNick/github-tag-action@1.36.0
+       env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CUSTOM_TAG: ${{ steps.gitversion.outputs.SemVer }}
+
+
